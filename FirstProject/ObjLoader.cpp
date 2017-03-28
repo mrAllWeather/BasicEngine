@@ -1,18 +1,18 @@
-#include "StaticMeshLoader.h"
+#include "ObjLoader.h"
 
-StaticMeshLoader::StaticMeshLoader()
+ObjLoader::ObjLoader()
 {
 	built_meshes = new std::map<std::string, VertexObjects>;
 }
 
 // TODO: We need to track attachment and detachment of shaders
-StaticMeshLoader::~StaticMeshLoader()
+ObjLoader::~ObjLoader()
 {
 	// Unlike Shaders we need to hold onto the VAO / VBO's past the end of this structures life (Will need to consider how best to handle)
 	delete built_meshes;
 }
 
-void StaticMeshLoader::build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO)
+void ObjLoader::build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO)
 {
 	if (!is_static_mesh_built(filename))
 		load_mesh(filename);
@@ -22,7 +22,7 @@ void StaticMeshLoader::build_static_mesh(std::string filename, GLuint* VAO, GLui
 	VBO = built_meshes->at(filename).VBO;
 }
 
-bool StaticMeshLoader::is_static_mesh_built(std::string filename)
+bool ObjLoader::is_static_mesh_built(std::string filename)
 {
 	std::map<std::string, VertexObjects>::iterator it;
 	it = built_meshes->find(filename);
@@ -33,7 +33,7 @@ bool StaticMeshLoader::is_static_mesh_built(std::string filename)
 }
 
 
-void StaticMeshLoader::load_mesh(std::string filename)
+void ObjLoader::load_mesh(std::string filename)
 {
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
@@ -138,7 +138,7 @@ void StaticMeshLoader::load_mesh(std::string filename)
 	build_vertex_buffer(filename, &vertices, &normals, &uvs);
 }
 
-void StaticMeshLoader::build_vertex_buffer(	std::string filename, 
+void ObjLoader::build_vertex_buffer(	std::string filename, 
 											std::vector< glm::vec3 >* vertices, 
 											std::vector< glm::vec3 >* normals, 
 											std::vector< glm::vec2 >* uvs)

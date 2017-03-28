@@ -36,16 +36,13 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StaticMeshLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SceneLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Actor.cpp">
+    <ClCompile Include="ComplexMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComplexMesh.cpp">
+    <ClCompile Include="ObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -57,9 +54,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StaticMesh.h">
@@ -74,13 +68,13 @@
     <ClInclude Include="ComplexMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StaticMeshLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SceneLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

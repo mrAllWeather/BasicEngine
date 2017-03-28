@@ -3,26 +3,45 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-StaticMesh::StaticMesh(	std::string model_file, std::vector<std::string> texture_files,
-						std::vector<std::string> shader_filenames,
-						glm::vec3 scale, glm::vec3 rotation, glm::vec3 location,
-						ShaderLoader* scene_shader_loader,
-						StaticMeshLoader* scene_static_loader)
+StaticMesh::StaticMesh(	std::string static_details, ComplexMesh* parent)
 {
 	this->rotation = new glm::vec3;
 	this->location = new glm::vec3;
 	this->scale = new glm::vec3;
 
-	*this->rotation = rotation;
-	*this->location = location;
-	*this->scale = scale;
+	std::string static_file_name;
 
-	this->shader_program = scene_shader_loader->build_program(shader_filenames);
-	scene_static_loader->build_static_mesh(model_file, this->VAO, this->VBO);
+	// Load Component Details
+	sscanf(static_details.c_str(), "\t%s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+		&name, &static_file_name,
+		&scale->x, &scale->y, &scale->z,
+		&location->x, &location->y, &location->z,
+		&rotation->x, &rotation->y, &rotation->z);
 
-	for(auto texture : texture_files)
-		build_texture(texture);
+	std::ifstream fb; // FileBuffer
+	fb.open((static_file_name), std::ios::in);
+	std::string LineBuf;
+	std::stringstream ss;
+	std::vector<std::string> shader_files;
+	std::vector<std::string> texture_files;
 
+	if(fb.is_open()){
+		// Load Obj
+		std::getline(fb, LineBuf);
+		parent->parent->object_loader->build_static_mesh(LineBuf, VAO, VBO);
+
+		// Load Textures
+		std::getline(fb, LineBuf);
+		ss.str(LineBuf);
+		for (std::string each; std::getline(ss, each, ','); build_texture(each));
+
+		std::getline(fb, LineBuf);
+		ss.str(LineBuf);
+		for (std::string each; std::getline(ss, each, ','); texture_files.push_back(each));
+		shader_program = parent->parent->shader_loader->build_program(shader_files);
+	}
+
+	fb.close();
 }
 
 StaticMesh::~StaticMesh()

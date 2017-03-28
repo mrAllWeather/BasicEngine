@@ -12,12 +12,19 @@
 #include<string>
 #include<vector>
 
-#include "ComplexMesh.h"
-#include "Actor.h"
+#include "ShaderLoader.h"
+#include "ObjLoader.h"
+
+// #include "ComplexMesh.h"
+
+class ComplexMesh;
 
 class Scene {
 public:
 	friend class SceneLoader;
+	friend class Actor;
+	friend class ComplexMesh;
+	friend class StaticMesh;
 
 	Scene();
 	~Scene();
@@ -37,6 +44,8 @@ public:
 private:
 	std::string scene_name;
 	std::map<std::string, ComplexMesh*>* statics;
+	ObjLoader* object_loader;
+	ShaderLoader* shader_loader;
 
 	// TODO: Create the following
 	// SkyBox

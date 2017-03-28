@@ -22,6 +22,7 @@
     <ProjectGuid>{50042290-6FC5-4BD0-AFA0-DA2CDD99A589}</ProjectGuid>
     <RootNamespace>FirstProject</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>BasicEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -76,6 +77,10 @@
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\OpenGL_Projects\ThirdPartyLibs\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;D:\OpenGL_Projects\ThirdPartyLibs\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\OpenGL_Projects\ThirdPartyLibs\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>D:\OpenGL_Projects\ThirdPartyLibs\Libs;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -92,6 +97,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -121,7 +129,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ComplexMesh.cpp" />
     <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="main.cpp" />
@@ -130,18 +137,17 @@
     <ClCompile Include="Seconds_Per_Frame_Counter.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
-    <ClCompile Include="StaticMeshLoader.cpp" />
+    <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComplexMesh.h" />
     <ClInclude Include="File_IO.h" />
     <ClInclude Include="SceneLoader.h" />
     <ClInclude Include="Seconds_Per_Frame_Counter.h" />
     <ClInclude Include="StaticMesh.h" />
-    <ClInclude Include="StaticMeshLoader.h" />
+    <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="stb_image.h" />

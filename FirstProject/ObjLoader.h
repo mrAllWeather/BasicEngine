@@ -26,10 +26,10 @@ struct VertexObjects {
 	GLuint* VBO;
 };
 
-class StaticMeshLoader{
+class ObjLoader{
 public:
-	StaticMeshLoader();
-	~StaticMeshLoader();
+	ObjLoader();
+	~ObjLoader();
 
 	void build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO);
 

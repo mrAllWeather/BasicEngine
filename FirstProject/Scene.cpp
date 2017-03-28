@@ -3,6 +3,9 @@
 Scene::Scene()
 {
 	statics = new std::map<std::string, ComplexMesh*>;
+	// Initialise Helper Objects
+	object_loader = new ObjLoader();
+	shader_loader = new ShaderLoader();
 }
 
 Scene::~Scene()

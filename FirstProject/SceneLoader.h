@@ -6,7 +6,7 @@
 #include <istream>
 
 #include "Scene.h"
-#include "StaticMesh.h"
+#include "ComplexMesh.h"
 
 class SceneLoader
 {
@@ -15,7 +15,7 @@ public:
 private:
 	Scene * scene;
 	ShaderLoader * scene_shader_loader;
-	StaticMeshLoader * scene_static_loader;
+	ObjLoader * scene_static_loader;
 	bool BuildActors(std::ifstream* fb, std::string LineBuf);
 	bool BuildAnimations(std::ifstream* fb, std::string LineBuf);
 	bool BuildCamera(std::ifstream* fb, std::string LineBuf);
