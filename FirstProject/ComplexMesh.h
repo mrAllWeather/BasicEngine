@@ -6,19 +6,23 @@
 #include <fstream>
 #include <sstream>
 
-#include <GLFW\glfw3.h>
-#include <glm\glm.hpp>
+// GLEW
+#define GLEW_STATIC
+#include <GL/glew.h>
+// GLFW
+#include <GLFW/glfw3.h>
+// GLM
+#include <glm/glm.hpp>
 
-//#include "StaticMesh.h"
-//#include "ComplexMesh.h"
+
+#include "StaticMesh.h"
 
 class Scene;
-class StaticMesh;
 
 class ComplexMesh {
 public:
 	friend class StaticMesh;
-	ComplexMesh(std::string cmesh_details, Scene* parent);
+	ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader);
 	void tick(GLfloat delta);
 	void draw();
 

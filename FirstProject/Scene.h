@@ -15,9 +15,7 @@
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
 
-// #include "ComplexMesh.h"
-
-class ComplexMesh;
+#include "ComplexMesh.h"
 
 class Scene {
 public:

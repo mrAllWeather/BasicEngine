@@ -9,16 +9,12 @@
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
 
-class ComplexMesh;
-
 class StaticMesh {
 public:
-	StaticMesh(	std::string static_details, ComplexMesh* parent);
+	StaticMesh(	std::string static_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader);
 	~StaticMesh();
 	void draw();
 
-private:
-	ComplexMesh* parent;
 	std::string name;
 	GLuint* VAO; // Single Value
 	GLuint* VBO; // Verts, Normals, UVs
@@ -29,5 +25,6 @@ private:
 	glm::vec3* location;
 	glm::vec3* scale;
 
+private:
 	void build_texture(std::string texture_file);
 };

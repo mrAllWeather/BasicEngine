@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-StaticMesh::StaticMesh(	std::string static_details, ComplexMesh* parent)
+StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader)
 {
 	this->rotation = new glm::vec3;
 	this->location = new glm::vec3;
@@ -28,7 +28,7 @@ StaticMesh::StaticMesh(	std::string static_details, ComplexMesh* parent)
 	if(fb.is_open()){
 		// Load Obj
 		std::getline(fb, LineBuf);
-		parent->parent->object_loader->build_static_mesh(LineBuf, VAO, VBO);
+		scene_object_loader->build_static_mesh(LineBuf, VAO, VBO);
 
 		// Load Textures
 		std::getline(fb, LineBuf);
@@ -38,7 +38,7 @@ StaticMesh::StaticMesh(	std::string static_details, ComplexMesh* parent)
 		std::getline(fb, LineBuf);
 		ss.str(LineBuf);
 		for (std::string each; std::getline(ss, each, ','); texture_files.push_back(each));
-		shader_program = parent->parent->shader_loader->build_program(shader_files);
+		shader_program = scene_shader_loader->build_program(shader_files);
 	}
 
 	fb.close();

@@ -100,7 +100,7 @@ bool SceneLoader::BuildStatics(std::ifstream* fb, std::string LineBuf)
 
 	while (std::regex_match(LineBuf, static_regex))
 	{
-		ComplexMesh* c_mesh = new ComplexMesh(LineBuf, scene);
+		ComplexMesh* c_mesh = new ComplexMesh(LineBuf, this->scene_shader_loader, this->scene_object_loader);
 	}
 
 	return true;

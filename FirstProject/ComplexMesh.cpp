@@ -1,6 +1,6 @@
 #include "ComplexMesh.h"
 
-ComplexMesh::ComplexMesh(std::string cmesh_details, Scene* parent)
+ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader)
 {
 	this->rotation = new glm::vec3;
 	this->location = new glm::vec3;
@@ -32,20 +32,13 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, Scene* parent)
 			std::getline(ss, component_name, ',');
 
 			// Create component
-			components->operator[](component_name) = new StaticMesh(LineBuf, this);
+			components->operator[](component_name) = new StaticMesh(LineBuf, scene_shader_loader, scene_object_loader);
 		}
 	}
 
 	fb.close();
 }
 
-ComplexMesh::~ComplexMesh()
-{
-	for (auto component : *Components)
-	{
-		delete component.second;
-	}
-}
 
 void ComplexMesh::tick(GLfloat delta)
 {
@@ -53,7 +46,8 @@ void ComplexMesh::tick(GLfloat delta)
 
 void ComplexMesh::draw()
 {
-	for (auto component : *Components)
+	// TODO Update!
+	for (auto component : *components)
 	{
 		component.second->draw();
 	}
