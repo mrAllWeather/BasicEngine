@@ -24,6 +24,7 @@
 struct VertexObjects {
 	GLuint* VAO;
 	GLuint* VBO;
+	GLuint vertices;
 };
 
 class ObjLoader{
@@ -31,7 +32,7 @@ public:
 	ObjLoader();
 	~ObjLoader();
 
-	void build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO);
+	void build_static_mesh(std::string filename, GLuint** VAO, GLuint** VBO, GLuint* vertices);
 
 private:
 	std::map<std::string, VertexObjects>* built_meshes;

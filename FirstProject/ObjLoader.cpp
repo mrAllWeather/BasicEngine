@@ -9,21 +9,22 @@ ObjLoader::ObjLoader()
 ObjLoader::~ObjLoader()
 {
 	// Unlike Shaders we need to hold onto the VAO / VBO's past the end of this structures life (Will need to consider how best to handle)
-	delete built_meshes;
+	// delete built_meshes;
 }
 
-void ObjLoader::build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO)
+void ObjLoader::build_static_mesh(std::string filename, GLuint** VAO, GLuint** VBO, GLuint* vertices)
 {
 	if (!is_static_mesh_built(filename))
 		load_mesh(filename);
 
-	VAO = built_meshes->at(filename).VAO;
-	VBO = built_meshes->at(filename).VBO;
-	std::cout << "Loaded VAO " << VAO << " VBO " << VBO << "\n";
+	*VAO = built_meshes->at(filename).VAO;
+	*VBO = built_meshes->at(filename).VBO;
+	*vertices = built_meshes->at(filename).vertices;
 }
 
 bool ObjLoader::is_static_mesh_built(std::string filename)
 {
+	std::cout << "Check if built\n";
 	std::map<std::string, VertexObjects>::iterator it;
 	it = built_meshes->find(filename);
 	if (it != built_meshes->end())
@@ -35,7 +36,7 @@ bool ObjLoader::is_static_mesh_built(std::string filename)
 
 void ObjLoader::load_mesh(std::string filename)
 {
-
+	std::cout << "Load Mesh\n";
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
@@ -60,6 +61,7 @@ void ObjLoader::load_mesh(std::string filename)
 		glm::vec2 uv;
 		unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 
+		std::cout << "Load Data\n";
 		while (std::getline(fb, LineBuf)) {
 			switch (LineBuf[0])
 			{
@@ -74,7 +76,7 @@ void ObjLoader::load_mesh(std::string filename)
 				else if (LineBuf[1] == 'n')
 				{
 					sscanf(LineBuf.c_str(), "vn %f %f %f\n", &normal.x, &normal.y, &normal.z);
-					temp_vertices.push_back(normal);
+					temp_normals.push_back(normal);
 				}
 				else // v (vertex data)
 				{
@@ -108,7 +110,9 @@ void ObjLoader::load_mesh(std::string filename)
 	}
 		
 	fb.close();
+	std::cout << "Data Loaded\n";
 
+	std::cout << "Dupe per indices\n";
 	// Now we have all out verts and all out indices we need to start duplicating
 	// Based on our indices for generation of our mesh
 
@@ -116,19 +120,19 @@ void ObjLoader::load_mesh(std::string filename)
 	std::vector< glm::vec2 > uvs;
 	std::vector< glm::vec3 > normals;
 
-	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+	for (unsigned int i = 0; i < vertexIndices.size()-1; i++) {
 		unsigned int vertexIndex = vertexIndices[i];
 		glm::vec3 vertex = temp_vertices[vertexIndex - 1];
 		vertices.push_back(vertex);
 	}
 
-	for (unsigned int i = 0; i < normalIndices.size(); i++) {
+	for (unsigned int i = 0; i < normalIndices.size()-1; i++) {
 		unsigned int normalIndex = normalIndices[i];
 		glm::vec3 normal = temp_normals[normalIndex - 1];
 		normals.push_back(normal);
 	}
 
-	for (unsigned int i = 0; i < uvIndices.size(); i++) {
+	for (unsigned int i = 0; i < uvIndices.size()-1; i++) {
 		unsigned int uvIndex = uvIndices[i];
 		glm::vec2 uv = temp_uvs[uvIndex - 1];
 		uvs.push_back(uv);
@@ -143,9 +147,11 @@ void ObjLoader::build_vertex_buffer(	std::string filename,
 											std::vector< glm::vec3 >* normals, 
 											std::vector< glm::vec2 >* uvs)
 {
+	std::cout << "Build Vertex Arrays / Buffers\n";
 	VertexObjects temp_VO;
 	temp_VO.VAO = new GLuint;
 	temp_VO.VBO = new GLuint[3];
+	temp_VO.vertices = vertices->size();
 
 	// Generate and Bind our VAO
 	glGenVertexArrays(1, temp_VO.VAO);
@@ -173,4 +179,5 @@ void ObjLoader::build_vertex_buffer(	std::string filename,
 	glBindVertexArray(0); // Unbind VAO
 
 	this->built_meshes->operator[](filename) = temp_VO;
+	std::cout << "VAO / VBO built\n";
 }

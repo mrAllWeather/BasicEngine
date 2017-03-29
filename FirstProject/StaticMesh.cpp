@@ -27,21 +27,27 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 	std::string LineBuf;
 	std::stringstream ss;
 	std::vector<std::string> shader_files;
-	std::vector<std::string> texture_files;
 
 	if(fb.is_open()){
 		// Load Obj
 		std::getline(fb, LineBuf);
-		scene_object_loader->build_static_mesh(LineBuf, this->VAO, this->VBO);
-		std::cout << "Loaded VAO " << this->VAO << " VBO " << this->VBO << "\n";
+		std::cout << "Load Obj File: " << LineBuf << std::endl;
+
+		scene_object_loader->build_static_mesh(LineBuf, &VAO, &VBO, &this->vertices);
+
+		std::cout << "verts: " << vertices << std::endl;
 		// Load Textures
 		std::getline(fb, LineBuf);
 		ss.str(LineBuf);
 		for (std::string each; std::getline(ss, each, ','); build_texture(each));
+		std::cout << "Loaded " << texture.size() << " textures\n";
 
+		// Load Shaders
 		std::getline(fb, LineBuf);
+		ss.clear();
 		ss.str(LineBuf);
-		for (std::string each; std::getline(ss, each, ','); texture_files.push_back(each));
+		for (std::string each; std::getline(ss, each, ','); shader_files.push_back(each));
+
 		shader_program = scene_shader_loader->build_program(shader_files);
 	}
 
@@ -55,6 +61,7 @@ StaticMesh::~StaticMesh()
 
 void StaticMesh::draw()
 {
+	std::cout << "DRAW\n";
 	// Only 32 GL_TEXTURE# are defined (0x84C0 -> 0x84DF)
 	for (unsigned int tex_num = 0; tex_num < texture.size() && tex_num < 32; tex_num++)
 	{
@@ -64,9 +71,11 @@ void StaticMesh::draw()
 		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), 0);
 	}
 	
-	glBindVertexArray(*this->VAO);
+	glBindVertexArray(*VAO);
 	glDrawArrays(GL_TRIANGLES, 0, this->vertices);
 	glBindVertexArray(0);
+	std::cout << "Stop DRAW\n";
+
 }
 
 // TODO Replace with Scene function
