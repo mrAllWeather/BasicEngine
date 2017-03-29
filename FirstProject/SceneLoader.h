@@ -16,11 +16,11 @@ private:
 	Scene * scene;
 	ShaderLoader * scene_shader_loader;
 	ObjLoader * scene_object_loader;
-	bool BuildActors(std::ifstream* fb, std::string LineBuf);
-	bool BuildAnimations(std::ifstream* fb, std::string LineBuf);
-	bool BuildCamera(std::ifstream* fb, std::string LineBuf);
-	bool BuildLights(std::ifstream* fb, std::string LineBuf);
-	bool BuildSceneName(std::ifstream* fb, std::string LineBuf);
-	bool BuildSkybox(std::ifstream* fb, std::string LineBuf);
-	bool BuildStatics(std::ifstream* fb, std::string LineBuf);
+	bool BuildActors(std::ifstream* fb, std::string* LineBuf);
+	bool BuildAnimations(std::ifstream* fb, std::string* LineBuf);
+	bool BuildCamera(std::ifstream* fb, std::string* LineBuf);
+	bool BuildLights(std::ifstream* fb, std::string* LineBuf);
+	bool BuildSceneName(std::ifstream* fb, std::string* LineBuf);
+	bool BuildSkybox(std::ifstream* fb, std::string* LineBuf);
+	bool BuildStatics(std::ifstream* fb, std::string* LineBuf);
 };

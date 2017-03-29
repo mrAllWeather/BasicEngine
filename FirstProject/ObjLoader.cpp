@@ -2,7 +2,7 @@
 
 ObjLoader::ObjLoader()
 {
-	built_meshes = new std::map<std::string, VertexObjects>;
+	this->built_meshes= new std::map<std::string, VertexObjects>;
 }
 
 // TODO: We need to track attachment and detachment of shaders
@@ -17,9 +17,9 @@ void ObjLoader::build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO
 	if (!is_static_mesh_built(filename))
 		load_mesh(filename);
 
-	// TODO: If we start tracking attachment, Do it here
 	VAO = built_meshes->at(filename).VAO;
 	VBO = built_meshes->at(filename).VBO;
+	std::cout << "Loaded VAO " << VAO << " VBO " << VBO << "\n";
 }
 
 bool ObjLoader::is_static_mesh_built(std::string filename)
@@ -172,5 +172,5 @@ void ObjLoader::build_vertex_buffer(	std::string filename,
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind Buffer Object
 	glBindVertexArray(0); // Unbind VAO
 
-	built_meshes->operator[](filename) = temp_VO;
+	this->built_meshes->operator[](filename) = temp_VO;
 }

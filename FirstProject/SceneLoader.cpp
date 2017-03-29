@@ -3,6 +3,8 @@
 SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 {
 	this->scene = loading_scene;
+	this->scene_object_loader = loading_scene->object_loader;
+	this->scene_shader_loader = loading_scene->shader_loader;
 	
 	std::ifstream fb; // FileBuffer
 
@@ -14,38 +16,48 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 		std::string ObjectName = SceneFile; // Save Object Name
 		std::string LineBuf;
 		bool load_success = true;
-
+		
 		while (std::getline(fb, LineBuf)) {
-			if (LineBuf == "Actors")
+			std::cout << LineBuf << std::endl;
+			if (LineBuf == "Actors:")
 			{
-				load_success = BuildActors(&fb, LineBuf);
+				load_success = BuildActors(&fb, &LineBuf);
 			}
-			if (LineBuf == "Animations")
+			else if (LineBuf == "Animations:")
 			{
-				load_success = BuildAnimations(&fb, LineBuf);
+				load_success = BuildAnimations(&fb, &LineBuf);
 			}
-			if (LineBuf == "Camera:")
+			else if (LineBuf == "Camera:")
 			{
-				load_success = BuildCamera(&fb, LineBuf);
+				load_success = BuildCamera(&fb, &LineBuf);
 			}
-			if (LineBuf == "Lights:")
+			else if (LineBuf == "Lights:")
 			{
-				load_success = BuildLights(&fb, LineBuf);
+				load_success = BuildLights(&fb, &LineBuf);
 			}
-			if (LineBuf == "SceneName:")
+			else if (LineBuf == "SceneName:")
 			{
-				load_success = BuildSceneName(&fb, LineBuf);
+				load_success = BuildSceneName(&fb, &LineBuf);
 			}
-			
-			if (LineBuf == "Skybox:")
+			else if (LineBuf == "Skybox:")
 			{
-				load_success = BuildSkybox(&fb, LineBuf);
+				load_success = BuildSkybox(&fb, &LineBuf);
 			}
-			if (LineBuf == "Statics")
+			else if (LineBuf == "Statics:")
 			{
-				load_success = BuildStatics(&fb, LineBuf);
+				std::streampos last_line = fb.tellg();
+
+				std::cout << "Loading Static:" << LineBuf << std::endl;
+				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(CMESH_REGEX)))
+				{
+					ComplexMesh* c_mesh = new ComplexMesh(LineBuf, this->scene_shader_loader, this->scene_object_loader);
+					this->scene->statics->operator[](c_mesh->name) = c_mesh;
+					last_line = fb.tellg();
+				}
+
+				fb.seekg(last_line);
 			}
-			if (!load_success)
+			else if (!load_success)
 			{
 				std::cout << "Scene Failed to Load" << std::endl;
 				exit(-1);
@@ -58,50 +70,42 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 	}
 }
 
-bool SceneLoader::BuildActors(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildActors(std::ifstream* fb, std::string* LineBuf)
 {
 	return true;
 }
 
-bool SceneLoader::BuildAnimations(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildAnimations(std::ifstream* fb, std::string* LineBuf)
 {
 	return true;
 }
 
-bool SceneLoader::BuildCamera(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildCamera(std::ifstream* fb, std::string* LineBuf)
 {
 	return true;
 }
 
-bool SceneLoader::BuildLights(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildLights(std::ifstream* fb, std::string* LineBuf)
 {
 	return true;
 }
 
-bool SceneLoader::BuildSceneName(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildSceneName(std::ifstream* fb, std::string* LineBuf)
 {
-	std::getline(*fb, LineBuf);
-	std::cout << LineBuf << ":" << this->scene << std::endl;
-	this->scene->scene_name = LineBuf;
+	std::getline(*fb, *LineBuf);
+	this->scene->scene_name = *LineBuf;
+	std::cout << "Scene name: " << this->scene->scene_name << std::endl;
 	return true;
 }
 
-bool SceneLoader::BuildSkybox(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildSkybox(std::ifstream* fb, std::string* LineBuf)
 {
 	return true;
 }
 
-bool SceneLoader::BuildStatics(std::ifstream* fb, std::string LineBuf)
+bool SceneLoader::BuildStatics(std::ifstream* fb, std::string* LineBuf)
 {
-		
-	std::regex static_regex(CMESH_REGEX); 
-	std::streampos last_line = fb->tellg();
-	std::getline(*fb, LineBuf);
 
-	while (std::regex_match(LineBuf, static_regex))
-	{
-		ComplexMesh* c_mesh = new ComplexMesh(LineBuf, this->scene_shader_loader, this->scene_object_loader);
-	}
 
 	return true;
 }

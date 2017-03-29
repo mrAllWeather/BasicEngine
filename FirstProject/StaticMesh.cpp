@@ -11,12 +11,16 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 
 	std::string static_file_name;
 
-	// Load Component Details
-	sscanf(static_details.c_str(), "\t%s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-		&name, &static_file_name,
-		&scale->x, &scale->y, &scale->z,
-		&location->x, &location->y, &location->z,
-		&rotation->x, &rotation->y, &rotation->z);
+	// Load Component
+	std::istringstream iss(static_details);
+
+	iss >> name >> static_file_name >>
+		scale->x >> scale->y >> scale->z >>
+		location->x >> location->y >> location->z >>
+		rotation->x >> rotation->y >> rotation->z;
+
+	std::cout << "LOADING SMesh: " << name << std::endl;
+	std::cout << "SMesh Filename: " << static_file_name << std::endl;
 
 	std::ifstream fb; // FileBuffer
 	fb.open((static_file_name), std::ios::in);
@@ -28,8 +32,8 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 	if(fb.is_open()){
 		// Load Obj
 		std::getline(fb, LineBuf);
-		scene_object_loader->build_static_mesh(LineBuf, VAO, VBO);
-
+		scene_object_loader->build_static_mesh(LineBuf, this->VAO, this->VBO);
+		std::cout << "Loaded VAO " << this->VAO << " VBO " << this->VBO << "\n";
 		// Load Textures
 		std::getline(fb, LineBuf);
 		ss.str(LineBuf);
@@ -60,7 +64,6 @@ void StaticMesh::draw()
 		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), 0);
 	}
 	
-	glUseProgram(this->shader_program);
 	glBindVertexArray(*this->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, this->vertices);
 	glBindVertexArray(0);

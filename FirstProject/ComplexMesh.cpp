@@ -12,17 +12,22 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 	std::string cmesh_file_name;
 
 	// Load Complex Mesh Details
-	sscanf(cmesh_details.c_str(), "\t%s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-		&name, &cmesh_file_name,
-		&scale->x, &scale->y, &scale->z,
-		&location->x, &location->y, &location->z,
-		&rotation->x, &rotation->y, &rotation->z);
+	std::istringstream iss(cmesh_details);
+
+	iss >> name >> cmesh_file_name >>
+		scale->x >> scale->y >> scale->z >>
+		location->x >> location->y >> location->z >>
+		rotation->x >> rotation->y >> rotation->z;
+
+	std::cout << "LOADING CMESH: " << name << std::endl;
+	std::cout << "CMesh Filename: " << cmesh_file_name << std::endl;
 
 	std::ifstream fb; // FileBuffer
 	fb.open((cmesh_file_name), std::ios::in);
 	std::string LineBuf, component_name;
 	std::stringstream ss;
 
+	
 	if (fb.is_open()) {
 		while (std::getline(fb, LineBuf))
 		{
@@ -35,7 +40,6 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 			components->operator[](component_name) = new StaticMesh(LineBuf, scene_shader_loader, scene_object_loader);
 		}
 	}
-
 	fb.close();
 }
 
@@ -49,6 +53,7 @@ void ComplexMesh::draw()
 	// TODO Update!
 	for (auto component : *components)
 	{
+		glUseProgram(component.second->shader_program);
 		component.second->draw();
 	}
 }

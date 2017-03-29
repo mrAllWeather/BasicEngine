@@ -14,8 +14,13 @@
 
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
-
 #include "ComplexMesh.h"
+#include "Camera.h"
+
+struct technician {
+	Camera* camera;
+	//std::vector<Lights*> lights
+};
 
 class Scene {
 public:
