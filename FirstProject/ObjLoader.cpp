@@ -165,16 +165,17 @@ void ObjLoader::build_vertex_buffer(	std::string filename,
 	// Bind Normal Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, temp_VO.VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, normals->size() * sizeof(glm::vec3), normals->data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
 
 	// Bind UV Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, temp_VO.VBO[2]);
 	glBufferData(GL_ARRAY_BUFFER, uvs->size() * sizeof(glm::vec2), uvs->data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 	glEnableVertexAttribArray(2);
 
 	// Clean up
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind Buffer Object
 	glBindVertexArray(0); // Unbind VAO
 

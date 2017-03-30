@@ -48,6 +48,8 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 		for (std::string each; std::getline(ss, each, ','); shader_files.push_back(each));
 
 		shader_program = scene_shader_loader->build_program(shader_files);
+
+		std::cout << "Loaded shaders\n";
 	}
 
 	fb.close();
@@ -60,7 +62,9 @@ StaticMesh::~StaticMesh()
 
 void StaticMesh::draw()
 {
+	std::cout << "Static Draw\n";
 	// Only 32 GL_TEXTURE# are defined (0x84C0 -> 0x84DF)
+	std::cout << "Load Texture\n";
 	for (unsigned int tex_num = 0; tex_num < texture.size() && tex_num < 32; tex_num++)
 	{
 		std::string texture_name = "texture_" + std::to_string(tex_num);
@@ -69,8 +73,11 @@ void StaticMesh::draw()
 		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), tex_num);
 	}
 	
+	std::cout << "Bind VAO: " << *VAO << std::endl;
 	glBindVertexArray(*VAO);
-	glDrawArrays(GL_TRIANGLES, 0, this->vertices);
+	std::cout << "Draw Array: " << vertices << " vertices\n";
+	glDrawArrays(GL_TRIANGLES, 0, vertices);
+	std::cout << "UnBind VAO\n";
 	glBindVertexArray(0);
 
 }

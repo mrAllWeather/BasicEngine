@@ -41,6 +41,8 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 		}
 	}
 	fb.close();
+
+	std::cout << "Build CMesh\n";
 }
 
 
@@ -50,6 +52,7 @@ void ComplexMesh::tick(GLfloat delta)
 
 void ComplexMesh::draw()
 {
+	std::cout << "Complex Draw\n";
 	// TODO Update!
 	for (auto component : *components)
 	{

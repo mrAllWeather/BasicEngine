@@ -63,6 +63,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				exit(-1);
 			}
 		}
+		std::cout << "Scene Built!\n";
 	}
 	else
 	{

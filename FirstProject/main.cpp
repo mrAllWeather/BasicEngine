@@ -79,7 +79,7 @@ int main()
 	// Initial Scene
 
 	Scene* currentLevel = new Scene();
-	SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
+	SceneLoader load_scene("./Scenes/TEST.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter spf_report = SPF_Counter();

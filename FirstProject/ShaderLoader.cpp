@@ -127,6 +127,7 @@ GLuint ShaderLoader::build_shader_program(std::vector<std::string> filenames)
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
+	std::cout << "Built Shader\n";
 	return ShaderProgram;
 }
 
