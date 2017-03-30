@@ -1,0 +1,4 @@
+SceneName:
+Test_Scene
+Statics:
+	Cube_01 ./Statics/cube.complex 1.0f 1.0f 1.0f 0.0f 0.0f 0.0f 0.0f 0.0f 0.0f

@@ -33,9 +33,8 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 		std::getline(fb, LineBuf);
 		std::cout << "Load Obj File: " << LineBuf << std::endl;
 
-		scene_object_loader->build_static_mesh(LineBuf, &VAO, &VBO, &this->vertices);
+		scene_object_loader->build_static_mesh(LineBuf, &VAO, &VBO, &vertices);
 
-		std::cout << "verts: " << vertices << std::endl;
 		// Load Textures
 		std::getline(fb, LineBuf);
 		ss.str(LineBuf);
@@ -61,20 +60,18 @@ StaticMesh::~StaticMesh()
 
 void StaticMesh::draw()
 {
-	std::cout << "DRAW\n";
 	// Only 32 GL_TEXTURE# are defined (0x84C0 -> 0x84DF)
 	for (unsigned int tex_num = 0; tex_num < texture.size() && tex_num < 32; tex_num++)
 	{
 		std::string texture_name = "texture_" + std::to_string(tex_num);
 		glActiveTexture(GL_TEXTURE0+tex_num);
 		glBindTexture(GL_TEXTURE_2D, texture.at(tex_num));
-		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), 0);
+		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), tex_num);
 	}
 	
 	glBindVertexArray(*VAO);
 	glDrawArrays(GL_TRIANGLES, 0, this->vertices);
 	glBindVertexArray(0);
-	std::cout << "Stop DRAW\n";
 
 }
 
@@ -96,16 +93,12 @@ void StaticMesh::build_texture(std::string texture_file)
 	int width, height, bpp;
 
 	unsigned char* image = stbi_load(texture_file.c_str(), &width, &height, &bpp, STBI_rgb);
-	/*
-	unsigned char* image = NULL;
-	width = 0;
-	height = 0;
-	*/
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	// stbi_image_free(image);
+	stbi_image_free(image);
 
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 

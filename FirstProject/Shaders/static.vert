@@ -1,5 +1,6 @@
 #version 330 core
 layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
 
 uniform mat4 component;
@@ -7,12 +8,13 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-out vec4 vertexColor;
+out vec3 vertexColor;
+out vec2 TexCoord;
 out vec4 loc;
 
 void main()
 {
-	gl_Position = projection * view * model * component * vec4(position, 1);
-	vertexColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);
-	loc = vec4(position, 1.0);
+	gl_Position = vec4(position.x-0.5, position.y-0.5, position.z-0.5, 1);
+	vertexColor = vec3(1.0f, 0.0f, 0.0f);
+	TexCoord = vec2(texCoord.x, 1.0 - texCoord.y);
 };

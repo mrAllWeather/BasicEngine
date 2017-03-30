@@ -84,6 +84,9 @@ int main()
 	// Initialise Seconds per Frame counter
 	SPF_Counter spf_report = SPF_Counter();
 
+	// Line Mode
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	// Program Loop
 	while (!glfwWindowShouldClose(window))
 	{
