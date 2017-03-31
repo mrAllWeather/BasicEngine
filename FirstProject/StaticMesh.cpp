@@ -66,31 +66,6 @@ StaticMesh::~StaticMesh()
 	glDeleteProgram(this->shader_program);
 }
 
-void StaticMesh::draw()
-{
-	// std::cout << "Static Draw\n";
-	// Only 32 GL_TEXTURE# are defined (0x84C0 -> 0x84DF)
-	// std::cout << "Load Texture\n";
-	for (unsigned int tex_num = 0; tex_num < texture.size() && tex_num < 32; tex_num++)
-	{
-		std::string texture_name = "texture_" + std::to_string(tex_num);
-		glActiveTexture(GL_TEXTURE0+tex_num);
-		glBindTexture(GL_TEXTURE_2D, texture.at(tex_num));
-		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), tex_num);
-	}
-	
-	GLuint transformLoc = glGetUniformLocation(shader_program, "component");
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(component_transform));
-
-	// std::cout << "Bind VAO: " << *VAO << std::endl;
-	glBindVertexArray(*VAO);
-	// std::cout << "Draw Array: " << vertices << " vertices\n";
-	glDrawArrays(GL_TRIANGLES, 0, vertices);
-	// std::cout << "UnBind VAO\n";
-	glBindVertexArray(0);
-
-}
-
 // TODO Replace with Scene function
 void StaticMesh::build_texture(std::string texture_file)
 {

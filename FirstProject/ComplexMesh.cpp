@@ -49,25 +49,6 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 	build_static_transform();
 }
 
-
-void ComplexMesh::tick(GLfloat delta)
-{
-}
-
-void ComplexMesh::draw()
-{
-	// std::cout << "Complex Draw\n";
-	// TODO Update!
-	for (auto component : *components)
-	{
-		glUseProgram(component.second->shader_program);
-		GLuint transformLoc = glGetUniformLocation(component.second->shader_program, "model");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(static_transform));
-		
-		component.second->draw();
-	}
-}
-
 void ComplexMesh::build_static_transform()
 {
 	static_transform = glm::scale(static_transform, *scale);

@@ -15,7 +15,6 @@ class StaticMesh {
 public:
 	StaticMesh(	std::string static_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader);
 	~StaticMesh();
-	void draw();
 
 	std::string name;
 	GLuint* VAO; // Single Value
