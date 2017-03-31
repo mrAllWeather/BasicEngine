@@ -91,7 +91,8 @@ int main()
 
 	// Initial Scene
 
-	Scene* currentLevel = new Scene("./Scenes/TEST.scene");
+	// Scene* currentLevel = new Scene("./Scenes/TEST.scene");
+	Scene* currentLevel = new Scene("./Scenes/Level_01.scene");
 	camera = currentLevel->camera;
 	// SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 

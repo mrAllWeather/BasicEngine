@@ -100,9 +100,11 @@ void StaticMesh::build_texture(std::string texture_file)
 
 void StaticMesh::build_component_transform()
 {
-	component_transform = glm::scale(component_transform, *scale);
-	component_transform = glm::translate(component_transform, *location);
 	component_transform = glm::rotate(component_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
 	component_transform = glm::rotate(component_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
 	component_transform = glm::rotate(component_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
+
+	component_transform = glm::scale(component_transform, *scale);
+	component_transform = glm::translate(component_transform, *location);
+
 }
