@@ -1,4 +1,5 @@
 SceneName:
 Test_Scene
 Statics:
-	Cube_01 ./Statics/cube.complex 1.0f 1.0f 1.0f 0.0f 0.0f 0.0f 0.0f 0.0f 0.0f
+	Cube_01 ./Statics/cube.complex 0.5 0.5 0.5 0.75 0.0 0.0 10.0 0.0 0.0
+	Cube_02 ./Statics/cube.complex 0.5 0.5 0.5 -0.75 0.0 0.0 0.0 0.0 0.0

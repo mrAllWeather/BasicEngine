@@ -22,6 +22,10 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 	std::cout << "LOADING SMesh: " << name << std::endl;
 	std::cout << "SMesh Filename: " << static_file_name << std::endl;
 
+	std::cout << "Scale: " << scale->x << " " << scale->y << " " << scale->z << std::endl;
+	std::cout << "Location: " << location->x << " " << location->y << " " << location->z << std::endl;
+	std::cout << "Rotation: " << rotation->x << " " << rotation->y << " " << rotation->z << std::endl;
+
 	std::ifstream fb; // FileBuffer
 	fb.open((static_file_name), std::ios::in);
 	std::string LineBuf;
@@ -53,6 +57,8 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 	}
 
 	fb.close();
+
+	build_component_transform();
 }
 
 StaticMesh::~StaticMesh()
@@ -73,6 +79,9 @@ void StaticMesh::draw()
 		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), tex_num);
 	}
 	
+	GLuint transformLoc = glGetUniformLocation(shader_program, "component");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(component_transform));
+
 	// std::cout << "Bind VAO: " << *VAO << std::endl;
 	glBindVertexArray(*VAO);
 	// std::cout << "Draw Array: " << vertices << " vertices\n";
@@ -117,4 +126,13 @@ void StaticMesh::build_texture(std::string texture_file)
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 
 	this->texture.push_back(load_texture);
+}
+
+void StaticMesh::build_component_transform()
+{
+	component_transform = glm::scale(component_transform, *scale);
+	component_transform = glm::translate(component_transform, *location);
+	component_transform = glm::rotate(component_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
+	component_transform = glm::rotate(component_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
+	component_transform = glm::rotate(component_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
 }

@@ -80,12 +80,11 @@ int main()
 
 	// Initial Scene
 
-	Scene* currentLevel = new Scene();
-	// SceneLoader load_scene("./Scenes/TEST.scene", currentLevel);
-	SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
+	Scene* currentLevel = new Scene("./Scenes/TEST.scene");
+	// SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
-	SPF_Counter spf_report = SPF_Counter();
+	SPF_Counter spf_report = SPF_Counter(false);
 
 	// Line Mode
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

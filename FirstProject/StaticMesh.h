@@ -4,7 +4,9 @@
 #include <regex>
 #include <string>
 #include <iostream>
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
@@ -24,7 +26,9 @@ public:
 	glm::vec3* rotation;
 	glm::vec3* location;
 	glm::vec3* scale;
+	glm::mat4 component_transform;
 
 private:
 	void build_texture(std::string texture_file);
+	void build_component_transform();
 };

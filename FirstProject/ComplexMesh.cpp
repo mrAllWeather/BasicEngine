@@ -21,6 +21,10 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 
 	std::cout << "LOADING CMESH: " << name << std::endl;
 	std::cout << "CMesh Filename: " << cmesh_file_name << std::endl;
+	std::cout << "Details: " << cmesh_details << std::endl;
+	std::cout << "Scale: " << scale->x << " " << scale->y << " " << scale->z << std::endl;
+	std::cout << "Location: " << location->x << " " << location->y << " " << location->z << std::endl;
+	std::cout << "Rotation: " << rotation->x << " " << rotation->y << " " << rotation->z << std::endl;
 
 	std::ifstream fb; // FileBuffer
 	fb.open((cmesh_file_name), std::ios::in);
@@ -42,7 +46,7 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 	}
 	fb.close();
 
-	std::cout << "Build CMesh\n";
+	build_static_transform();
 }
 
 
@@ -57,13 +61,19 @@ void ComplexMesh::draw()
 	for (auto component : *components)
 	{
 		glUseProgram(component.second->shader_program);
-		glm::mat4 transform;
-		transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 1.5f));
-		transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		transform = glm::rotate(transform, (GLfloat)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 		GLuint transformLoc = glGetUniformLocation(component.second->shader_program, "model");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(static_transform));
 		
 		component.second->draw();
 	}
+}
+
+void ComplexMesh::build_static_transform()
+{
+	static_transform = glm::scale(static_transform, *scale);
+	static_transform = glm::translate(static_transform, *location);
+	
+	static_transform = glm::rotate(static_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
+	static_transform = glm::rotate(static_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
+	static_transform = glm::rotate(static_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
 }

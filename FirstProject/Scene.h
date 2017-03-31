@@ -14,6 +14,7 @@
 
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
+#include "SceneLoader.h"
 #include "ComplexMesh.h"
 #include "Camera.h"
 
@@ -29,13 +30,20 @@ public:
 	friend class ComplexMesh;
 	friend class StaticMesh;
 
-	Scene();
+	Scene(std::string scene_file);
 	~Scene();
 	
+	// Add Static (maybe rename?) will add a complex mesh, build all components
+	// and then add the each components ComplexMesh*, StaticMesh* paid to our
+	// scene_draw_list
 	bool attachStatic(std::string, ComplexMesh*);
 	
+	// Remove Static wil remove each component from the scene_draw_list and
+	// then call delete on the ComplexMesh*
 	void removeStatic(std::string); // Chance to Complex in the long run
+
 	void draw();
+
 	void tick(GLfloat delta); // Update All Actors
 
 	// TODO
@@ -50,6 +58,10 @@ private:
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;
 
+	// We store every static/actor component by shader program. We can then call
+	// the stored values we need for the draw call. As we are calling from the scene
+	// We also have access to our Camera and Lighting.
+	std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >* scene_draw_list;
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting

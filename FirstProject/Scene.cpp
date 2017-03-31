@@ -1,10 +1,29 @@
 #include "Scene.h"
 
-Scene::Scene()
+Scene::Scene(std::string scene_file)
 {
 	statics = new std::map<std::string, ComplexMesh*>;
+	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
 	object_loader = new ObjLoader();
 	shader_loader = new ShaderLoader();
+
+	SceneLoader load_scene(scene_file, this);
+
+	// Build Scene Draw List
+	for (auto const mesh : *statics)
+	{
+		for(auto const component : (*(mesh.second)->components))
+		{
+			std::pair<ComplexMesh*, StaticMesh*> tmpPair;
+			tmpPair.first = mesh.second;
+			tmpPair.second = component.second;
+			if (!scene_draw_list->count(component.second->shader_program)) // If the key is already in the map
+			{
+				scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
+			}
+			scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
+		}
+	}
 }
 
 Scene::~Scene()
@@ -30,9 +49,30 @@ void Scene::removeStatic(std::string static_name)
 
 void Scene::draw()
 {
-	// std::cout << "Scene Draw\n";
-	for (auto mesh : *statics)
-		mesh.second->draw();
+	for(auto shader_program : *scene_draw_list)
+	{
+		glUseProgram(shader_program.first);
+		for(auto component : shader_program.second)
+		{
+			GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
+	
+			for (unsigned int tex_num = 0; tex_num < component.second->texture.size() && tex_num < 32; tex_num++)
+			{
+				std::string texture_name = "texture_" + std::to_string(tex_num);
+				glActiveTexture(GL_TEXTURE0+tex_num);
+				glBindTexture(GL_TEXTURE_2D, component.second->texture.at(tex_num));
+				glUniform1i(glGetUniformLocation(shader_program.first, texture_name.c_str()), tex_num);
+			}
+	
+			GLuint componentLoc = glGetUniformLocation(shader_program.first, "component");
+			glUniformMatrix4fv(componentLoc, 1, GL_FALSE, glm::value_ptr(component.second->component_transform));
+		
+			glBindVertexArray(*component.second->VAO);
+			glDrawArrays(GL_TRIANGLES, 0, component.second->vertices);
+			glBindVertexArray(0);
+		}
+	}
 }
 
 void Scene::tick(GLfloat delta)
