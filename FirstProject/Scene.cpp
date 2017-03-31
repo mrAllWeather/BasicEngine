@@ -30,14 +30,14 @@ void Scene::removeStatic(std::string static_name)
 
 void Scene::draw()
 {
-	std::cout << "Scene Draw\n";
+	// std::cout << "Scene Draw\n";
 	for (auto mesh : *statics)
 		mesh.second->draw();
 }
 
 void Scene::tick(GLfloat delta)
 {
-	std::cout << "Scene Tick\n";
+	// std::cout << "Scene Tick\n";
 	// define time delta
 	// call tick for each Actor
 }

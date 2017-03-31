@@ -73,13 +73,16 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
+	glEnable(GL_DEPTH_TEST);
+
 	// Clear Color
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Initial Scene
 
 	Scene* currentLevel = new Scene();
-	SceneLoader load_scene("./Scenes/TEST.scene", currentLevel);
+	// SceneLoader load_scene("./Scenes/TEST.scene", currentLevel);
+	SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter spf_report = SPF_Counter();

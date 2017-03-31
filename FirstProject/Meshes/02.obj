@@ -1,0 +1,28 @@
+# Ground
+v -1.0f -1.0f 1.0f
+v -0.5f -0.5f -1.0f
+v 1.0f -1.0f 1.0f
+v 1.0f -0.5f -1.0f
+# Front Wall
+v -0.75f -0.75f 0.0f
+v -0.75f 0.5f 0.0f
+v 0.25f -0.75f 0.0f
+v 0.25f 0.5f 0f
+# Side Wall (includes 2 points from Front Wall)
+v 0.5f -0.5f -1
+v 0.5f 0.75f -1
+# Back Wall
+v 1 -0.5 -1
+v 1 0.75 -1
+# Ground
+p 0 1 2
+p 1 2 3
+# Front Wall
+p 4 5 6
+p 5 6 7
+# Side Wall
+p 6 7 8
+p 7 8 9
+# Back Wall
+p 8 9 10
+p 9 10 11

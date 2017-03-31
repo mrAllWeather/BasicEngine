@@ -62,9 +62,9 @@ StaticMesh::~StaticMesh()
 
 void StaticMesh::draw()
 {
-	std::cout << "Static Draw\n";
+	// std::cout << "Static Draw\n";
 	// Only 32 GL_TEXTURE# are defined (0x84C0 -> 0x84DF)
-	std::cout << "Load Texture\n";
+	// std::cout << "Load Texture\n";
 	for (unsigned int tex_num = 0; tex_num < texture.size() && tex_num < 32; tex_num++)
 	{
 		std::string texture_name = "texture_" + std::to_string(tex_num);
@@ -73,11 +73,11 @@ void StaticMesh::draw()
 		glUniform1i(glGetUniformLocation(this->shader_program, texture_name.c_str()), tex_num);
 	}
 	
-	std::cout << "Bind VAO: " << *VAO << std::endl;
+	// std::cout << "Bind VAO: " << *VAO << std::endl;
 	glBindVertexArray(*VAO);
-	std::cout << "Draw Array: " << vertices << " vertices\n";
+	// std::cout << "Draw Array: " << vertices << " vertices\n";
 	glDrawArrays(GL_TRIANGLES, 0, vertices);
-	std::cout << "UnBind VAO\n";
+	// std::cout << "UnBind VAO\n";
 	glBindVertexArray(0);
 
 }
@@ -85,7 +85,9 @@ void StaticMesh::draw()
 // TODO Replace with Scene function
 void StaticMesh::build_texture(std::string texture_file)
 {
+	std::cout << "Loading Texture: " << texture_file << std::endl;
 	GLuint load_texture;
+
 	glGenTextures(1, &load_texture);
 	glBindTexture(GL_TEXTURE_2D, load_texture); // All upcoming GL_TEXTURE_2D operations now have effect on our texture object
 
@@ -97,11 +99,16 @@ void StaticMesh::build_texture(std::string texture_file)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Load, create texture and generate mipmaps
-	int width, height, bpp;
+	int width, height, num_channels;
 
-	unsigned char* image = stbi_load(texture_file.c_str(), &width, &height, &bpp, STBI_rgb);
+	unsigned char* image = stbi_load(texture_file.c_str(), &width, &height, &num_channels, 0);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	if (num_channels == 3) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	}
+	else {
+		fprintf(stderr, "Image pixels are not RGB. Texture may not load correctly.");
+	}
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 

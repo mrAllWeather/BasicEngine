@@ -14,7 +14,9 @@ out vec4 loc;
 
 void main()
 {
-	gl_Position = vec4(position.x, position.y, position.z, 1);
+	gl_Position = model * vec4(position.x, position.y, position.z, 1);
 	vertexColor = vec3(1.0f, 0.0f, 0.0f);
-	TexCoord = vec2(texCoord.x, 1.0 - texCoord.y);
+	// TexCoord = vec2(texCoord.x, 1.0 - texCoord.y);
+	TexCoord = texCoord;
+	
 };

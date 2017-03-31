@@ -52,11 +52,18 @@ void ComplexMesh::tick(GLfloat delta)
 
 void ComplexMesh::draw()
 {
-	std::cout << "Complex Draw\n";
+	// std::cout << "Complex Draw\n";
 	// TODO Update!
 	for (auto component : *components)
 	{
 		glUseProgram(component.second->shader_program);
+		glm::mat4 transform;
+		transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 1.5f));
+		transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		transform = glm::rotate(transform, (GLfloat)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		GLuint transformLoc = glGetUniformLocation(component.second->shader_program, "model");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+		
 		component.second->draw();
 	}
 }

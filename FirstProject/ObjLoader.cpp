@@ -159,25 +159,28 @@ void ObjLoader::build_vertex_buffer(	std::string filename,
 	// Bind Vertex Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, temp_VO.VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, vertices->size() * sizeof(glm::vec3), vertices->data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0); // Confirm my count is right
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	
 
 	// Bind Normal Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, temp_VO.VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, normals->size() * sizeof(glm::vec3), normals->data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	
 
 	// Bind UV Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, temp_VO.VBO[2]);
 	glBufferData(GL_ARRAY_BUFFER, uvs->size() * sizeof(glm::vec2), uvs->data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	
 
 	// Clean up
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind Buffer Object
 	glBindVertexArray(0); // Unbind VAO
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind Buffer Object
+	
 
 	this->built_meshes->operator[](filename) = temp_VO;
 }
