@@ -1,5 +1,8 @@
 #pragma once
+/*  Camera Class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
+	TODO Refine based on my needs (Assess values, and see if can improve for my projects)
 
+*/
 // Std. Includes
 #include <vector>
 
@@ -48,6 +51,7 @@ public:
 	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
 	void ProcessMouseScroll(GLfloat yoffset);
 
+	GLfloat Zoom;
 private:
 	// Camera Attributes
 	glm::vec3 Position;
@@ -61,7 +65,6 @@ private:
 	// Camera options
 	GLfloat MovementSpeed;
 	GLfloat MouseSensitivity;
-	GLfloat Zoom;
 
 	// Calculates the front vector from the Camera's (updated) Eular Angles
 	void updateCameraVectors();

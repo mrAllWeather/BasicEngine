@@ -1,5 +1,11 @@
 SceneName:
 Test_Scene
+Camera:
+	Camera_01 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
 Statics:
-	Cube_01 ./Statics/cube.complex 0.5 0.5 0.5 0.75 0.0 0.0 10.0 0.0 0.0
-	Cube_02 ./Statics/cube.complex 0.5 0.5 0.5 -0.75 0.0 0.0 0.0 0.0 0.0
+	Cube_01 ./Statics/cube.complex 0.5 0.5 0.5  1.0  0.0  0.0 10.0 0.0 0.0
+	Cube_02 ./Statics/cube.complex 0.5 0.5 0.5 -1.0  0.0  0.0  0.0 0.0 0.0
+	Cube_03 ./Statics/cube.complex 0.5 0.5 0.5  0.0  1.0  0.0 10.0 0.0 0.0
+	Cube_04 ./Statics/cube.complex 0.5 0.5 0.5  0.0 -1.0  0.0  0.0 0.0 0.0
+	Cube_05 ./Statics/cube.complex 0.5 0.5 0.5  0.0  0.0  1.0 10.0 0.0 0.0
+	Cube_06 ./Statics/cube.complex 0.5 0.5 0.5  0.0  0.0 -1.0  0.0 0.0 0.0

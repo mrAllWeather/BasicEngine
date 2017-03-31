@@ -19,12 +19,13 @@
 
 #include "StaticMesh.h"
 
-class Scene;
+class Scene; // TODO find out why I am using parent references
 
 class ComplexMesh {
 public:
 	friend class StaticMesh;
 	ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader);
+
 
 	std::string name;
 	std::map<std::string, StaticMesh*>* components;

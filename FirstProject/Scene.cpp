@@ -4,6 +4,7 @@ Scene::Scene(std::string scene_file)
 {
 	statics = new std::map<std::string, ComplexMesh*>;
 	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
+
 	object_loader = new ObjLoader();
 	shader_loader = new ShaderLoader();
 
@@ -24,6 +25,9 @@ Scene::Scene(std::string scene_file)
 			scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
 		}
 	}
+
+	update_projection();
+
 }
 
 Scene::~Scene()
@@ -49,9 +53,31 @@ void Scene::removeStatic(std::string static_name)
 
 void Scene::draw()
 {
+	update_projection();
+
 	for(auto shader_program : *scene_draw_list)
 	{
 		glUseProgram(shader_program.first);
+
+		GLuint projectionLoc = glGetUniformLocation(shader_program.first, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
+
+		std::cout << "Projection matrix:\t";
+		const float *pSource = (const float*)glm::value_ptr(projection_transform);
+		for (int i = 0; i < 16; ++i)
+			std::cout << pSource[i] << "\t";
+		std::cout << std::endl;
+
+
+		GLuint cameraLoc = glGetUniformLocation(shader_program.first, "view");
+		glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+
+		std::cout << "View matrix:\t";
+		const float *vSource = (const float*)glm::value_ptr(camera->GetViewMatrix());
+		for (int i = 0; i < 16; ++i)
+			std::cout << vSource[i] << "\t";
+		std::cout << std::endl;
+
 		for(auto component : shader_program.second)
 		{
 			GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
@@ -80,4 +106,9 @@ void Scene::tick(GLfloat delta)
 	// std::cout << "Scene Tick\n";
 	// define time delta
 	// call tick for each Actor
+}
+
+void Scene::update_projection()
+{
+	projection_transform = glm::perspective(camera->Zoom, (float)s_WIDTH / (float)s_HEIGHT, 0.1f, 1000.0f);
 }

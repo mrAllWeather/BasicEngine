@@ -19,12 +19,7 @@ StaticMesh::StaticMesh(	std::string static_details, ShaderLoader* scene_shader_l
 		location->x >> location->y >> location->z >>
 		rotation->x >> rotation->y >> rotation->z;
 
-	std::cout << "LOADING SMesh: " << name << std::endl;
-	std::cout << "SMesh Filename: " << static_file_name << std::endl;
-
-	std::cout << "Scale: " << scale->x << " " << scale->y << " " << scale->z << std::endl;
-	std::cout << "Location: " << location->x << " " << location->y << " " << location->z << std::endl;
-	std::cout << "Rotation: " << rotation->x << " " << rotation->y << " " << rotation->z << std::endl;
+	std::cout << "LOADING Static: " << name << "\tFilename: " << static_file_name << std::endl;
 
 	std::ifstream fb; // FileBuffer
 	fb.open((static_file_name), std::ios::in);

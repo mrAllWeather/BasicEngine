@@ -27,10 +27,16 @@
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
-
-
+bool firstMouse = true;
+GLfloat lastX = 400, lastY = 300;
+Camera* camera;
+bool keys[1024];
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void Do_Movement(float deltaTime);
+
 
 int main()
 {
@@ -54,6 +60,7 @@ int main()
 	// I.E This is where the following actions shall occur
 	glfwMakeContextCurrent(window);
 
+
 	// Initialise GLEW
 	glewExperimental = GL_TRUE;
 
@@ -66,7 +73,11 @@ int main()
 	// Set required callbacks: Guessing this becomes a large switch which will then be converted into a hash (after all you always want rebindable keys!)
 	// Following from that; I wonder how one does context... State machine?
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 
+	// Options
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Set up viewport
 	int width, height;
@@ -81,6 +92,7 @@ int main()
 	// Initial Scene
 
 	Scene* currentLevel = new Scene("./Scenes/TEST.scene");
+	camera = currentLevel->camera;
 	// SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
@@ -94,9 +106,9 @@ int main()
 	{
 		// Show current time per frame
 		spf_report.tick();
-		
 		currentLevel->tick(spf_report.delta());
 
+		Do_Movement(spf_report.delta());
 		// Check and call events
 		glfwPollEvents();
 
@@ -123,4 +135,61 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+			keys[key] = true;
+		else if (action == GLFW_RELEASE)
+			keys[key] = false;
+	}
+}
+
+// Moves/alters the camera positions based on user input
+void Do_Movement(float deltaTime)
+{
+	// Camera controls
+	if (keys[GLFW_KEY_W])
+	{
+		std::cout << "forward" << std::endl;
+		camera->ProcessKeyboard(FORWARD, deltaTime);
+	}
+	if (keys[GLFW_KEY_S])
+	{
+		std::cout << "backwards" << std::endl;
+		camera->ProcessKeyboard(BACKWARD, deltaTime);
+	}
+	if (keys[GLFW_KEY_A])
+	{
+		std::cout << "left" << std::endl;
+		camera->ProcessKeyboard(LEFT, deltaTime);
+	}
+	if (keys[GLFW_KEY_D])
+	{
+		std::cout << "right" << std::endl;
+		camera->ProcessKeyboard(RIGHT, deltaTime);
+	}
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = lastY - ypos;  // Reversed since y-coordinates go from bottom to left
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera->ProcessMouseMovement(xoffset, yoffset, true);
+}
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera->ProcessMouseScroll(yoffset);
 }

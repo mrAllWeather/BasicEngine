@@ -29,7 +29,25 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Camera:")
 			{
-				load_success = BuildCamera(&fb, &LineBuf);
+				// TODO We name cameras but only support one for now; so toss the provided name and only load first
+
+				std::getline(fb, LineBuf);
+				std::stringstream iss(LineBuf);
+				std::string name;
+				glm::vec3 location, up;
+
+				GLfloat yaw, pitch;
+				iss >>	name >> location.x >> location.y >> location.z >>
+						up.x >> up.y >> up.z >>
+						yaw >> pitch;
+
+				std::cout << "Loc: " << location.x << "/" << location.y << "/" << location.z <<
+					"\nup:" << up.x << "/" << up.y << "/" << up.z <<
+					"\nyaw: " << yaw << "\npitch: " << pitch << std::endl;
+
+				Camera* load_camera = new Camera(location, up, yaw, pitch);
+
+				this->scene->camera = load_camera;
 			}
 			else if (LineBuf == "Lights:")
 			{

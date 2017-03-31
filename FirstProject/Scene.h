@@ -18,6 +18,10 @@
 #include "ComplexMesh.h"
 #include "Camera.h"
 
+//TODO going to add height and width values for window. This is a poor choice! 
+// Intend to fix in long run
+const GLuint s_WIDTH = 1024, s_HEIGHT = 768;
+
 struct technician {
 	Camera* camera;
 	//std::vector<Lights*> lights
@@ -52,12 +56,15 @@ public:
 	// void removeActor(Actor*);
 	// void removeLight();
 	// void setSkybox(void); // Pass texture?
+	Camera* camera;
 private:
 	std::string scene_name;
 	std::map<std::string, ComplexMesh*>* statics;
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;
+	glm::mat4 projection_transform;
 
+	void update_projection();
 	// We store every static/actor component by shader program. We can then call
 	// the stored values we need for the draw call. As we are calling from the scene
 	// We also have access to our Camera and Lighting.
