@@ -2,7 +2,7 @@
 CC=g++
 LDFLAGS=-lGLEW -lglfw3 -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl -std=c++11
 CFLAGS=-std=c++11
-SOURCES=ObjectLoader.cpp ShaderLoader.cpp main.cpp
+SOURCES=Camera.cpp SceneLoader.cpp StaticMesh.cpp ComplexMesh.cpp ObjLoader.cpp Seconds_Per_Frame_Counter.cpp File_IO.cpp Scene.cpp ShaderLoader.cpp main.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE := main
 

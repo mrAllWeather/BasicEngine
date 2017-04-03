@@ -1,3 +1,3 @@
 ./Meshes/capsule.obj
 ./Textures/capsule0.jpg
-./Shaders/Static.vert,./Shaders/Static.frag
+./Shaders/static.vert,./Shaders/static.frag
