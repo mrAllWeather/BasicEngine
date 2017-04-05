@@ -1,0 +1,6 @@
+SceneName:
+Test_Scene
+Camera:
+	Camera_01 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
+Statics:
+	Plane_01 ./Statics/plane.complex 10.0 10.0 10.0  1.0  0.0  0.0 0.0 0.0 0.0

@@ -38,7 +38,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void Do_Movement(float deltaTime);
 
 
-int main()
+int main(int argc, char* argv[])
 {
 	// Init GLFW
 	glfwInit();
@@ -90,9 +90,18 @@ int main()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Initial Scene
+	Scene* currentLevel;
 
-	// Scene* currentLevel = new Scene("./Scenes/TEST.scene");
-	Scene* currentLevel = new Scene("./Scenes/Level_01.scene");
+	if(argc > 1)
+	{
+		currentLevel = new Scene(argv[1]);
+	}
+	else
+	{
+		currentLevel = new Scene("./Scenes/Level_01.scene");
+	}
+
+	// Scene* currentLevel = new Scene("./Scenes/Test.scene");
 	camera = currentLevel->camera;
 	// SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
