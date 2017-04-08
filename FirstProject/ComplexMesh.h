@@ -24,7 +24,10 @@ class Scene; // TODO find out why I am using parent references
 class ComplexMesh {
 public:
 	friend class StaticMesh;
-	ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader);
+	ComplexMesh(	std::string cmesh_details, 
+			ShaderLoader* scene_shader_loader, 
+			ObjLoader* scene_object_loader,
+			TextureLoader* scene_texture_loader);
 
 
 	std::string name;

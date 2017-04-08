@@ -3,6 +3,7 @@
 ShaderLoader::ShaderLoader()
 {
 	built_shaders = new std::map<std::string, GLuint>;
+	built_programs = new std::map<std::pair<std::string, std::string>, GLuint>;
 }
 
 // Deletes shaders and cleans up map
@@ -27,10 +28,19 @@ void ShaderLoader::add_shaders(std::vector<std::string> filenames)
 }
 
 // Builds shader program after loading any unloaded shaders
-GLuint ShaderLoader::build_program(std::vector<std::string> filenames)
+GLuint ShaderLoader::build_program(std::pair<std::string, std::string> shaders)
 {
-	add_shaders(filenames);
-	return build_shader_program(filenames);
+	if(!is_program_built(shaders))
+	{	
+		if(!is_shader_built(shaders.first))
+			load_shader(shaders.first);
+	
+		if(!is_shader_built(shaders.second))
+			load_shader(shaders.second);
+
+		build_shader_program(shaders);
+	}
+	return built_programs->at(shaders);
 }
 
 // Loads a shader from full-path, determines shader type and calls build shader
@@ -67,7 +77,7 @@ void ShaderLoader::load_shader(std::string filename)
 		}
 		else
 		{
-			printf("ERROR: %s is not .frag nor .vert");
+			printf("ERROR: %s is not .frag nor .vert", filename.c_str());
 		}
 		
 		delete ShaderSourceCode;
@@ -99,24 +109,20 @@ GLuint ShaderLoader::build_shader(GLchar** SourceCode, GLuint shader_type)
 	return shader;
 }
 
-GLuint ShaderLoader::build_shader_program(std::vector<std::string> filenames)
+void ShaderLoader::build_shader_program(std::pair<std::string, std::string> shaders)
 {
 	GLuint ShaderProgram;
 	ShaderProgram = glCreateProgram();
 
 	// Attach Fragment Shaders
-	for (auto const& shader : filenames)
-	{
-		glAttachShader(ShaderProgram, built_shaders->at(shader));
-	}
+	glAttachShader(ShaderProgram, built_shaders->at(shaders.first));
+	glAttachShader(ShaderProgram, built_shaders->at(shaders.second));
 
 	glLinkProgram(ShaderProgram);
 
 	// Detach Fragment Shaders (Required to be able to delete them in the long run)
-	for (auto const& shader : filenames)
-	{
-		glDetachShader(ShaderProgram, built_shaders->at(shader));
-	}
+	glDetachShader(ShaderProgram, built_shaders->at(shaders.first));
+	glDetachShader(ShaderProgram, built_shaders->at(shaders.second));
 
 	GLint success;
 	GLchar infoLog[512];
@@ -128,14 +134,21 @@ GLuint ShaderLoader::build_shader_program(std::vector<std::string> filenames)
 	}
 
 	std::cout << "Built Shader\n";
-	return ShaderProgram;
+
+	built_programs->emplace(std::make_pair(shaders, ShaderProgram));	
 }
 
 bool ShaderLoader::is_shader_built(std::string filename)
 {
-	std::map<std::string, GLuint>::iterator it;
-	it = built_shaders->find(filename);
-	if (it != built_shaders->end())
+	if (built_shaders->count(filename))
+		return true;
+
+	return false;
+}
+
+bool ShaderLoader::is_program_built(std::pair<std::string, std::string> shader_files)
+{
+	if(built_programs->count(shader_files))
 		return true;
 
 	return false;

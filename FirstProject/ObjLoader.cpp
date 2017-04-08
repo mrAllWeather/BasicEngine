@@ -24,9 +24,7 @@ void ObjLoader::build_static_mesh(std::string filename, GLuint** VAO, GLuint** V
 
 bool ObjLoader::is_static_mesh_built(std::string filename)
 {
-	std::map<std::string, VertexObjects>::iterator it;
-	it = built_meshes->find(filename);
-	if (it != built_meshes->end())
+	if (built_meshes->count(filename))
 		return true;
 
 	return false;
@@ -35,6 +33,8 @@ bool ObjLoader::is_static_mesh_built(std::string filename)
 
 void ObjLoader::load_mesh(std::string filename)
 {
+	std::cout << "Building Mesh: " << (filename) << std::endl;
+
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
@@ -43,7 +43,6 @@ void ObjLoader::load_mesh(std::string filename)
 	std::ifstream fb; // FileBuffer
 	int matches;
 
-	std::cout << "Loading: " << (filename) << std::endl;
 
 	fb.open((filename), std::ios::in);
 
@@ -137,17 +136,18 @@ void ObjLoader::load_mesh(std::string filename)
 	build_vertex_buffer(filename, &vertices, &normals, &uvs);
 }
 
-void ObjLoader::build_vertex_buffer(	std::string filename, 
-											std::vector< glm::vec3 >* vertices, 
-											std::vector< glm::vec3 >* normals, 
-											std::vector< glm::vec2 >* uvs)
+void ObjLoader::build_vertex_buffer(	
+	std::string filename, 
+	std::vector< glm::vec3 >* vertices, 
+	std::vector< glm::vec3 >* normals, 
+	std::vector< glm::vec2 >* uvs)
 {
 	VertexObjects temp_VO;
 	temp_VO.VAO = new GLuint;
 	temp_VO.VBO = new GLuint[3];
 	temp_VO.vertices = vertices->size();
 
-	std::cout << "Loading: \n" << vertices->size() << " vertices\t" << normals->size() << " normals\t" << uvs->size() << " uvs\n";
+	std::cout << "\t" << vertices->size() << " vertices\t" << normals->size() << " normals\t" << uvs->size() << " uvs\n";
 
 	// Generate and Bind our VAO
 	glGenVertexArrays(1, temp_VO.VAO);

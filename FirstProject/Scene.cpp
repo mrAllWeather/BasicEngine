@@ -7,6 +7,7 @@ Scene::Scene(std::string scene_file)
 
 	object_loader = new ObjLoader();
 	shader_loader = new ShaderLoader();
+	texture_loader = new TextureLoader();
 
 	SceneLoader load_scene(scene_file, this);
 
@@ -36,12 +37,30 @@ Scene::~Scene()
 		removeStatic(mesh.first);
 	}
 	delete statics;
+	delete object_loader;
+	delete shader_loader;
+	delete texture_loader;
 }
 
 bool Scene::attachStatic(std::string new_name, ComplexMesh * new_mesh)
 {
 	std::pair<std::string, ComplexMesh*> tmp_static = std::make_pair(new_name, new_mesh );
 	this->statics->insert(tmp_static);
+
+
+	for(auto const component : (*(tmp_static.second)->components))
+	{
+		std::pair<ComplexMesh*, StaticMesh*> tmpPair;
+		tmpPair.first = new_mesh;
+		tmpPair.second = component.second;
+		if (!scene_draw_list->count(component.second->shader_program)) // If the key is already in the map
+		{
+			scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
+		}
+		scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
+	}
+
+
 	return true;
 }
 
@@ -62,32 +81,34 @@ void Scene::draw()
 		GLuint projectionLoc = glGetUniformLocation(shader_program.first, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
 
+		/*
 		std::cout << "Projection matrix:\t";
 		const float *pSource = (const float*)glm::value_ptr(projection_transform);
 		for (int i = 0; i < 16; ++i)
 			std::cout << pSource[i] << "\t";
 		std::cout << std::endl;
-
+		*/
 
 		GLuint cameraLoc = glGetUniformLocation(shader_program.first, "view");
 		glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
 
+		/*
 		std::cout << "View matrix:\t";
 		const float *vSource = (const float*)glm::value_ptr(camera->GetViewMatrix());
 		for (int i = 0; i < 16; ++i)
 			std::cout << vSource[i] << "\t";
 		std::cout << std::endl;
-
+		*/
 		for(auto component : shader_program.second)
 		{
 			GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
 	
-			for (unsigned int tex_num = 0; tex_num < component.second->texture.size() && tex_num < 32; tex_num++)
+			for (unsigned int tex_num = 0; tex_num < component.second->textures.size() && tex_num < 32; tex_num++)
 			{
 				std::string texture_name = "texture_" + std::to_string(tex_num);
 				glActiveTexture(GL_TEXTURE0+tex_num);
-				glBindTexture(GL_TEXTURE_2D, component.second->texture.at(tex_num));
+				glBindTexture(GL_TEXTURE_2D, component.second->textures.at(tex_num).second);
 				glUniform1i(glGetUniformLocation(shader_program.first, texture_name.c_str()), tex_num);
 			}
 	

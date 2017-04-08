@@ -14,6 +14,7 @@
 
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
+#include "TextureLoader.h"
 #include "SceneLoader.h"
 #include "ComplexMesh.h"
 #include "Camera.h"
@@ -62,6 +63,7 @@ private:
 	std::map<std::string, ComplexMesh*>* statics;
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;
+	TextureLoader* texture_loader;
 	glm::mat4 projection_transform;
 
 	void update_projection();

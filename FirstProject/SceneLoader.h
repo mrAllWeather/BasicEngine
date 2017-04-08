@@ -7,6 +7,7 @@
 
 #include "Scene.h"
 #include "ComplexMesh.h"
+#include "TextureLoader.h"
 
 class SceneLoader
 {
@@ -16,6 +17,7 @@ private:
 	Scene * scene;
 	ShaderLoader * scene_shader_loader;
 	ObjLoader * scene_object_loader;
+	TextureLoader * scene_texture_loader;
 	bool BuildActors(std::ifstream* fb, std::string* LineBuf);
 	bool BuildAnimations(std::ifstream* fb, std::string* LineBuf);
 	bool BuildCamera(std::ifstream* fb, std::string* LineBuf);

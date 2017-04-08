@@ -1,0 +1,6 @@
+SceneName:
+Test_Scene
+Camera:
+	Camera_01 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
+Statics:
+	Chopper_01 ./Statics/chopper.complex 1.0 1.0 1.0  1.0  0.0  0.0 0.0 0.0 0.0

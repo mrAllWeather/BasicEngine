@@ -1,6 +1,9 @@
 #include "ComplexMesh.h"
 
-ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_loader, ObjLoader* scene_object_loader)
+ComplexMesh::ComplexMesh(std::string cmesh_details, 
+	ShaderLoader* scene_shader_loader, 
+	ObjLoader* scene_object_loader,
+	TextureLoader* scene_texture_loader)
 {
 	this->rotation = new glm::vec3;
 	this->location = new glm::vec3;
@@ -19,12 +22,10 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 		location->x >> location->y >> location->z >>
 		rotation->x >> rotation->y >> rotation->z;
 
-	std::cout << "LOADING CMESH: " << name << std::endl;
-	std::cout << "CMesh Filename: " << cmesh_file_name << std::endl;
-	std::cout << "Details: " << cmesh_details << std::endl;
-	std::cout << "Scale: " << scale->x << " " << scale->y << " " << scale->z << std::endl;
-	std::cout << "Location: " << location->x << " " << location->y << " " << location->z << std::endl;
-	std::cout << "Rotation: " << rotation->x << " " << rotation->y << " " << rotation->z << std::endl;
+	std::cout << "Loading: " << name << " (" << cmesh_file_name << ")" << std::endl;
+	std::cout << "\tScale: " << scale->x << " " << scale->y << " " << scale->z << std::endl;
+	std::cout << "\tLocation: " << location->x << " " << location->y << " " << location->z << std::endl;
+	std::cout << "\tRotation: " << rotation->x << " " << rotation->y << " " << rotation->z << std::endl;
 
 	std::ifstream fb; // FileBuffer
 	fb.open((cmesh_file_name), std::ios::in);
@@ -41,7 +42,7 @@ ComplexMesh::ComplexMesh(std::string cmesh_details, ShaderLoader* scene_shader_l
 			std::getline(ss, component_name, ',');
 
 			// Create component
-			components->operator[](component_name) = new StaticMesh(LineBuf, scene_shader_loader, scene_object_loader);
+			components->operator[](component_name) = new StaticMesh(LineBuf, scene_shader_loader, scene_object_loader, scene_texture_loader);
 		}
 	}
 	fb.close();

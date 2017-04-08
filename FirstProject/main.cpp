@@ -106,7 +106,12 @@ int main(int argc, char* argv[])
 	// SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
-	SPF_Counter spf_report = SPF_Counter(false);
+	SPF_Counter* spf_report;
+
+        if(argc > 2)
+		spf_report = new SPF_Counter(true);
+	else
+		spf_report = new SPF_Counter(false);
 
 	// Line Mode
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -115,10 +120,10 @@ int main(int argc, char* argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 		// Show current time per frame
-		spf_report.tick();
-		currentLevel->tick(spf_report.delta());
+		spf_report->tick();
+		currentLevel->tick(spf_report->delta());
 
-		Do_Movement(spf_report.delta());
+		Do_Movement(spf_report->delta());
 		// Check and call events
 		glfwPollEvents();
 
@@ -160,22 +165,18 @@ void Do_Movement(float deltaTime)
 	// Camera controls
 	if (keys[GLFW_KEY_W])
 	{
-		std::cout << "forward" << std::endl;
 		camera->ProcessKeyboard(FORWARD, deltaTime);
 	}
 	if (keys[GLFW_KEY_S])
 	{
-		std::cout << "backwards" << std::endl;
 		camera->ProcessKeyboard(BACKWARD, deltaTime);
 	}
 	if (keys[GLFW_KEY_A])
 	{
-		std::cout << "left" << std::endl;
 		camera->ProcessKeyboard(LEFT, deltaTime);
 	}
 	if (keys[GLFW_KEY_D])
 	{
-		std::cout << "right" << std::endl;
 		camera->ProcessKeyboard(RIGHT, deltaTime);
 	}
 }

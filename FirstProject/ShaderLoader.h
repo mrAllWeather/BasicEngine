@@ -24,23 +24,26 @@ struct shaders {
 };
 
 // Constants
-const std::regex VERT_EXT(".*\.vert");
-const std::regex FRAG_EXT(".*\.frag");
+const std::regex VERT_EXT(".*[.]vert");
+const std::regex FRAG_EXT(".*[.]frag");
 
 class ShaderLoader {
 public:
 	ShaderLoader();
 	~ShaderLoader();
 	void add_shaders(std::vector<std::string> filenames);
-	GLuint build_program(std::vector<std::string> filenames);
+	// Expect Fragment and Vertex filenames
+	GLuint build_program(std::pair<std::string, std::string> shaders);
 private:
 
 	std::map<std::string, GLuint>* built_shaders;
+	std::map<std::pair<std::string, std::string>, GLuint>* built_programs;
 
 	void load_shader(std::string filename);
 
 	bool is_shader_built(std::string);
+	bool is_program_built(std::pair<std::string, std::string>);
 
 	GLuint build_shader(GLchar** SourceCode, GLuint type);
-	GLuint build_shader_program(std::vector<std::string> filenames);
+	void build_shader_program(std::pair<std::string, std::string> shaders);
 };

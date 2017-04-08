@@ -5,6 +5,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 	this->scene = loading_scene;
 	this->scene_object_loader = loading_scene->object_loader;
 	this->scene_shader_loader = loading_scene->shader_loader;
+	this->scene_texture_loader = loading_scene->texture_loader;
 	
 	std::ifstream fb; // FileBuffer
 
@@ -41,9 +42,9 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 						up.x >> up.y >> up.z >>
 						yaw >> pitch;
 
-				std::cout << "Loc: " << location.x << "/" << location.y << "/" << location.z <<
-					"\nup:" << up.x << "/" << up.y << "/" << up.z <<
-					"\nyaw: " << yaw << "\npitch: " << pitch << std::endl;
+				std::cout << "\tLocation: " << location.x << " " << location.y << " " << location.z;
+				std::cout << "\n\tUp:" << up.x << " " << up.y << " " << up.z;
+				std::cout << "\n\tYaw: " << yaw << "\tPitch: " << pitch << std::endl;
 
 				Camera* load_camera = new Camera(location, up, yaw, pitch);
 
@@ -68,7 +69,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				std::cout << "Loading Static:" << LineBuf << std::endl;
 				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(CMESH_REGEX)))
 				{
-					ComplexMesh* c_mesh = new ComplexMesh(LineBuf, this->scene_shader_loader, this->scene_object_loader);
+					ComplexMesh* c_mesh = new ComplexMesh(LineBuf, this->scene_shader_loader, this->scene_object_loader, this->scene_texture_loader);
 					this->scene->statics->operator[](c_mesh->name) = c_mesh;
 					last_line = fb.tellg();
 				}
