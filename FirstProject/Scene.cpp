@@ -80,21 +80,21 @@ void Scene::draw()
 		glUseProgram(shader_program.first);
 
 		// Set up Light (only 1 for now)
+		GLuint lightCount = glGetUniformLocation(shader_program.first, "lightCount");
 		GLuint ambientStrength = glGetUniformLocation(shader_program.first, "ambientStrength");
 		GLuint lightColor = glGetUniformLocation(shader_program.first, "lightColor");
+		GLuint lightPos = glGetUniformLocation(shader_program.first, "lightPos");
+		GLuint viewPosLoc = glGetUniformLocation(shader_program.first, "viewPos");
+	
+
+		glUniform1i(lightCount, lights->size());
 		
 		if(lights->size() > 0)
 		{
 			glUniform1f(ambientStrength, this->lights->at(0)->ambient_strength);
-
 			glUniform3fv(lightColor, 1, glm::value_ptr(*this->lights->at(0)->color));
-		}
-		else
-		{
-			glUniform1f(ambientStrength, 1.0);
-
-			glUniform3fv(lightColor, 1, glm::value_ptr(glm::vec3(1.0,1.0,1.0)));
-
+			glUniform3fv(lightPos, 1, glm::value_ptr(*this->lights->at(0)->location));
+			glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
 		}
 
 		GLuint projectionLoc = glGetUniformLocation(shader_program.first, "projection");
