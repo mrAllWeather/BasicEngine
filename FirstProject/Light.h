@@ -4,6 +4,7 @@
 #include <regex>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 // GLEW
 #define GLEW_STATIC

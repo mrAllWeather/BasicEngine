@@ -98,12 +98,10 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		currentLevel = new Scene("./Scenes/Level_01.scene");
+		currentLevel = new Scene("./Scenes/Billiards.scene");
 	}
 
-	// Scene* currentLevel = new Scene("./Scenes/Test.scene");
 	camera = currentLevel->camera;
-	// SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;

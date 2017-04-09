@@ -1,0 +1,3 @@
+./Meshes/billiards_table.obj
+./Textures/Wood_Veneer_01.jpg
+./Shaders/static.vert,./Shaders/static.frag
