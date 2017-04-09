@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "ComplexMesh.h"
 #include "TextureLoader.h"
+#include "Light.h"
 
 class SceneLoader
 {

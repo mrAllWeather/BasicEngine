@@ -52,7 +52,9 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Lights:")
 			{
-				load_success = BuildLights(&fb, &LineBuf);
+				std::getline(fb, LineBuf);
+				Light* tmpLight = new Light(LineBuf);
+				this->scene->lights->push_back(tmpLight);
 			}
 			else if (LineBuf == "SceneName:")
 			{

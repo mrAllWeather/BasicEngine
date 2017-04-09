@@ -5,7 +5,7 @@ Camera:
 Skybox: 
 	TEXTURE
 Lights:
-	'Light_Name', LIGHT_FILE // TBD
+	'Light_Name', loc.x loc.y loc.z red green blue ambient
 Statics:
 	'Static_Name', COMPLEX_FILE, scale.x, scale.y, scale.z, loc.x, loc.y, loc.z, rot.x, rot.y, rot.z // World
 Actors:

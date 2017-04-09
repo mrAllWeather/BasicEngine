@@ -18,6 +18,7 @@
 #include "SceneLoader.h"
 #include "ComplexMesh.h"
 #include "Camera.h"
+#include "Light.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run
@@ -61,6 +62,7 @@ public:
 private:
 	std::string scene_name;
 	std::map<std::string, ComplexMesh*>* statics;
+	std::vector<Light*>* lights;
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;
 	TextureLoader* texture_loader;

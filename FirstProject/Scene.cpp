@@ -5,6 +5,7 @@ Scene::Scene(std::string scene_file)
 	statics = new std::map<std::string, ComplexMesh*>;
 	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
 
+	lights = new std::vector<Light*>;
 	object_loader = new ObjLoader();
 	shader_loader = new ShaderLoader();
 	texture_loader = new TextureLoader();
@@ -77,6 +78,24 @@ void Scene::draw()
 	for(auto shader_program : *scene_draw_list)
 	{
 		glUseProgram(shader_program.first);
+
+		// Set up Light (only 1 for now)
+		GLuint ambientStrength = glGetUniformLocation(shader_program.first, "ambientStrength");
+		GLuint lightColor = glGetUniformLocation(shader_program.first, "lightColor");
+		
+		if(lights->size() > 0)
+		{
+			glUniform1f(ambientStrength, this->lights->at(0)->ambient_strength);
+
+			glUniform3fv(lightColor, 1, glm::value_ptr(*this->lights->at(0)->color));
+		}
+		else
+		{
+			glUniform1f(ambientStrength, 1.0);
+
+			glUniform3fv(lightColor, 1, glm::value_ptr(glm::vec3(1.0,1.0,1.0)));
+
+		}
 
 		GLuint projectionLoc = glGetUniformLocation(shader_program.first, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
