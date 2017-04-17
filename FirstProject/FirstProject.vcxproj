@@ -131,7 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Bouncer.cpp" />
     <ClCompile Include="ComplexMesh.cpp" />
     <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -146,7 +145,6 @@
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bouncer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComplexMesh.h" />
     <ClInclude Include="File_IO.h" />
