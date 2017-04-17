@@ -59,9 +59,9 @@ public:
 	// void removeLight();
 	// void setSkybox(void); // Pass texture?
 	Camera* camera;
+	std::map<std::string, ComplexMesh*>* statics;
 private:
 	std::string scene_name;
-	std::map<std::string, ComplexMesh*>* statics;
 	std::vector<Light*>* lights;
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;

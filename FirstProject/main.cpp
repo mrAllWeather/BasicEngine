@@ -24,6 +24,7 @@
 #include "Seconds_Per_Frame_Counter.h"	// Handy way to check performance
 #include "Camera.h"						// Our game camera class
 #include "SceneLoader.h"
+#include "Bouncer.h"
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -91,23 +92,18 @@ int main(int argc, char* argv[])
 
 	// Initial Scene
 	Scene* currentLevel;
+	Bouncer* gamemode;
 
-	if(argc > 1)
-	{
-		currentLevel = new Scene(argv[1]);
-	}
-	else
-	{
-		currentLevel = new Scene("./Scenes/Billiards.scene");
-		// currentLevel = new Scene("./Scenes/Test.scene");
-	}
+	// Committing to the Billiards Game
+	currentLevel = new Scene("./Scenes/Billiards.scene");
+	gamemode = new Bouncer(currentLevel, 1.0, glm::vec3(5), 0.0);
 
 	camera = currentLevel->camera;
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
 
-        if(argc > 2)
+    if(argc > 2)
 		spf_report = new SPF_Counter(true);
 	else
 		spf_report = new SPF_Counter(false);

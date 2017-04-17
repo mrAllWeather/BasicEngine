@@ -4,8 +4,39 @@
 
 #define EPSILON 0.000001
 
-Bouncer::Bouncer( int nBalls, float radius, glm::vec3 limits, float friction )
+Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float friction )
 {
+	int nBalls = 0;
+
+	std::map<std::string, ComplexMesh*>::iterator it;
+	auto it_end = current_scene->statics->end();
+
+	it = current_scene->statics->find("CueBall");
+	if (it != it_end)
+	{
+		ball_pos.push_back(it->second->location);
+		++nBalls;
+	}
+	else
+	{
+		// We really should die here, No cueball really means no camera attach and no game
+	}
+
+	// http://stackoverflow.com/questions/17253690/finding-in-a-std-map-using-regex
+	std::string key = "Ball_";
+	auto lower = current_scene->statics->lower_bound(key);
+	auto current = lower;
+
+	while (current != it_end && current->first.compare(0, key.size(), key) == 0)
+	{
+		std::cout << ".";
+		ball_pos.push_back(current->second->location);
+		++nBalls;
+		++current;
+	}
+
+	std::cout << "\nFound " << nBalls << " Balls\n";
+
     this->nBalls = nBalls;
     this->radius = radius;
     this->limits = limits;

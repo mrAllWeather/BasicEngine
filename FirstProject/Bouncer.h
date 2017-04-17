@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include "Scene.h"
 
 class Bouncer
 {
@@ -27,7 +28,7 @@ public:
      @param friction a coefficient of friction. The fraction of speed that is lost 
          each second. Higher values denote more friction, minimum value is 0.0.
     */
-    Bouncer( int nBalls, float radius, glm::vec3 limits, float friction );    
+    Bouncer( Scene* current_scene, float radius, glm::vec3 limits, float friction );    
     ~Bouncer();
     
     /**
@@ -58,6 +59,7 @@ public:
     std::vector<glm::vec3> getCurrentVel();
 
 private:    
+	std::vector<glm::vec3*> ball_pos;
     int nBalls;
     float radius;
     glm::vec3 limits;
