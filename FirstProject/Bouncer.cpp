@@ -15,6 +15,7 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 	if (it != it_end)
 	{
 		ball_pos.push_back(it->second->location);
+		std::cout << ball_pos[0]->x << ":" << ball_pos[0]->y << ":" << ball_pos[0]->z << std::endl;
 		++nBalls;
 	}
 	else
@@ -55,14 +56,14 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 Bouncer::~Bouncer()
 {}
 
-void Bouncer::initialise( const std::vector<glm::vec3> &initData )
+//void Bouncer::initialise( const std::vector<glm::vec3> &initData )
+void Bouncer::initialise()
 {
     for ( int i = 0; i < nBalls; i++ ) {
-        pos[i] = initData[i];
         vel[i] = glm::vec3(0.0);
         for ( int k = 0; k < 3; k++ ) {
             if ( !xyzActive[k] ) {
-                pos[i][k] = 0.0;
+                ball_pos[i]->operator[](k) = 0.0;
             }
         }
     }   
@@ -70,18 +71,22 @@ void Bouncer::initialise( const std::vector<glm::vec3> &initData )
 
 void Bouncer::strike( int ball, glm::vec3 v )
 {
+	std::cout << "Strike: " << v.x << ":" << v.y << ":" << v.z << std::endl;
     for ( int k = 0; k < 3; k++ ) {
         if ( xyzActive[k] ) {
             vel[ball][k] += v[k];
         }
     }
+	std::cout << ball_pos[0]->x << ":" << ball_pos[0]->y << ":" << ball_pos[0]->z << std::endl;
+	std::cout << ball_pos[ball]->x << ":" << ball_pos[ball]->y << ":" << ball_pos[ball]->z << std::endl;
 }
 
 void Bouncer::update( float dt )
 {
     for ( int i = 0; i < nBalls; i++ ) 
     {
-        pos[i] += vel[i] * dt;            
+		*ball_pos[i] += vel[i] * dt;
+        // pos[i] += vel[i] * dt;            
     
         bounceOffWalls( i );
         bounceOffOtherBalls( i );
@@ -110,6 +115,7 @@ void Bouncer::bounceOffWalls( int i )
     {
         if ( xyzActive[k] ) 
         {
+		/*
             if ( pos[i][k] > limits[k] - radius ) {
                 pos[i][k] = limits[k] - radius;
                 vel[i][k] = -vel[i][k];
@@ -118,6 +124,15 @@ void Bouncer::bounceOffWalls( int i )
                 pos[i][k] = -limits[k] + radius;
                 vel[i][k] = -vel[i][k];
             }                    
+		*/
+			if (ball_pos[i]->operator[](k) > limits[k] - radius) {
+				ball_pos[i]->operator[](k) = limits[k] - radius;
+				vel[i][k] = -vel[i][k];
+			}
+			else if (ball_pos[i]->operator[](k) < -limits[k] + radius) {
+				ball_pos[i]->operator[](k) = -limits[k] + radius;
+				vel[i][k] = -vel[i][k];
+			}
         }
     }
 }
@@ -128,9 +143,14 @@ void Bouncer::bounceOffOtherBalls( int i )
     {
         float dist = 0.0;
         for ( int k = 0; k < 3; k++ ) {
+			/*
             if ( xyzActive[k] ) {
                 dist += (pos[i][k] - pos[j][k])*(pos[i][k] - pos[j][k]);
             }
+			*/
+			if (xyzActive[k]) {
+				dist += (ball_pos[i]->operator[](k) - ball_pos[j]->operator[](k))*(ball_pos[i]->operator[](k) - ball_pos[j]->operator[](k));
+			}
         }
         
         // If the distance between balls is less than 2 radii, they have collided.
@@ -140,7 +160,8 @@ void Bouncer::bounceOffOtherBalls( int i )
         float diff = sqrt(dist) - 2*radius;
         if ( diff < 0.0 ) 
         {
-            glm::vec3 inter( pos[j] - pos[i] );
+            // glm::vec3 inter(pos[j] - pos[i] );
+			glm::vec3 inter(*ball_pos[j] - *ball_pos[i]);
             inter = glm::normalize( inter );
             glm::vec3 ui( inter * glm::dot( inter, vel[i] ) );
             glm::vec3 uj( -inter * glm::dot( -inter, vel[j] ) );
@@ -150,8 +171,10 @@ void Bouncer::bounceOffOtherBalls( int i )
             vel[i] = uj + vi;
             vel[j] = ui + vj;
             
-            pos[i] += diff * 0.5f * inter;
-            pos[j] -= diff * 0.5f * inter;                
+            // pos[i] += diff * 0.5f * inter;
+            // pos[j] -= diff * 0.5f * inter;                
+			*ball_pos[i] += diff * 0.5f * inter;
+			*ball_pos[j] -= diff * 0.5f * inter;
         }
     }           
 }    

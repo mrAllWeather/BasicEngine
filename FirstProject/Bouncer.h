@@ -36,7 +36,8 @@ public:
      Assumes initial positions are all within volume boundary.
      @param initData the initial positions. 
     */
-    void initialise( const std::vector<glm::vec3> &initData );
+	// void initialise( const std::vector<glm::vec3> &initData );
+    void initialise();
     
     /**
      Move the simulation forward by dt seconds.

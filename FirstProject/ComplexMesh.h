@@ -37,6 +37,6 @@ public:
 	glm::vec3* rotation;
 	glm::vec3* scale;
 	glm::mat4 static_transform;
-private:
 	void build_static_transform();
+private:
 };

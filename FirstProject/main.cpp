@@ -33,6 +33,9 @@ GLfloat lastX = 400, lastY = 300;
 Camera* camera;
 bool keys[1024];
 
+// Game Mode
+Bouncer* gamemode;
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -92,11 +95,12 @@ int main(int argc, char* argv[])
 
 	// Initial Scene
 	Scene* currentLevel;
-	Bouncer* gamemode;
 
 	// Committing to the Billiards Game
 	currentLevel = new Scene("./Scenes/Billiards.scene");
-	gamemode = new Bouncer(currentLevel, 1.0, glm::vec3(5), 0.0);
+	gamemode = new Bouncer(currentLevel, 1.0, glm::vec3(10), 0.0);
+	
+	gamemode->initialise();
 
 	camera = currentLevel->camera;
 
@@ -119,8 +123,28 @@ int main(int argc, char* argv[])
 		currentLevel->tick(spf_report->delta());
 
 		Do_Movement(spf_report->delta());
+		gamemode->update(spf_report->delta());
 		// Check and call events
 		glfwPollEvents();
+
+		// Update Balls (WILL move this into bouncer)
+		std::map<std::string, ComplexMesh*>::iterator it;
+		it = currentLevel->statics->find("CueBall");
+		std::string key = "Ball_";
+		auto it_end = currentLevel->statics->end();
+		auto lower = currentLevel->statics->lower_bound(key);
+		auto current = lower;
+		
+		if (it != it_end)
+		{
+			it->second->build_static_transform();
+		}
+		
+		while (current != it_end && current->first.compare(0, key.size(), key) == 0)
+		{
+			current->second->build_static_transform();
+			++current;
+		}
 
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -173,6 +197,11 @@ void Do_Movement(float deltaTime)
 	if (keys[GLFW_KEY_D])
 	{
 		camera->ProcessKeyboard(RIGHT, deltaTime);
+	}
+	if (keys[GLFW_KEY_SPACE])
+	{
+		std::cout << "Spacebar\n";
+		gamemode->strike(0, -camera->Position);
 	}
 }
 
