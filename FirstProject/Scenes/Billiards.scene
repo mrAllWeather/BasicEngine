@@ -3,7 +3,13 @@ Billiards
 Camera:
 	Camera_01 0.0 2.5 0.0	0.0 1.0 0.0 	0.0 0.0
 Lights:
-	BaseLight 0.0 2.0 0.0	1.0 1.0 1.0		0.1
+	BaseLight 1.0 5.0 -5.0	1.0 1.0 1.0		0.1
 Statics:
-	Billiards_Table ./Statics/billiards.complex	1.0 1.0 1.0		0.0 0.0 0.0		0.0 0.0 0.0
-	Ball1 ./Statics/ball.complex	1.0 1.0 1.0		1 .93 -1		0.0 0.0 0.0
+	Billiards_Table ./Statics/billiards.complex		1.0 1.0 1.0		0.0 0.0 0.0		0.0 0.0 0.0
+	CueBall ./Statics/BilliardBalls/cue_ball.complex	1.0 1.0 1.0		1 	.93 -1.25		1.5708 0.0 1.5708
+	Ball_01 ./Statics/BilliardBalls/ball_01.complex	1.0 1.0 1.0		3 	.93 -1.25		1.5708 0.0 1.5708
+	Ball_02 ./Statics/BilliardBalls/ball_02.complex	1.0 1.0 1.0		3.09 .93 -1.195		1.5708 0.0 1.5708
+	Ball_03 ./Statics/BilliardBalls/ball_03.complex	1.0 1.0 1.0		3.09 .93 -1.305		1.5708 0.0 1.5708
+	Ball_04 ./Statics/BilliardBalls/ball_04.complex	1.0 1.0 1.0		3.18 .93 -1.25		1.5708 0.0 1.5708
+	Ball_05 ./Statics/BilliardBalls/ball_05.complex	1.0 1.0 1.0		3.18 .93 -1.36		1.5708 0.0 1.5708
+	Ball_06 ./Statics/BilliardBalls/ball_06.complex	1.0 1.0 1.0		3.18 .93 -1.14		1.5708 0.0 1.5708

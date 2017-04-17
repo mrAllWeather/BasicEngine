@@ -19,5 +19,5 @@ void main()
 	vertexColor = vec3(1.0f, 0.0f, 0.0f);
 	TexCoord = texCoord;
 	Normal = normal;
-	FragPos = vec3(model * vec4(position, 1.0f));
+	FragPos = vec3(model * component * vec4(position, 1.0f));
 };

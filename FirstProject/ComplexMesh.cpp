@@ -52,11 +52,13 @@ ComplexMesh::ComplexMesh(std::string cmesh_details,
 
 void ComplexMesh::build_static_transform()
 {
+	static_transform = glm::translate(static_transform, *location);
+
 	static_transform = glm::rotate(static_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
 	static_transform = glm::rotate(static_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
 	static_transform = glm::rotate(static_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
 
 	static_transform = glm::scale(static_transform, *scale);
-	static_transform = glm::translate(static_transform, *location);
+
 
 }
