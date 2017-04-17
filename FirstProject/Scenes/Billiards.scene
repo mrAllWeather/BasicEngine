@@ -1,9 +1,9 @@
 SceneName:
 Billiards
 Camera:
-	Camera_01 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
+	Camera_01 0.0 2.5 0.0	0.0 1.0 0.0 	0.0 0.0
 Lights:
-	BaseLight 10.0 10.0 0.0	1.0 1.0 1.0	0.1
+	BaseLight 0.0 2.0 0.0	1.0 1.0 1.0		0.1
 Statics:
-	Billiards_Table ./Statics/billiards.complex	1.0 1.0 1.0	1.0 1.0 1.0	0.0 0.0 0.0
-	Plane_01 ./Statics/plane.complex 1.0 1.0 1.0  10.0  10.0  0.0 1.5708 0.0 0.0
+	Billiards_Table ./Statics/billiards.complex	1.0 1.0 1.0		0.0 0.0 0.0		0.0 0.0 0.0
+	Ball1 ./Statics/ball.complex	1.0 1.0 1.0		1 .93 -1		0.0 0.0 0.0

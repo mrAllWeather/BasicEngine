@@ -99,6 +99,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		currentLevel = new Scene("./Scenes/Billiards.scene");
+		// currentLevel = new Scene("./Scenes/Test.scene");
 	}
 
 	camera = currentLevel->camera;

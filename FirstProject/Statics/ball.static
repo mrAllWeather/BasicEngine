@@ -1,0 +1,3 @@
+./Meshes/billiards/ball.obj
+./Textures/Balls/Ball_01.jpg
+./Shaders/static.vert,./Shaders/static.frag
