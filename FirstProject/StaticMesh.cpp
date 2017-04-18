@@ -59,6 +59,7 @@ StaticMesh::~StaticMesh()
 
 void StaticMesh::build_component_transform()
 {
+	component_transform = glm::mat4();
 	component_transform = glm::translate(component_transform, *location);
 
 	component_transform = glm::rotate(component_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));

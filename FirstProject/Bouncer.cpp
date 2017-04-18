@@ -15,7 +15,6 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 	if (it != it_end)
 	{
 		ball_pos.push_back(it->second->location);
-		std::cout << ball_pos[0]->x << ":" << ball_pos[0]->y << ":" << ball_pos[0]->z << std::endl;
 		++nBalls;
 	}
 	else
@@ -71,14 +70,11 @@ void Bouncer::initialise()
 
 void Bouncer::strike( int ball, glm::vec3 v )
 {
-	std::cout << "Strike: " << v.x << ":" << v.y << ":" << v.z << std::endl;
     for ( int k = 0; k < 3; k++ ) {
         if ( xyzActive[k] ) {
             vel[ball][k] += v[k];
         }
     }
-	std::cout << ball_pos[0]->x << ":" << ball_pos[0]->y << ":" << ball_pos[0]->z << std::endl;
-	std::cout << ball_pos[ball]->x << ":" << ball_pos[ball]->y << ":" << ball_pos[ball]->z << std::endl;
 }
 
 void Bouncer::update( float dt )
@@ -125,6 +121,7 @@ void Bouncer::bounceOffWalls( int i )
                 vel[i][k] = -vel[i][k];
             }                    
 		*/
+			
 			if (ball_pos[i]->operator[](k) > limits[k] - radius) {
 				ball_pos[i]->operator[](k) = limits[k] - radius;
 				vel[i][k] = -vel[i][k];

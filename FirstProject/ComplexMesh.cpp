@@ -52,6 +52,7 @@ ComplexMesh::ComplexMesh(std::string cmesh_details,
 
 void ComplexMesh::build_static_transform()
 {
+	static_transform = glm::mat4();
 	static_transform = glm::translate(static_transform, *location);
 
 	static_transform = glm::rotate(static_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));

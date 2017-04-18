@@ -73,6 +73,7 @@ private:
 	// the stored values we need for the draw call. As we are calling from the scene
 	// We also have access to our Camera and Lighting.
 	std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >* scene_draw_list;
+	std::vector< ComplexMesh*>* scene_tick_list;
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting

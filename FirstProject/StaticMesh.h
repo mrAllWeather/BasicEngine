@@ -31,7 +31,7 @@ public:
 	glm::vec3* location;
 	glm::vec3* scale;
 	glm::mat4 component_transform;
-
-private:
 	void build_component_transform();
+private:
+	
 };

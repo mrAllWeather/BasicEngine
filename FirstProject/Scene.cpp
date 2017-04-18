@@ -4,6 +4,7 @@ Scene::Scene(std::string scene_file)
 {
 	statics = new std::map<std::string, ComplexMesh*>;
 	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
+	scene_tick_list = new std::vector< ComplexMesh*>;
 
 	lights = new std::vector<Light*>;
 	object_loader = new ObjLoader();
@@ -11,6 +12,9 @@ Scene::Scene(std::string scene_file)
 	texture_loader = new TextureLoader();
 
 	SceneLoader load_scene(scene_file, this);
+
+	// Actor Key
+	std::string key = "Ball_";
 
 	// Build Scene Draw List
 	for (auto const mesh : *statics)
@@ -24,7 +28,14 @@ Scene::Scene(std::string scene_file)
 			{
 				scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
 			}
+
 			scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
+
+			// Add to tick if a ball of some description
+			if (mesh.first.compare(0, key.size(), key) == 0 || mesh.first.compare("CueBall") == 0)
+			{
+				scene_tick_list->push_back(tmpPair.first);
+			}
 		}
 	}
 
@@ -143,9 +154,16 @@ void Scene::draw()
 
 void Scene::tick(GLfloat delta)
 {
-	// std::cout << "Scene Tick\n";
-	// define time delta
-	// call tick for each Actor
+	for (auto mesh : *scene_tick_list)
+	{
+		// Build Complex Transform (actor moving around world) (Ball Moving on table)
+		mesh->build_static_transform();
+		for (auto component : (*mesh->components))
+		{
+			// Build Component Transform (component moving around actor) (Ball Rolling)
+			component.second->build_component_transform();
+		}
+	}
 }
 
 void Scene::update_projection()
