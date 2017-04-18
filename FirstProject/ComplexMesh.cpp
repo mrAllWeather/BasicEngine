@@ -39,7 +39,7 @@ ComplexMesh::ComplexMesh(std::string cmesh_details,
 			// Get component name
 			ss.clear();
 			ss.str(LineBuf);
-			std::getline(ss, component_name, ',');
+			std::getline(ss, component_name, ' ');
 
 			// Create component
 			components->operator[](component_name) = new StaticMesh(LineBuf, scene_shader_loader, scene_object_loader, scene_texture_loader);

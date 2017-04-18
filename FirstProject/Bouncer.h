@@ -61,6 +61,7 @@ public:
 
 private:    
 	std::vector<glm::vec3*> ball_pos;
+	std::vector<glm::vec3*> ball_rot;
     int nBalls;
     float radius;
     glm::vec3 limits;

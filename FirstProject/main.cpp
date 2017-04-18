@@ -96,40 +96,41 @@ int main(int argc, char* argv[])
 	// Clear Color
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-	// Committing to the Billiards Game
+	// Load Scene
 	currentLevel = new Scene("./Scenes/Billiards.scene");
-	gamemode = new Bouncer(currentLevel, 0.05, glm::vec3(2.07, 0, 0.95), 0.1);
-	
-	gamemode->initialise();
-
 	camera = currentLevel->camera;
+
+	// Load Gamemode
+	gamemode = new Bouncer(currentLevel, 0.05, glm::vec3(2.07, 0, 0.95), 0.1);
+	gamemode->initialise();
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
-
     spf_report = new SPF_Counter(true);
-	// spf_report = new SPF_Counter(false);
 
 	// Line Mode
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// Program Loop
+
+	// Delta values
 	double delta, lastFrame, currentFrame = glfwGetTime();
-	
+
+	// Program Loop	
 	while (!glfwWindowShouldClose(window))
 	{
+		// Frame Delta
 		lastFrame = currentFrame;
 		currentFrame = glfwGetTime();
-		
 		delta = currentFrame - lastFrame;
 
-		// Show current time per frame
-		// spf_report->tick();
+		// FPS Report
+		spf_report->tick();
 
 		// Update Actors
 		gamemode->update(delta);
 		currentLevel->tick(delta);
 
+		// Player Input
 		Do_Movement(delta);
 		
 		// Check and call events
@@ -137,7 +138,6 @@ int main(int argc, char* argv[])
 
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		currentLevel->draw();
 
 		// Swap Buffers
