@@ -114,16 +114,23 @@ int main(int argc, char* argv[])
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Program Loop
+	double delta, lastFrame, currentFrame = glfwGetTime();
+	
 	while (!glfwWindowShouldClose(window))
 	{
+		lastFrame = currentFrame;
+		currentFrame = glfwGetTime();
+		
+		delta = currentFrame - lastFrame;
+
 		// Show current time per frame
-		spf_report->tick();
+		// spf_report->tick();
 
 		// Update Actors
-		gamemode->update(spf_report->delta());
-		currentLevel->tick(spf_report->delta());
+		gamemode->update(delta);
+		currentLevel->tick(delta);
 
-		Do_Movement(spf_report->delta());
+		Do_Movement(delta);
 		
 		// Check and call events
 		glfwPollEvents();
