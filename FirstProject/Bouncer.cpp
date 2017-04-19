@@ -84,6 +84,7 @@ void Bouncer::update( float dt )
     for ( int i = 0; i < nBalls; i++ ) 
     {
 		// Test for Ball Rot
+		//TODO Apply rotation here
 		*ball_rot[i] -= (vel[i] * dt) / radius;
 		std::cout << "Ball: " << i << "\tRot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
 
@@ -179,6 +180,9 @@ void Bouncer::bounceOffOtherBalls( int i )
             // pos[j] -= diff * 0.5f * inter;                
 			*ball_pos[i] += diff * 0.5f * inter;
 			*ball_pos[j] -= diff * 0.5f * inter;
+
+
+			//TODO Apply rotation here
         }
     }           
 }    

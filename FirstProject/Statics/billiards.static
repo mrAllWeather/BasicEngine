@@ -1,3 +1,4 @@
 ./Meshes/billiards/billiards_table.obj
 ./Textures/billiards_table.jpg
 ./Shaders/static.vert,./Shaders/static.frag
+0.7

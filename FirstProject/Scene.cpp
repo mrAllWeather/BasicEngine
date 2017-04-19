@@ -93,10 +93,10 @@ void Scene::draw()
 		// Set up Light (only 1 for now)
 		GLuint lightCount = glGetUniformLocation(shader_program.first, "lightCount");
 		GLuint ambientStrength = glGetUniformLocation(shader_program.first, "ambientStrength");
+		GLuint specularStrength = glGetUniformLocation(shader_program.first, "specularStrength");
 		GLuint lightColor = glGetUniformLocation(shader_program.first, "lightColor");
 		GLuint lightPos = glGetUniformLocation(shader_program.first, "lightPos");
 		GLuint viewPosLoc = glGetUniformLocation(shader_program.first, "viewPos");
-	
 
 		glUniform1i(lightCount, lights->size());
 		
@@ -131,6 +131,9 @@ void Scene::draw()
 		*/
 		for(auto component : shader_program.second)
 		{
+			// Get component Specular Value
+			glUniform1f(specularStrength, component.second->specular);
+
 			GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
 	

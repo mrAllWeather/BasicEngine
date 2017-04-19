@@ -11,6 +11,7 @@ uniform float time;
 // Light details
 uniform int lightCount;
 uniform float ambientStrength;
+uniform float specularStrength;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -37,7 +38,6 @@ void main()
 		vec3 diffuse = diff * lightColor;
 		
 		// Specular Calculations
-		float specularStrength = 0.5; // Later determine if this should live in material?
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 		vec3 specular = specularStrength * spec * lightColor;
 

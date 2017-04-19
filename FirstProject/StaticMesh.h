@@ -32,6 +32,7 @@ public:
 	glm::vec3* scale;
 	glm::mat4 component_transform;
 	void build_component_transform();
+	GLfloat specular;
 private:
 	
 };

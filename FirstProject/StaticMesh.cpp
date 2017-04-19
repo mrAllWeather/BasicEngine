@@ -45,6 +45,9 @@ StaticMesh::StaticMesh(	std::string static_details,
 		for (std::string each; std::getline(ss, each, ','); shader_files.push_back(each));
 		std::pair<std::string, std::string> shaders = std::make_pair(shader_files[0], shader_files[1]);
 		shader_program = scene_shader_loader->build_program(shaders);
+
+		std::getline(fb, LineBuf);
+		specular = atof(LineBuf.c_str());
 	}
 
 	fb.close();
