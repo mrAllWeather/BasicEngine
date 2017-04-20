@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "ShaderLoader.h"
 #include "ObjLoader.h"
@@ -28,6 +30,7 @@ public:
 	std::vector<std::pair<std::string, GLuint>> textures; // Look at making this a vector for layered textures
 	GLuint shader_program;
 	glm::vec3* rotation;
+	glm::quat* rot;
 	glm::vec3* location;
 	glm::vec3* scale;
 	glm::mat4 component_transform;

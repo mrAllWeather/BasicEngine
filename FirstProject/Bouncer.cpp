@@ -15,7 +15,7 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 	if (it != it_end)
 	{
 		ball_pos.push_back(it->second->location);
-		ball_rot.push_back(it->second->components->at("Ball")->rotation);
+		ball_rot.push_back(it->second->components->at("Ball")->rot);
 		++nBalls;
 	}
 	else
@@ -32,7 +32,7 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 	{
 		std::cout << ".";
 		ball_pos.push_back(current->second->location);
-		ball_rot.push_back(current->second->components->at("Ball")->rotation);
+		ball_rot.push_back(current->second->components->at("Ball")->rot);
 		++nBalls;
 		++current;
 	}
@@ -85,8 +85,9 @@ void Bouncer::update( float dt )
     {
 		// Test for Ball Rot
 		//TODO Apply rotation here
-		*ball_rot[i] -= (vel[i] * dt) / radius;
-		std::cout << "Ball: " << i << "\tRot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
+		// glm::quat new_rot = glm::quat::angleAxis((glm::length(vel[i]) * dt) / radius, vel[i]);
+		// *ball_rot[i] *= new_rot;
+		// std::cout << "Ball: " << i << "\tRot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
 
 
 		*ball_pos[i] += vel[i] * dt;
