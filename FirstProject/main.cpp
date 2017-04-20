@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 	camera = currentLevel->camera;
 
 	// Load Gamemode
-	gamemode = new Bouncer(currentLevel, 0.05, glm::vec3(2.07, 0, 0.95), 0.1);
+	gamemode = new Bouncer(currentLevel, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
 	gamemode->initialise();
 
 	// Initialise Seconds per Frame counter

@@ -15,7 +15,7 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 	if (it != it_end)
 	{
 		ball_pos.push_back(it->second->location);
-		ball_rot.push_back(it->second->components->at("Ball")->rot);
+		ball_rot.push_back(it->second->rot);
 		++nBalls;
 	}
 	else
@@ -32,7 +32,7 @@ Bouncer::Bouncer(Scene* current_scene, float radius, glm::vec3 limits, float fri
 	{
 		std::cout << ".";
 		ball_pos.push_back(current->second->location);
-		ball_rot.push_back(current->second->components->at("Ball")->rot);
+		ball_rot.push_back(current->second->rot);
 		++nBalls;
 		++current;
 	}
@@ -85,10 +85,20 @@ void Bouncer::update( float dt )
     {
 		// Test for Ball Rot
 		//TODO Apply rotation here
-		// glm::quat new_rot = glm::quat::angleAxis((glm::length(vel[i]) * dt) / radius, vel[i]);
-		// *ball_rot[i] *= new_rot;
-		// std::cout << "Ball: " << i << "\tRot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
+		if (glm::length(vel[i]) > 0.001)
+		{
+			// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
+			float angle = (glm::length(vel[i]) * dt) / radius;
 
+			glm::vec3 axis = glm::normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), glm::normalize(vel[i])));
+
+			glm::quat new_rot = glm::angleAxis(angle, axis);
+			std::cout << "Ball: " << i << "\tAngle: " << angle << "\tAxis: " << axis.x << ":" << axis.y << ":" << axis.z << std::endl;
+			std::cout << "\tAdd Rot:" << new_rot.x << ":" << new_rot.y << ":" << new_rot.z << std::endl;
+
+			*ball_rot[i] = new_rot * *ball_rot[i];
+			std::cout << "New Rot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
+		}
 
 		*ball_pos[i] += vel[i] * dt;
         // pos[i] += vel[i] * dt;            

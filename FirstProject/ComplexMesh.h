@@ -15,6 +15,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 
 #include "StaticMesh.h"
@@ -37,6 +39,7 @@ public:
 	glm::vec3* rotation;
 	glm::vec3* scale;
 	glm::mat4 static_transform;
+	glm::quat* rot;
 	void build_static_transform();
 private:
 };

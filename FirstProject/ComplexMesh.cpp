@@ -27,6 +27,8 @@ ComplexMesh::ComplexMesh(std::string cmesh_details,
 	std::cout << "\tLocation: " << location->x << " " << location->y << " " << location->z << std::endl;
 	std::cout << "\tRotation: " << rotation->x << " " << rotation->y << " " << rotation->z << std::endl;
 
+	rot = new glm::quat(*rotation);
+
 	std::ifstream fb; // FileBuffer
 	fb.open((cmesh_file_name), std::ios::in);
 	std::string LineBuf, component_name;
@@ -55,9 +57,10 @@ void ComplexMesh::build_static_transform()
 	static_transform = glm::mat4();
 	static_transform = glm::translate(static_transform, *location);
 
-	static_transform = glm::rotate(static_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
-	static_transform = glm::rotate(static_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
-	static_transform = glm::rotate(static_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
+	static_transform *= glm::toMat4(*rot);
+	// static_transform = glm::rotate(static_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
+	// static_transform = glm::rotate(static_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
+	// static_transform = glm::rotate(static_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
 
 	static_transform = glm::scale(static_transform, *scale);
 
