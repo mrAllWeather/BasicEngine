@@ -1,0 +1,2 @@
+Bar ./Statics/bar.static 1.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0
+Bar_Back ./Statics/bar_back.static 1.0 1.0 1.0 -0.1 0.0 0.0 0.0 0.0 0.0
