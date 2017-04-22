@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 	glm::vec3* origin = new glm::vec3(0.0);
 	
 	// Configure our look at and circling
-	camera->SetCircleFocus(origin, 6.0, camera->Position);
+	camera->SetCircleFocus(origin, 4.0, camera->Position);
 	camera->SetLookFocus(current_level->statics->at("CueBall")->location);
 
 	// Initialise Seconds per Frame counter
