@@ -69,7 +69,7 @@ private:
 	glm::vec3* LookAtFocus;
 	glm::vec3* CircleFocus;
 	float CircleRadius = 0;
-	float Theta = 7.0f;
+	float Theta = 11.0f;
 	float Phi = 0.0f;
 
 	// Camera Attributes

@@ -99,9 +99,8 @@ int main(int argc, char* argv[])
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
+	// Set OpenGL Options
 	glEnable(GL_DEPTH_TEST);
-	
-	// Remove backfaces
 	glEnable(GL_CULL_FACE);
 
 
@@ -115,7 +114,8 @@ int main(int argc, char* argv[])
 	// Load Gamemode
 	gamemode = new Bouncer(current_level, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
 	gamemode->initialise();
-	// Billiard's table has an offset due to how the table was designed, so instead we are using 0.0
+
+	// Billiard's table has an offset due to how the table was designed, so instead we are using origin as our focus
 	glm::vec3* origin = new glm::vec3(0.0);
 	
 	// Configure our look at and circling
@@ -126,10 +126,7 @@ int main(int argc, char* argv[])
 	SPF_Counter* spf_report;
     spf_report = new SPF_Counter(true);
 
-	// Line Mode
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
+	
 	// Delta values
 	double delta, lastFrame, currentFrame = glfwGetTime();
 
@@ -150,7 +147,7 @@ int main(int argc, char* argv[])
 		// Check and call events
 		glfwPollEvents();
 
-		// Update Actors
+		// Update Level
 		gamemode->update(delta);
 		current_level->tick(delta);
 
@@ -166,6 +163,16 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+// Moves/alters the camera positions based on user input
+void Keyboard_Input(float deltaTime)
+{
+	// Use Pool Cue
+	if (keys[GLFW_KEY_SPACE])
+	{
+
+		gamemode->strike(0, (glm::normalize(camera->Front) * cue_force));
+	}
+}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -179,17 +186,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			keys[key] = true;
 		else if (action == GLFW_RELEASE)
 			keys[key] = false;
-	}
-}
-
-// Moves/alters the camera positions based on user input
-void Keyboard_Input(float deltaTime)
-{
-	// Use Pool Cue
-	if (keys[GLFW_KEY_SPACE])
-	{
-		
-		gamemode->strike(0, (glm::normalize(camera->Front) * cue_force));
 	}
 }
 
