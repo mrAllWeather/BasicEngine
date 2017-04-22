@@ -1,8 +1,0 @@
-SceneName:
-Test_Scene
-Lights:
-	Light_01 0.0 0.0 3.0 1.0 1.0 1.0 0.2
-Camera:
-	Camera_01 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
-Statics:
-	Chopper_01 ./Statics/chopper.complex 1.0 1.0 1.0  15.0  0.0  0.0 -1.53 0.0 0.0

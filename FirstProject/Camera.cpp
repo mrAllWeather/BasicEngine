@@ -27,7 +27,6 @@ void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 {
 	
 	GLfloat velocity = this->MovementSpeed * deltaTime;
-	std::cout << "V:\t" << velocity << std::endl;
 
 	if (direction == FORWARD)
 		this->Position += this->Front * velocity;
@@ -107,8 +106,6 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 		this->Theta = this->Theta + xoffset; // horizontal movement
 		this->Phi = this->Phi + yoffset; // vertical movement
 
-		std::cout << "Current Theta: " << this->Theta << std::endl;
-
 		// We take a offset to allow us control over where the camera is in relation to the object before circling
 		// Will cause clipping if offset is greater than size of item
 		this->Position.x = this->WorldPositionOffset.x + this->CircleFocus->x + CircleRadius*glm::cos(this->Phi)*glm::sin(this->Theta);
@@ -120,6 +117,7 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 
 void Camera::tick()
 {
+	this->CircleObject(0.0, 0.0);
 	this->LookAtObject(true);
 }
 

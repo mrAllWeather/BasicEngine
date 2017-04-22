@@ -27,7 +27,8 @@
 #include "Bouncer.h"
 
 // Window Dimensions
-const GLuint WIDTH = 1024, HEIGHT = 768;
+// const GLuint WIDTH = 1024, HEIGHT = 768;
+const GLuint WIDTH = 1280, HEIGHT = 1024;
 bool firstMouse = true;
 GLfloat lastX = 400, lastY = 300;
 
@@ -44,6 +45,9 @@ Camera* camera;
 // Game Mode
 Bouncer* gamemode;
 glm::vec3 cue_force = glm::vec3(1.0);
+bool is_look_ball = true;
+glm::vec3* origin = new glm::vec3(0.0);
+double lastCircleSwap = 0;
 
 
 // Callbacks
@@ -116,10 +120,10 @@ int main(int argc, char* argv[])
 	gamemode->initialise();
 
 	// Billiard's table has an offset due to how the table was designed, so instead we are using origin as our focus
-	glm::vec3* origin = new glm::vec3(0.0);
+	
 	
 	// Configure our look at and circling
-	camera->SetCircleFocus(origin, 4.0, camera->Position);
+	camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, camera->Position);
 	camera->SetLookFocus(current_level->statics->at("CueBall")->location);
 
 	// Initialise Seconds per Frame counter
@@ -169,8 +173,23 @@ void Keyboard_Input(float deltaTime)
 	// Use Pool Cue
 	if (keys[GLFW_KEY_SPACE])
 	{
-
 		gamemode->strike(0, (glm::normalize(camera->Front) * cue_force));
+	}
+	if (keys[GLFW_KEY_TAB])	// Switch between circling (Ball or Table)
+	{
+		if (glfwGetTime() - lastCircleSwap > 1)
+		{
+			if (is_look_ball)
+			{
+				camera->SetCircleFocus(origin, 3.5, glm::vec3(0, 1.5, 0));
+			}
+			else
+			{
+				camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, glm::vec3(0, 1.0, 0));
+			}
+			is_look_ball = !is_look_ball;
+			lastCircleSwap = glfwGetTime();
+		}
 	}
 }
 
@@ -204,7 +223,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
 	{
 		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
-		std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
+		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
 		camera->CircleObject(xoffset * MOUSE_SPEED, 0.0);
 	}
 

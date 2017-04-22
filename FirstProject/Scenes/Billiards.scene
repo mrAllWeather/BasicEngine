@@ -1,7 +1,7 @@
 SceneName:
 Billiards
 Camera:
-	Camera_01 0.0 1.5 0.0	0.0 1.0 0.0 	0.0 -30.0
+	Camera_01 0.0 1.0 0.0	0.0 1.0 0.0 	0.0 -30.0
 Lights:
 	BaseLight 0.0 1.7 0.0	1.0 1.0 1.0		0.1
 Statics:
@@ -21,3 +21,8 @@ Statics:
 	Bottles_04 ./Statics/bottles.complex			1.0 1.0 1.0		7.3 0.9 1.0		0.0 0.0 0.0
 	Floor ./Statics/flooring.complex			1.0 1.0 1.0		18.0 -0.93 9.0		0.0 1.5708 0.0
 	Walls ./Statics/walls.complex			1.0 1.0 1.0		-4.2 -0.93 3.0		0.0 0.0 0.0
+	Plant_01 ./Statics/plant.complex			1.0 1.0 1.0		-3.5 -0.93 -3.75		0.0 0.0 0.0
+	Plant_02 ./Statics/plant.complex			1.0 1.0 1.0		6.7 -0.93 -3.75		0.0 0.0 0.0
+	CueRack ./Statics/cue_rack.complex			1.0 1.0 1.0		0.0 -0.5 -4.0		0.0 -1.5708 0.0
+	Cue ./Statics/cue.complex			1.0 1.0 1.0		6.7 -0.93 -0.5		0.0 0.0 0.0
+	Bottle ./Statics/bottle.complex			1.0 1.0 1.0		2.31 0.05 -0.75		0.0 0.0 0.0
