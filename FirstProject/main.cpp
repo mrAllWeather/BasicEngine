@@ -30,19 +30,27 @@
 const GLuint WIDTH = 1024, HEIGHT = 768;
 bool firstMouse = true;
 GLfloat lastX = 400, lastY = 300;
-Camera* camera;
+
+
+// Controls
 bool keys[1024];
+bool mouse_button[8];
+float MOUSE_SPEED = 0.01;
+
+// Scene Components
+Scene* current_level;
+Camera* camera;
 
 // Game Mode
 Bouncer* gamemode;
+glm::vec3 cue_force = glm::vec3(1.0);
 
-// Initial Scene
-Scene* currentLevel;
 
+// Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void Do_Movement(float deltaTime);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void Keyboard_Input(float deltaTime);
 
 
 int main(int argc, char* argv[])
@@ -81,7 +89,7 @@ int main(int argc, char* argv[])
 	// Following from that; I wonder how one does context... State machine?
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	// Options
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -92,17 +100,27 @@ int main(int argc, char* argv[])
 	glViewport(0, 0, width, height);
 
 	glEnable(GL_DEPTH_TEST);
+	
+	// Remove backfaces
+	glEnable(GL_CULL_FACE);
+
 
 	// Clear Color
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Load Scene
-	currentLevel = new Scene("./Scenes/Billiards.scene");
-	camera = currentLevel->camera;
+	current_level = new Scene("./Scenes/Billiards.scene");
+	camera = current_level->camera;
 
 	// Load Gamemode
-	gamemode = new Bouncer(currentLevel, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
+	gamemode = new Bouncer(current_level, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
 	gamemode->initialise();
+	// Billiard's table has an offset due to how the table was designed, so instead we are using 0.0
+	glm::vec3* origin = new glm::vec3(0.0);
+	
+	// Configure our look at and circling
+	camera->SetCircleFocus(origin, 6.0, camera->Position);
+	camera->SetLookFocus(current_level->statics->at("CueBall")->location);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -126,19 +144,19 @@ int main(int argc, char* argv[])
 		// FPS Report
 		spf_report->tick();
 
-		// Update Actors
-		gamemode->update(delta);
-		currentLevel->tick(delta);
-
 		// Player Input
-		Do_Movement(delta);
-		
+		Keyboard_Input(delta);
+
 		// Check and call events
 		glfwPollEvents();
 
+		// Update Actors
+		gamemode->update(delta);
+		current_level->tick(delta);
+
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		currentLevel->draw();
+		current_level->draw();
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
@@ -151,9 +169,6 @@ int main(int argc, char* argv[])
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	// Need to shift Key callback into it's own class
-	// Wish to extend into a state machine and have the ability to add or remove keybindings on the fly
-
 	// When user presses the escape key, we set the windowShouldClose property to true,
 	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -168,29 +183,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 // Moves/alters the camera positions based on user input
-void Do_Movement(float deltaTime)
+void Keyboard_Input(float deltaTime)
 {
-	// Camera controls
-	if (keys[GLFW_KEY_W])
-	{
-		camera->ProcessKeyboard(FORWARD, deltaTime);
-	}
-	if (keys[GLFW_KEY_S])
-	{
-		camera->ProcessKeyboard(BACKWARD, deltaTime);
-	}
-	if (keys[GLFW_KEY_A])
-	{
-		camera->ProcessKeyboard(LEFT, deltaTime);
-	}
-	if (keys[GLFW_KEY_D])
-	{
-		camera->ProcessKeyboard(RIGHT, deltaTime);
-	}
+	// Use Pool Cue
 	if (keys[GLFW_KEY_SPACE])
 	{
 		
-		gamemode->strike(0, (camera->Front * glm::vec3(0.1)));
+		gamemode->strike(0, (glm::normalize(camera->Front) * cue_force));
 	}
 }
 
@@ -204,16 +203,28 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	GLfloat xoffset = xpos - lastX;
-	GLfloat yoffset = lastY - ypos;  // Reversed since y-coordinates go from bottom to left
-
 	lastX = xpos;
-	lastY = ypos;
 
-	camera->ProcessMouseMovement(xoffset, yoffset, true);
+	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
+	{
+		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
+		std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
+		camera->CircleObject(xoffset * MOUSE_SPEED, 0.0);
+	}
+
 }
 
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	camera->ProcessMouseScroll(yoffset);
+	if (button >= 0 && button <= 8)
+	{
+		if (action == GLFW_PRESS)
+		{
+			mouse_button[button] = true;
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			mouse_button[button] = false;
+		}
+	}
 }

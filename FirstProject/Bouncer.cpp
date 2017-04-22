@@ -93,15 +93,14 @@ void Bouncer::update( float dt )
 			glm::vec3 axis = glm::normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), glm::normalize(vel[i])));
 
 			glm::quat new_rot = glm::angleAxis(angle, axis);
-			std::cout << "Ball: " << i << "\tAngle: " << angle << "\tAxis: " << axis.x << ":" << axis.y << ":" << axis.z << std::endl;
-			std::cout << "\tAdd Rot:" << new_rot.x << ":" << new_rot.y << ":" << new_rot.z << std::endl;
+			// std::cout << "Ball: " << i << "\tAngle: " << angle << "\tAxis: " << axis.x << ":" << axis.y << ":" << axis.z << std::endl;
+			// std::cout << "\tAdd Rot:" << new_rot.x << ":" << new_rot.y << ":" << new_rot.z << std::endl;
 
 			*ball_rot[i] = new_rot * *ball_rot[i];
-			std::cout << "New Rot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
+			// std::cout << "New Rot: " << ball_rot[i]->x << ":" << ball_rot[i]->y << ":" << ball_rot[i]->z << std::endl;
 		}
 
-		*ball_pos[i] += vel[i] * dt;
-        // pos[i] += vel[i] * dt;            
+		*ball_pos[i] += vel[i] * dt;         
     
         bounceOffWalls( i );
         bounceOffOtherBalls( i );

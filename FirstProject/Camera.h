@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "ComplexMesh.h"
+
 
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
@@ -24,9 +26,9 @@ enum Camera_Movement {
 // Default camera values
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
-const GLfloat SPEED = 0.5f;
+const GLfloat SPEED = 1.0f;
 const GLfloat SENSITIVTY = 0.25f;
-const GLfloat ZOOM = 45.0f;
+const GLfloat ZOOM = 1.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
@@ -48,13 +50,28 @@ public:
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch);
 
-	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-	void ProcessMouseScroll(GLfloat yoffset);
+	void SetLookFocus(glm::vec3* focus);
+	void SetCircleFocus(glm::vec3* focus, float radius, glm::vec3 offset);
+	void RemoveCircleFocus();
+	void LookAtObject(GLboolean constrainPitch);
+	void CircleObject(GLfloat xoffset, GLfloat yoffset);
+
+	void tick();
+
 
 	GLfloat Zoom;
 	glm::vec3 Position;
+	glm::vec3 SavedPosition; // Consider turning this into vector for main system
+	glm::vec3 WorldPositionOffset;
 	glm::vec3 Front;
 private:
+	// Objects in Scene we are concerned with
+	glm::vec3* LookAtFocus;
+	glm::vec3* CircleFocus;
+	float CircleRadius = 0;
+	float Theta = 7.0f;
+	float Phi = 0.0f;
+
 	// Camera Attributes
 	glm::vec3 Up;
 	glm::vec3 Right;

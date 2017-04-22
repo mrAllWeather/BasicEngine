@@ -41,5 +41,6 @@ public:
 	glm::mat4 static_transform;
 	glm::quat* rot;
 	void build_static_transform();
+
 private:
 };

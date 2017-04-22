@@ -167,6 +167,7 @@ void Scene::tick(GLfloat delta)
 			component.second->build_component_transform();
 		}
 	}
+	camera->tick();
 }
 
 void Scene::update_projection()
