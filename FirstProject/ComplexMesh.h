@@ -18,11 +18,10 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-
 #include "StaticMesh.h"
 
-class Scene; // TODO find out why I am using parent references
-
+// This does need to be heavily reviewed for rights
+// Everything is currently public as we give up our details constantly to pretty much everyone
 class ComplexMesh {
 public:
 	friend class StaticMesh;
@@ -31,10 +30,9 @@ public:
 			ObjLoader* scene_object_loader,
 			TextureLoader* scene_texture_loader);
 
-
 	std::string name;
+	// List of all out components (by name so we can call them for local transforms if needed)
 	std::map<std::string, StaticMesh*>* components;
-	Scene* parent;
 	glm::vec3* location;
 	glm::vec3* rotation;
 	glm::vec3* scale;

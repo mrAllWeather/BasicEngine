@@ -5,7 +5,6 @@
 
 TextureLoader::TextureLoader ()
 {
-	
 	this->loaded_textures = new std::map<std::string, std::pair<GLuint, GLuint> >;
 }
 
@@ -36,6 +35,7 @@ void TextureLoader::remove_texture(std::string filename)
 	}
 }
 
+// Not used here but long term goal is to unload any textures that are used by no objects
 GLuint TextureLoader::get_texture(std::string filename)
 {
 	if(!is_texture_built(filename))
@@ -49,6 +49,8 @@ GLuint TextureLoader::get_texture(std::string filename)
 
 void TextureLoader::load_texture(std::string texture_file)
 {
+	// While based on LearnOpenGL's load texture code, this is also inspired by http://aras-p.info/blog/2007/05/28/now-thats-what-i-call-a-good-api-stb_image/
+	// which highlights how good stbi_load is
 	std::cout << "Loading Texture: " << texture_file << std::endl;
 	GLuint load_texture;
 
@@ -62,7 +64,7 @@ void TextureLoader::load_texture(std::string texture_file)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// Load, create texture and generate mipmaps
+	// Load image, create texture and generate mipmaps
 	int width, height, num_channels;
 
 	unsigned char* image = stbi_load(texture_file.c_str(), &width, &height, &num_channels, 0);

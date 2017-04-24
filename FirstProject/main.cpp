@@ -34,31 +34,39 @@ GLfloat lastX = 400, lastY = 300;
 
 
 // Controls
+const float MOUSE_SPEED = 0.01; // How fast the camera should rotate around our focus object
 bool keys[1024];
 bool mouse_button[8];
-float MOUSE_SPEED = 0.01;
+
 
 // Scene Components
 Scene* current_level;
 Camera* camera;
 
+
 // Game Mode
+const glm::vec3 CUE_FORCE = glm::vec3(1.0);	// How strong we hit the cue ball
+const double VIEW_SWAP_DELAY = 1;	// Only swap view focus (<TAB>) once every this many seconds
+
 Bouncer* gamemode;
-glm::vec3 cue_force = glm::vec3(1.0);
-bool is_look_ball = true;
-glm::vec3* origin = new glm::vec3(0.0);
-double lastCircleSwap = 0;
+bool is_look_ball = true;	// Are we looking at the cue ball or the table?
+glm::vec3* origin = new glm::vec3(0.0); // Our table is living at origin but has a slight offset due to the model. Origin lets us circle without a weird offset
+double time_since_last_circle_swap = 0; // How long since we last swapped view focus
 
 
 // Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
 void Keyboard_Input(float deltaTime);
 
+bool SHOW_FPS = false;
 
 int main(int argc, char* argv[])
 {
+	double start_time = glfwGetTime();
+
 	// Init GLFW
 	glfwInit();
 	// Set GLFW req options
@@ -107,7 +115,6 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-
 	// Clear Color
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
@@ -119,21 +126,20 @@ int main(int argc, char* argv[])
 	gamemode = new Bouncer(current_level, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
 	gamemode->initialise();
 
-	// Billiard's table has an offset due to how the table was designed, so instead we are using origin as our focus
-	
-	
 	// Configure our look at and circling
 	camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, camera->Position);
 	camera->SetLookFocus(current_level->statics->at("CueBall")->location);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
-    spf_report = new SPF_Counter(true);
+    spf_report = new SPF_Counter(SHOW_FPS);
 
-	
-	// Delta values
+	// Set up delta tracking
 	double delta, lastFrame, currentFrame = glfwGetTime();
 
+	// How long did loading take? (Plants take up close to 4 seconds!)
+	std::cout << "Loaded after " << (currentFrame - start_time) << " seconds.\n";
+	
 	// Program Loop	
 	while (!glfwWindowShouldClose(window))
 	{
@@ -173,11 +179,12 @@ void Keyboard_Input(float deltaTime)
 	// Use Pool Cue
 	if (keys[GLFW_KEY_SPACE])
 	{
-		gamemode->strike(0, (glm::normalize(camera->Front) * cue_force));
+		gamemode->strike(0, (glm::normalize(camera->Front) * CUE_FORCE));
 	}
-	if (keys[GLFW_KEY_TAB])	// Switch between circling (Ball or Table)
+	// Switch between circling (Ball or Table)
+	if (keys[GLFW_KEY_TAB])
 	{
-		if (glfwGetTime() - lastCircleSwap > 1)
+		if (glfwGetTime() - time_since_last_circle_swap > VIEW_SWAP_DELAY)
 		{
 			if (is_look_ball)
 			{
@@ -188,7 +195,7 @@ void Keyboard_Input(float deltaTime)
 				camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, glm::vec3(0, 1.0, 0));
 			}
 			is_look_ball = !is_look_ball;
-			lastCircleSwap = glfwGetTime();
+			time_since_last_circle_swap = glfwGetTime();
 		}
 	}
 }
@@ -222,8 +229,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
 	{
-		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
 		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
+
+		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
 		camera->CircleObject(xoffset * MOUSE_SPEED, 0.0);
 	}
 

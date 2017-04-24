@@ -27,9 +27,9 @@ public:
 	GLuint* VAO; // Single Value
 	GLuint* VBO; // Verts, Normals, UVs
 	GLuint vertices; // Num of Verts
-	std::vector<std::pair<std::string, GLuint>> textures; // Look at making this a vector for layered textures
+	std::vector<std::pair<std::string, GLuint>> textures; // We may have many textures (we don't, but it's a possibility)
 	GLuint shader_program;
-	glm::vec3* rotation;
+	glm::vec3* rotation; // We set this but don't actually use it as we have quats now. 
 	glm::quat* rot;
 	glm::vec3* location;
 	glm::vec3* scale;

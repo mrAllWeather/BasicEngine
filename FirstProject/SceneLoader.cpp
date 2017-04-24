@@ -31,6 +31,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			else if (LineBuf == "Camera:")
 			{
 				// TODO We name cameras but only support one for now; so toss the provided name and only load first
+				// Though changes to how views work might mean new cameras become easy to attach
 
 				std::getline(fb, LineBuf);
 				std::stringstream iss(LineBuf);
@@ -52,6 +53,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Lights:")
 			{
+				// Again only handle 1 light at a time for the moment, but best to be prepared
 				std::getline(fb, LineBuf);
 				Light* tmpLight = new Light(LineBuf);
 				this->scene->lights->push_back(tmpLight);
@@ -89,6 +91,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 	else
 	{
 		std::cout << "Scene Failed to load!" << std::endl;
+		exit(-1);
 	}
 }
 
@@ -127,7 +130,5 @@ bool SceneLoader::BuildSkybox(std::ifstream* fb, std::string* LineBuf)
 
 bool SceneLoader::BuildStatics(std::ifstream* fb, std::string* LineBuf)
 {
-
-
 	return true;
 }

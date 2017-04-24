@@ -14,6 +14,7 @@ StaticMesh::StaticMesh(	std::string static_details,
 	// Load Component
 	std::istringstream iss(static_details);
 
+	// 'Component_Name' COMPONENT_FILE scale.x scale.y scale.z loc.x loc.y loc.z rot.x rot.y rot.z // Local
 	iss >> name >> static_file_name >>
 		scale->x >> scale->y >> scale->z >>
 		location->x >> location->y >> location->z >>
@@ -27,6 +28,7 @@ StaticMesh::StaticMesh(	std::string static_details,
 
 	std::ifstream fb; // FileBuffer
 	fb.open((static_file_name), std::ios::in);
+
 	std::string LineBuf;
 	std::stringstream ss;
 	std::vector<std::string> shader_files;
@@ -50,6 +52,7 @@ StaticMesh::StaticMesh(	std::string static_details,
 		std::pair<std::string, std::string> shaders = std::make_pair(shader_files[0], shader_files[1]);
 		shader_program = scene_shader_loader->build_program(shaders);
 
+		// Load Specular value for component
 		std::getline(fb, LineBuf);
 		specular = atof(LineBuf.c_str());
 	}
@@ -70,9 +73,6 @@ void StaticMesh::build_component_transform()
 	component_transform = glm::translate(component_transform, *location);
 
 	component_transform *= glm::toMat4(*rot);
-	// component_transform = glm::rotate(component_transform, rotation->x, glm::vec3(1.0, 0.0, 0.0));
-	// component_transform = glm::rotate(component_transform, rotation->y, glm::vec3(0.0, 1.0, 0.0));
-	// component_transform = glm::rotate(component_transform, rotation->z, glm::vec3(0.0, 0.0, 1.0));
 
 	component_transform = glm::scale(component_transform, *scale);
 

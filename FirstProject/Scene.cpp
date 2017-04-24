@@ -2,8 +2,11 @@
 
 Scene::Scene(std::string scene_file)
 {
+	// Everything object in our scene
 	statics = new std::map<std::string, ComplexMesh*>;
+	// What we need to draw each frame
 	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
+	// What we need to update each frame
 	scene_tick_list = new std::vector< ComplexMesh*>;
 
 	lights = new std::vector<Light*>;
@@ -13,7 +16,7 @@ Scene::Scene(std::string scene_file)
 
 	SceneLoader load_scene(scene_file, this);
 
-	// Actor Key
+	// Actor Key (This way we can add balls to scene without recompiling)
 	std::string key = "Ball_";
 
 	// Build Scene Draw List
@@ -65,7 +68,7 @@ bool Scene::attachStatic(std::string new_name, ComplexMesh * new_mesh)
 		std::pair<ComplexMesh*, StaticMesh*> tmpPair;
 		tmpPair.first = new_mesh;
 		tmpPair.second = component.second;
-		if (!scene_draw_list->count(component.second->shader_program)) // If the key is already in the map
+		if (!scene_draw_list->count(component.second->shader_program)) // If the key is not already in the map
 		{
 			scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
 		}

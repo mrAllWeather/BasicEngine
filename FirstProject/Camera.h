@@ -1,7 +1,6 @@
 #pragma once
-/*  Camera Class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
-	TODO Refine based on my needs (Assess values, and see if can improve for my projects)
-
+/*  Heavily based upon 'Camera' class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
+	Some redundant function calls remain TODO clean them up
 */
 // Std. Includes
 #include <vector>
@@ -23,11 +22,12 @@ enum Camera_Movement {
 	RIGHT
 };
 
-// Default camera values
+// Default camera values (we actually replace Yaw and Pitch straight away, but they may come in useful later on).
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
 const GLfloat SPEED = 1.0f;
 const GLfloat SENSITIVTY = 0.25f;
+// While we have removed Zoom functionality, we still use this for perspective
 const GLfloat ZOOM = 1.0f;
 
 
@@ -50,24 +50,32 @@ public:
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch);
 
+	// Start focusing on this object
 	void SetLookFocus(glm::vec3* focus);
+
+	// Save position (if not already circling) and begin rotating at fixed radius and offset from the object
 	void SetCircleFocus(glm::vec3* focus, float radius, glm::vec3 offset);
+
+	// Stop circling and return to original position
 	void RemoveCircleFocus();
+	
+	// Update pitch and roll 
 	void LookAtObject(GLboolean constrainPitch);
+	
+	// Move around object we are circling
 	void CircleObject(GLfloat xoffset, GLfloat yoffset);
 
 	void tick();
 
-
 	GLfloat Zoom;
 	glm::vec3 Position;
-	glm::vec3 SavedPosition; // Consider turning this into vector for main system
+	glm::vec3 SavedPosition; // Consider adding to main branch camera
 	glm::vec3 WorldPositionOffset;
 	glm::vec3 Front;
 private:
 	// Objects in Scene we are concerned with
-	glm::vec3* LookAtFocus;
-	glm::vec3* CircleFocus;
+	glm::vec3* LookAtFocus;  // What we are looking at
+	glm::vec3* CircleFocus;  // What we are circling
 	float CircleRadius = 0;
 	float Theta = 11.0f;
 	float Phi = 0.0f;

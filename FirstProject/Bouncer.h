@@ -10,7 +10,6 @@
 */
 
 #include <vector>
-#define GLM_MESSAGES
 #include <glm/glm.hpp>
 #include "Scene.h"
 #include <glm/gtx/quaternion.hpp>
@@ -58,19 +57,18 @@ public:
      Get the current position and velocity of all balls.
      @return a vector containing current position/velocity of all balls.
     */
-    std::vector<glm::vec3> getCurrentPos();
-    std::vector<glm::vec3> getCurrentVel();
+    std::vector<glm::vec3> getCurrentPos(); // We don't use this
+    std::vector<glm::vec3> getCurrentVel(); // We don't use this
 
 private:    
 	std::vector<glm::vec3*> ball_pos;
-	// std::vector<glm::vec3*> ball_rot;
 	std::vector<glm::quat*> ball_rot;
     int nBalls;
     float radius;
     glm::vec3 limits;
     float friction;
     bool xyzActive[3];
-    std::vector<glm::vec3> pos;
+    std::vector<glm::vec3> pos; // We don't use this
     std::vector<glm::vec3> vel;
     
     void bounceOffWalls( int i );

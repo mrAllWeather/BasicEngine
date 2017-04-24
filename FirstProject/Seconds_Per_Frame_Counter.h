@@ -1,5 +1,6 @@
 #pragma once
-
+/* Based upon (Measure speed (http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/))
+*/
 #include <cstdio>
 #include <GLFW/glfw3.h>
 

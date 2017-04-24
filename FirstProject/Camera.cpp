@@ -38,6 +38,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 		this->Position += this->Right * velocity;
 }
 
+// We don't use this for Billiards
 void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true)
 {
 	xoffset *= this->MouseSensitivity;
@@ -102,7 +103,6 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 		// We wish to circle the focused object at a set distance
 		// https://www.opengl.org/discussion_boards/showthread.php/176504-Orbit-around-object
 
-		
 		this->Theta = this->Theta + xoffset; // horizontal movement
 		this->Phi = this->Phi + yoffset; // vertical movement
 
@@ -111,13 +111,14 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 		this->Position.x = this->WorldPositionOffset.x + this->CircleFocus->x + CircleRadius*glm::cos(this->Phi)*glm::sin(this->Theta);
 		this->Position.y = this->WorldPositionOffset.y + this->CircleFocus->y + CircleRadius*glm::sin(this->Phi)*glm::cos(this->Theta);
 		this->Position.z = this->WorldPositionOffset.z + this->CircleFocus->z + CircleRadius*glm::cos(this->Theta);
-
 	}
 }
 
 void Camera::tick()
 {
+	// We don't need to move, but we do want to ensure we're in the correct location
 	this->CircleObject(0.0, 0.0);
+	// Update out look rotation
 	this->LookAtObject(true);
 }
 
@@ -137,8 +138,7 @@ void Camera::SetCircleFocus(glm::vec3* focus, float radius, glm::vec3 offset)
 	this->CircleFocus = focus;
 	this->CircleRadius = radius;
 
-	CircleObject(0.0, 0.0);
-	LookAtObject(true);
+	tick(); // Update our pos and rotation
 }
 
 void Camera::RemoveCircleFocus()

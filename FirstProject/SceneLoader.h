@@ -10,6 +10,8 @@
 #include "TextureLoader.h"
 #include "Light.h"
 
+class Scene; // TODO find out why I am using parent references
+
 class SceneLoader
 {
 public:
