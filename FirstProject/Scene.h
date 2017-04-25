@@ -1,4 +1,11 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712) 
+ * Description: Scene class to handle graphical side of levels
+ * Contains all meshes, lights, and cameras for the scene. Tracks a series of loader
+ * which can reduce duplicate loading. Handles graphic changes per frame via the tick function
+*/
+
+
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>

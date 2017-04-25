@@ -1,4 +1,11 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712)
+ * Description: Low level component class
+ * Contains component VAO, VBO, Shader program and textures. 
+ * Handles local transformations of the component within it's parent object.
+*/
+
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <cstdlib>
 #include <regex>

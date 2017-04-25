@@ -1,7 +1,12 @@
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS
-/* Strongly influenced by http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+/* Author: Ben Weatherall (a1617712)
+ * Description: System to load obj files, including verts, normals and uvs.
+ * Tracks built meshes to ensure each file is only loaded once.
+ * Strongly influenced by http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+ * Issues: Only handles Triangulated objs; cannot handle non-textured surfaces
 */
+
+#define _CRT_SECURE_NO_WARNINGS
 #include <cctype>
 #include <iostream>
 #include <fstream>

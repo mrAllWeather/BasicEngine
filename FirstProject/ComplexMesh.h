@@ -1,6 +1,13 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712)
+ * Description: Container class used to handle collection of component meshes into singular object
+ * Handles world coordination and placement. Allows component meshes to be referenced by name
+ * opening the way for basic animations.
+*/
+
 #define _CRT_SECURE_NO_WARNINGS
 #define CMESH_REGEX "\\t\\w* .* ([\\d\\.f]*( )?){9}"
+
 #include <map>
 #include <string>
 #include <fstream>

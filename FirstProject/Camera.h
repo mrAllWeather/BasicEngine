@@ -1,6 +1,12 @@
 #pragma once
-/*  Heavily based upon 'Camera' class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
-	Some redundant function calls remain TODO clean them up
+/*  Author: Ben Weatherall (a1617712)
+ *  Description: Camera class for use within Scenes.
+ *  Heavily based upon 'Camera' class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
+ *  Some (now) redundant function calls remain. Will save for the code.
+ *  Features: 
+ *  	Manual Rotation and Movement
+ *	Automatic LookAt (Pass Vec3* of location)
+ *	Automatic Rotation Around Object
 */
 // Std. Includes
 #include <vector>

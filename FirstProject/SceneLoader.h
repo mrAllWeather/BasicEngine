@@ -1,4 +1,10 @@
 #pragma once
+/* Author: Ben Weatherall
+ * Description: Scene Loader; intended to read a scene file and then populat a Scene object
+ * with the relevant objects. A number of Circumstances are not currently handled.
+ * Currently handles Camera (only first), Light (only first), Statics and SceneName
+*/
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <regex>
 #include <string>
