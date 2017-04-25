@@ -94,7 +94,7 @@ void ShaderLoader::load_shader(std::string filename)
 GLuint ShaderLoader::build_shader(GLchar** SourceCode, GLuint shader_type)
 {
 	GLuint shader = glCreateShader(shader_type);
-	glShaderSource(shader, 1, SourceCode, NULL);
+	glShaderSource(shader, 1, (const GLchar**)SourceCode, NULL);
 	glCompileShader(shader);
 
 	GLint success;
