@@ -1,4 +1,4 @@
-./Meshes/Cue/cue.obj
+./Meshes/cue/cue.obj
 ./Textures/Cue/cue.jpg
 ./Shaders/static.vert,./Shaders/static.frag
 0.9
