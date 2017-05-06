@@ -25,6 +25,7 @@
 #include "Camera.h"						// Our game camera class
 #include "SceneLoader.h"
 #include "Bouncer.h"
+#include "RenderText.h"
 
 // Window Dimensions
 // const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -114,6 +115,8 @@ int main(int argc, char* argv[])
 	// Set OpenGL Options
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Clear Color
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -121,6 +124,8 @@ int main(int argc, char* argv[])
 	// Load Scene
 	current_level = new Scene("./Scenes/Billiards.scene");
 	camera = current_level->camera;
+
+	RenderText ui_text(WIDTH, HEIGHT);
 
 	// Load Gamemode
 	gamemode = new Bouncer(current_level, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
@@ -132,7 +137,7 @@ int main(int argc, char* argv[])
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
-    spf_report = new SPF_Counter(SHOW_FPS);
+	spf_report = new SPF_Counter(SHOW_FPS);
 
 	// Set up delta tracking
 	double delta, lastFrame, currentFrame = glfwGetTime();
@@ -164,6 +169,9 @@ int main(int argc, char* argv[])
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		current_level->draw();
+
+		ui_text.DrawString("(0,0) from bottom left", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+		ui_text.DrawString("+", WIDTH/2.0f, HEIGHT/2.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
