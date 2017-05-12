@@ -1,4 +1,4 @@
-#include "ComplexMesh.h"
+#include "../include/ComplexMesh.h"
 
 ComplexMesh::ComplexMesh(std::string cmesh_details, 
 	ShaderLoader* scene_shader_loader, 

@@ -1,4 +1,4 @@
-#include "StaticMesh.h"
+#include "../include/StaticMesh.h"
 
 StaticMesh::StaticMesh(	std::string static_details, 
 			ShaderLoader* scene_shader_loader, 

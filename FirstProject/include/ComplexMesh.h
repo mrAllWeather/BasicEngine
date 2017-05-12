@@ -25,7 +25,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "StaticMesh.h"
+#include "../include/StaticMesh.h"
 
 // This does need to be heavily reviewed for rights
 // Everything is currently public as we give up our details constantly to pretty much everyone

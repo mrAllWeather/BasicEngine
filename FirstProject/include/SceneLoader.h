@@ -11,10 +11,10 @@
 #include <iostream>
 #include <istream>
 
-#include "Scene.h"
-#include "ComplexMesh.h"
-#include "TextureLoader.h"
-#include "Light.h"
+#include "../include/Scene.h"
+#include "../include/ComplexMesh.h"
+#include "../include/TextureLoader.h"
+#include "../include/Light.h"
 
 class Scene; // TODO find out why I am using parent references
 

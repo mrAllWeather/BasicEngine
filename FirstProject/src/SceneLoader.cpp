@@ -1,4 +1,4 @@
-#include "SceneLoader.h"
+#include "../include/SceneLoader.h"
 
 SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 {

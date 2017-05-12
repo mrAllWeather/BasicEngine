@@ -1,4 +1,4 @@
-#include "ObjLoader.h"
+#include "../include/ObjLoader.h"
 
 ObjLoader::ObjLoader()
 {

@@ -21,11 +21,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Seconds_Per_Frame_Counter.h"	// Handy way to check performance
-#include "Camera.h"						// Our game camera class
-#include "SceneLoader.h"
-#include "Bouncer.h"
-#include "RenderText.h"
+#include "../include/Seconds_Per_Frame_Counter.h"	// Handy way to check performance
+#include "../include/Camera.h"						// Our game camera class
+#include "../include/SceneLoader.h"
+#include "../include/RenderText.h"
 
 // Window Dimensions
 // const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -46,12 +45,10 @@ Camera* camera;
 
 
 // Game Mode
-const glm::vec3 CUE_FORCE = glm::vec3(1.0);	// How strong we hit the cue ball
-const double VIEW_SWAP_DELAY = 1;	// Only swap view focus (<TAB>) once every this many seconds
-
-Bouncer* gamemode;
-bool is_look_ball = true;	// Are we looking at the cue ball or the table?
 glm::vec3* origin = new glm::vec3(0.0); // Our table is living at origin but has a slight offset due to the model. Origin lets us circle without a weird offset
+
+// View / Focus Swapping
+const double VIEW_SWAP_DELAY = 1;	// Only swap view focus (<TAB>) once every this many seconds
 double time_since_last_circle_swap = 0; // How long since we last swapped view focus
 
 
@@ -128,12 +125,11 @@ int main(int argc, char* argv[])
 	RenderText ui_text(WIDTH, HEIGHT);
 
 	// Load Gamemode
-	gamemode = new Bouncer(current_level, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
-	gamemode->initialise();
+	// gamemode->initialise();
 
 	// Configure our look at and circling
-	camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, camera->Position);
-	camera->SetLookFocus(current_level->statics->at("CueBall")->location);
+	// camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, camera->Position);
+	// camera->SetLookFocus(current_level->statics->at("CueBall")->location);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -163,7 +159,7 @@ int main(int argc, char* argv[])
 		glfwPollEvents();
 
 		// Update Level
-		gamemode->update(delta);
+		// gamemode->update(delta);
 		current_level->tick(delta);
 
 		// Rendering Commands here
@@ -171,7 +167,6 @@ int main(int argc, char* argv[])
 		current_level->draw();
 
 		ui_text.DrawString("(0,0) from bottom left", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-		ui_text.DrawString("+", WIDTH/2.0f, HEIGHT/2.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
@@ -184,10 +179,11 @@ int main(int argc, char* argv[])
 // Moves/alters the camera positions based on user input
 void Keyboard_Input(float deltaTime)
 {
+	/* 
 	// Use Pool Cue
 	if (keys[GLFW_KEY_SPACE])
 	{
-		gamemode->strike(0, (glm::normalize(camera->Front) * CUE_FORCE));
+		// gamemode->strike(0, (glm::normalize(camera->Front) * CUE_FORCE));
 	}
 	// Switch between circling (Ball or Table)
 	if (keys[GLFW_KEY_TAB])
@@ -206,6 +202,7 @@ void Keyboard_Input(float deltaTime)
 			time_since_last_circle_swap = glfwGetTime();
 		}
 	}
+	*/
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)

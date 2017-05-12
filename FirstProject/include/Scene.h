@@ -19,13 +19,13 @@
 #include<string>
 #include<vector>
 
-#include "ShaderLoader.h"
-#include "ObjLoader.h"
-#include "TextureLoader.h"
-#include "SceneLoader.h"
-#include "ComplexMesh.h"
-#include "Camera.h"
-#include "Light.h"
+#include "../include/ShaderLoader.h"
+#include "../include/ObjLoader.h"
+#include "../include/TextureLoader.h"
+#include "../include/SceneLoader.h"
+#include "../include/ComplexMesh.h"
+#include "../include/Camera.h"
+#include "../include/Light.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run

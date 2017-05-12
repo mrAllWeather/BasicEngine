@@ -17,9 +17,9 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "ShaderLoader.h"
-#include "ObjLoader.h"
-#include "TextureLoader.h"
+#include "../include/ShaderLoader.h"
+#include "../include/ObjLoader.h"
+#include "../include/TextureLoader.h"
 
 class StaticMesh {
 public:

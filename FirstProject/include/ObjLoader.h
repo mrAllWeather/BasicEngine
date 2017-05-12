@@ -16,7 +16,7 @@
 #include <sstream>
 #include <map>
 
-#include "File_IO.h"
+#include "../include/File_IO.h"
 
 // GLEW
 #define GLEW_STATIC

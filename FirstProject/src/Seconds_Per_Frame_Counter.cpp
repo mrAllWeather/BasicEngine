@@ -1,4 +1,4 @@
-#include "Seconds_Per_Frame_Counter.h"
+#include "../include/Seconds_Per_Frame_Counter.h"
 
 SPF_Counter::SPF_Counter(bool p_report)
 {
