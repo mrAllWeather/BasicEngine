@@ -1,0 +1,4 @@
+./Meshes/cue/rack.obj
+./Textures/Cue/rack.jpg
+./Shaders/static.vert,./Shaders/static.frag
+0.3

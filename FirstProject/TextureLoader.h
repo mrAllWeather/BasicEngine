@@ -1,4 +1,8 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712)
+ * Description: Class to build Textures from provided files
+ * Tracks previously loaded textures to avoid duplication
+*/
 
 #include <fstream>
 #include <string>

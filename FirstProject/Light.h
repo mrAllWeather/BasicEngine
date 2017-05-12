@@ -1,4 +1,9 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712)
+ * Description: Point light class to be used within scene. 
+ * Provides details of the location, strength and color of light.
+*/
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <cstdlib>
 #include <regex>

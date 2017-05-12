@@ -30,9 +30,13 @@ bool ObjLoader::is_static_mesh_built(std::string filename)
 	return false;
 }
 
-
 void ObjLoader::load_mesh(std::string filename)
 {
+	// Suggested resources for this course are a godsend for learning how to do complex things
+	// http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+	// I'm hoping we are giving a more robust loader method for later homework, else I'm going
+	// to have to update this to handle non-textured verts
+
 	std::cout << "Building Mesh: " << (filename) << std::endl;
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
@@ -42,7 +46,6 @@ void ObjLoader::load_mesh(std::string filename)
 	
 	std::ifstream fb; // FileBuffer
 	int matches;
-
 
 	fb.open((filename), std::ios::in);
 

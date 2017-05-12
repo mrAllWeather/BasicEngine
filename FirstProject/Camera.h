@@ -1,7 +1,12 @@
 #pragma once
-/*  Camera Class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
-	TODO Refine based on my needs (Assess values, and see if can improve for my projects)
-
+/*  Author: Ben Weatherall (a1617712)
+ *  Description: Camera class for use within Scenes.
+ *  Heavily based upon 'Camera' class from LearnOpenGL tutorials (https://learnopengl.com/#!Getting-started/Camera)
+ *  Some (now) redundant function calls remain. Will save for the code.
+ *  Features: 
+ *  	Manual Rotation and Movement
+ *	Automatic LookAt (Pass Vec3* of location)
+ *	Automatic Rotation Around Object
 */
 // Std. Includes
 #include <vector>
@@ -10,6 +15,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "ComplexMesh.h"
 
 
 
@@ -21,12 +28,13 @@ enum Camera_Movement {
 	RIGHT
 };
 
-// Default camera values
+// Default camera values (we actually replace Yaw and Pitch straight away, but they may come in useful later on).
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
-const GLfloat SPEED = 0.25f;
+const GLfloat SPEED = 1.0f;
 const GLfloat SENSITIVTY = 0.25f;
-const GLfloat ZOOM = 45.0f;
+// While we have removed Zoom functionality, we still use this for perspective
+const GLfloat ZOOM = 1.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
@@ -48,14 +56,37 @@ public:
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch);
 
-	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-	void ProcessMouseScroll(GLfloat yoffset);
+	// Start focusing on this object
+	void SetLookFocus(glm::vec3* focus);
+
+	// Save position (if not already circling) and begin rotating at fixed radius and offset from the object
+	void SetCircleFocus(glm::vec3* focus, float radius, glm::vec3 offset);
+
+	// Stop circling and return to original position
+	void RemoveCircleFocus();
+	
+	// Update pitch and roll 
+	void LookAtObject(GLboolean constrainPitch);
+	
+	// Move around object we are circling
+	void CircleObject(GLfloat xoffset, GLfloat yoffset);
+
+	void tick();
 
 	GLfloat Zoom;
 	glm::vec3 Position;
-private:
-	// Camera Attributes
+	glm::vec3 SavedPosition; // Consider adding to main branch camera
+	glm::vec3 WorldPositionOffset;
 	glm::vec3 Front;
+private:
+	// Objects in Scene we are concerned with
+	glm::vec3* LookAtFocus;  // What we are looking at
+	glm::vec3* CircleFocus;  // What we are circling
+	float CircleRadius = 0;
+	float Theta = 11.0f;
+	float Phi = 0.0f;
+
+	// Camera Attributes
 	glm::vec3 Up;
 	glm::vec3 Right;
 	glm::vec3 WorldUp;

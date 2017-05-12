@@ -1,4 +1,11 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712) 
+ * Description: Scene class to handle graphical side of levels
+ * Contains all meshes, lights, and cameras for the scene. Tracks a series of loader
+ * which can reduce duplicate loading. Handles graphic changes per frame via the tick function
+*/
+
+
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -59,9 +66,9 @@ public:
 	// void removeLight();
 	// void setSkybox(void); // Pass texture?
 	Camera* camera;
+	std::map<std::string, ComplexMesh*>* statics;
 private:
 	std::string scene_name;
-	std::map<std::string, ComplexMesh*>* statics;
 	std::vector<Light*>* lights;
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;
@@ -73,6 +80,7 @@ private:
 	// the stored values we need for the draw call. As we are calling from the scene
 	// We also have access to our Camera and Lighting.
 	std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >* scene_draw_list;
+	std::vector< ComplexMesh*>* scene_tick_list;
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting

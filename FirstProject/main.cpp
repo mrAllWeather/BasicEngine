@@ -24,22 +24,50 @@
 #include "Seconds_Per_Frame_Counter.h"	// Handy way to check performance
 #include "Camera.h"						// Our game camera class
 #include "SceneLoader.h"
+#include "Bouncer.h"
+#include "RenderText.h"
 
 // Window Dimensions
-const GLuint WIDTH = 1024, HEIGHT = 768;
+// const GLuint WIDTH = 1024, HEIGHT = 768;
+const GLuint WIDTH = 1280, HEIGHT = 1024;
 bool firstMouse = true;
 GLfloat lastX = 400, lastY = 300;
-Camera* camera;
+
+
+// Controls
+const float MOUSE_SPEED = 0.01; // How fast the camera should rotate around our focus object
 bool keys[1024];
+bool mouse_button[8];
 
+
+// Scene Components
+Scene* current_level;
+Camera* camera;
+
+
+// Game Mode
+const glm::vec3 CUE_FORCE = glm::vec3(1.0);	// How strong we hit the cue ball
+const double VIEW_SWAP_DELAY = 1;	// Only swap view focus (<TAB>) once every this many seconds
+
+Bouncer* gamemode;
+bool is_look_ball = true;	// Are we looking at the cue ball or the table?
+glm::vec3* origin = new glm::vec3(0.0); // Our table is living at origin but has a slight offset due to the model. Origin lets us circle without a weird offset
+double time_since_last_circle_swap = 0; // How long since we last swapped view focus
+
+
+// Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void Do_Movement(float deltaTime);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
+void Keyboard_Input(float deltaTime);
+
+bool SHOW_FPS = false;
 
 int main(int argc, char* argv[])
 {
+	double start_time = glfwGetTime();
+
 	// Init GLFW
 	glfwInit();
 	// Set GLFW req options
@@ -74,7 +102,7 @@ int main(int argc, char* argv[])
 	// Following from that; I wonder how one does context... State machine?
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	// Options
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -84,52 +112,66 @@ int main(int argc, char* argv[])
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
+	// Set OpenGL Options
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Clear Color
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-	// Initial Scene
-	Scene* currentLevel;
+	// Load Scene
+	current_level = new Scene("./Scenes/Billiards.scene");
+	camera = current_level->camera;
 
-	if(argc > 1)
-	{
-		currentLevel = new Scene(argv[1]);
-	}
-	else
-	{
-		currentLevel = new Scene("./Scenes/Billiards.scene");
-		// currentLevel = new Scene("./Scenes/Test.scene");
-	}
+	RenderText ui_text(WIDTH, HEIGHT);
 
-	camera = currentLevel->camera;
+	// Load Gamemode
+	gamemode = new Bouncer(current_level, 0.05, glm::vec3(2.07, 0, 0.95), 0.5);
+	gamemode->initialise();
+
+	// Configure our look at and circling
+	camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, camera->Position);
+	camera->SetLookFocus(current_level->statics->at("CueBall")->location);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
+	spf_report = new SPF_Counter(SHOW_FPS);
 
-        if(argc > 2)
-		spf_report = new SPF_Counter(true);
-	else
-		spf_report = new SPF_Counter(false);
+	// Set up delta tracking
+	double delta, lastFrame, currentFrame = glfwGetTime();
 
-	// Line Mode
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// Program Loop
+	// How long did loading take? (Plants take up close to 4 seconds!)
+	std::cout << "Loaded after " << (currentFrame - start_time) << " seconds.\n";
+	
+	// Program Loop	
 	while (!glfwWindowShouldClose(window))
 	{
-		// Show current time per frame
-		spf_report->tick();
-		currentLevel->tick(spf_report->delta());
+		// Frame Delta
+		lastFrame = currentFrame;
+		currentFrame = glfwGetTime();
+		delta = currentFrame - lastFrame;
 
-		Do_Movement(spf_report->delta());
+		// FPS Report
+		spf_report->tick();
+
+		// Player Input
+		Keyboard_Input(delta);
+
 		// Check and call events
 		glfwPollEvents();
 
+		// Update Level
+		gamemode->update(delta);
+		current_level->tick(delta);
+
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		current_level->draw();
 
-		currentLevel->draw();
+		ui_text.DrawString("(0,0) from bottom left", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+		ui_text.DrawString("+", WIDTH/2.0f, HEIGHT/2.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
@@ -139,12 +181,35 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+// Moves/alters the camera positions based on user input
+void Keyboard_Input(float deltaTime)
+{
+	// Use Pool Cue
+	if (keys[GLFW_KEY_SPACE])
+	{
+		gamemode->strike(0, (glm::normalize(camera->Front) * CUE_FORCE));
+	}
+	// Switch between circling (Ball or Table)
+	if (keys[GLFW_KEY_TAB])
+	{
+		if (glfwGetTime() - time_since_last_circle_swap > VIEW_SWAP_DELAY)
+		{
+			if (is_look_ball)
+			{
+				camera->SetCircleFocus(origin, 3.5, glm::vec3(0, 1.5, 0));
+			}
+			else
+			{
+				camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, glm::vec3(0, 1.0, 0));
+			}
+			is_look_ball = !is_look_ball;
+			time_since_last_circle_swap = glfwGetTime();
+		}
+	}
+}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	// Need to shift Key callback into it's own class
-	// Wish to extend into a state machine and have the ability to add or remove keybindings on the fly
-
 	// When user presses the escape key, we set the windowShouldClose property to true,
 	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -158,28 +223,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
-// Moves/alters the camera positions based on user input
-void Do_Movement(float deltaTime)
-{
-	// Camera controls
-	if (keys[GLFW_KEY_W])
-	{
-		camera->ProcessKeyboard(FORWARD, deltaTime);
-	}
-	if (keys[GLFW_KEY_S])
-	{
-		camera->ProcessKeyboard(BACKWARD, deltaTime);
-	}
-	if (keys[GLFW_KEY_A])
-	{
-		camera->ProcessKeyboard(LEFT, deltaTime);
-	}
-	if (keys[GLFW_KEY_D])
-	{
-		camera->ProcessKeyboard(RIGHT, deltaTime);
-	}
-}
-
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
@@ -190,16 +233,29 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	GLfloat xoffset = xpos - lastX;
-	GLfloat yoffset = lastY - ypos;  // Reversed since y-coordinates go from bottom to left
-
 	lastX = xpos;
-	lastY = ypos;
 
-	camera->ProcessMouseMovement(xoffset, yoffset, true);
+	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
+	{
+		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
+
+		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
+		camera->CircleObject(xoffset * MOUSE_SPEED, 0.0);
+	}
+
 }
 
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	camera->ProcessMouseScroll(yoffset);
+	if (button >= 0 && button <= 8)
+	{
+		if (action == GLFW_PRESS)
+		{
+			mouse_button[button] = true;
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			mouse_button[button] = false;
+		}
+	}
 }

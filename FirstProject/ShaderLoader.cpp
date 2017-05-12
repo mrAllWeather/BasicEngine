@@ -55,7 +55,6 @@ void ShaderLoader::load_shader(std::string filename)
 	if (in) {
 		in.seekg(0, std::ios::end);
 
-		// TODO: Confirm I will never be dealing with a object file greater than MAX_INT bytes
 		uint64_t length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle. 
 		GLchar * ShaderSourceCode = new GLchar[length + 1]; // We are reading a c_string so make room for the \0
 
@@ -64,6 +63,7 @@ void ShaderLoader::load_shader(std::string filename)
 		in.read(ShaderSourceCode, length);
 
 		in.close();
+
 		ShaderSourceCode[length] = '\0'; // .read() doesn't add a \0, we need to add it ourselves
 
 		// Build Shaders
@@ -94,7 +94,7 @@ void ShaderLoader::load_shader(std::string filename)
 GLuint ShaderLoader::build_shader(GLchar** SourceCode, GLuint shader_type)
 {
 	GLuint shader = glCreateShader(shader_type);
-	glShaderSource(shader, 1, SourceCode, NULL);
+	glShaderSource(shader, 1, (const GLchar**)SourceCode, NULL);
 	glCompileShader(shader);
 
 	GLint success;

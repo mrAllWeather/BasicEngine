@@ -1,7 +1,0 @@
-SceneName:
-Scene_name
-Camera:
-	Camera_01 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
-Statics:
-	Capsule_01 ./Statics/capsule.complex 1.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0
-	Cube_01 ./Statics/cube.complex 1.0 1.0 1.0 3.0 0.0 0.0 0.0 0.0 0.0

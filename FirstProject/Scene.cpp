@@ -2,8 +2,12 @@
 
 Scene::Scene(std::string scene_file)
 {
+	// Everything object in our scene
 	statics = new std::map<std::string, ComplexMesh*>;
+	// What we need to draw each frame
 	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
+	// What we need to update each frame
+	scene_tick_list = new std::vector< ComplexMesh*>;
 
 	lights = new std::vector<Light*>;
 	object_loader = new ObjLoader();
@@ -11,6 +15,9 @@ Scene::Scene(std::string scene_file)
 	texture_loader = new TextureLoader();
 
 	SceneLoader load_scene(scene_file, this);
+
+	// Actor Key (This way we can add balls to scene without recompiling)
+	std::string key = "Ball_";
 
 	// Build Scene Draw List
 	for (auto const mesh : *statics)
@@ -24,7 +31,14 @@ Scene::Scene(std::string scene_file)
 			{
 				scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
 			}
+
 			scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
+
+			// Add to tick if a ball of some description
+			if (mesh.first.compare(0, key.size(), key) == 0 || mesh.first.compare("CueBall") == 0)
+			{
+				scene_tick_list->push_back(tmpPair.first);
+			}
 		}
 	}
 
@@ -54,7 +68,7 @@ bool Scene::attachStatic(std::string new_name, ComplexMesh * new_mesh)
 		std::pair<ComplexMesh*, StaticMesh*> tmpPair;
 		tmpPair.first = new_mesh;
 		tmpPair.second = component.second;
-		if (!scene_draw_list->count(component.second->shader_program)) // If the key is already in the map
+		if (!scene_draw_list->count(component.second->shader_program)) // If the key is not already in the map
 		{
 			scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
 		}
@@ -82,10 +96,10 @@ void Scene::draw()
 		// Set up Light (only 1 for now)
 		GLuint lightCount = glGetUniformLocation(shader_program.first, "lightCount");
 		GLuint ambientStrength = glGetUniformLocation(shader_program.first, "ambientStrength");
+		GLuint specularStrength = glGetUniformLocation(shader_program.first, "specularStrength");
 		GLuint lightColor = glGetUniformLocation(shader_program.first, "lightColor");
 		GLuint lightPos = glGetUniformLocation(shader_program.first, "lightPos");
 		GLuint viewPosLoc = glGetUniformLocation(shader_program.first, "viewPos");
-	
 
 		glUniform1i(lightCount, lights->size());
 		
@@ -120,6 +134,9 @@ void Scene::draw()
 		*/
 		for(auto component : shader_program.second)
 		{
+			// Get component Specular Value
+			glUniform1f(specularStrength, component.second->specular);
+
 			GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
 	
@@ -143,9 +160,17 @@ void Scene::draw()
 
 void Scene::tick(GLfloat delta)
 {
-	// std::cout << "Scene Tick\n";
-	// define time delta
-	// call tick for each Actor
+	for (auto mesh : *scene_tick_list)
+	{
+		// Build Complex Transform (actor moving around world) (Ball Moving on table)
+		mesh->build_static_transform();
+		for (auto component : (*mesh->components))
+		{
+			// Build Component Transform (component moving around actor) (Ball Rolling)
+			component.second->build_component_transform();
+		}
+	}
+	camera->tick();
 }
 
 void Scene::update_projection()

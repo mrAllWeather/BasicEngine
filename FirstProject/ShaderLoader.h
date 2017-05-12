@@ -1,4 +1,10 @@
 #pragma once
+/* Author: Ben Weatherall (a1617712)
+ * Description: Loader for Shader files and Programs
+ * Loads Shader files provided, tracks the built Shaders (to avoid duplication) 
+ * then will build a program from the provided files. Programs are also tracked
+ * to avoid duplication.
+*/
 
 #include <fstream>
 #include <string>

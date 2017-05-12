@@ -1,4 +1,8 @@
 #pragma once
+/* Author: Ben Weatherall
+ * Description: Helper function that allows the contents of a folder to be loaded in 
+ * both windows and linux.
+*/
 #if _WIN64 || _WIN32
 	#include <Windows.h>
 #elif __linux__
