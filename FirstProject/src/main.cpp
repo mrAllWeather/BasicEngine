@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <cmath>
 
 // GLEW
 #define GLEW_STATIC
@@ -154,20 +155,19 @@ int main(int argc, char* argv[])
 	// Populate Bounding Box
 	for (auto shape : *model_01->shapes)
 	{
-		std::cout << "Indices: " << shape.mesh.indices.size() << std::endl;
-		for (unsigned int i = 0; i < shape.mesh.indices.size() / 3; i += 3)
+		for (unsigned int i = 0; i < shape.mesh.positions.size() / 3; i += 3)
 		{
 
 			for (unsigned int axis = 0; axis < 3; axis++)
 			{
-				if (!model_01->bounds[0][axis] || model_01->bounds[0][axis] > shape.mesh.indices[i + axis])
+				if (!model_01->bounds[0][axis] || model_01->bounds[0][axis] > shape.mesh.positions[i + axis])
 				{
-					model_01->bounds[0][axis] = shape.mesh.indices[i + axis];
+					model_01->bounds[0][axis] = shape.mesh.positions[i + axis];
 				}
 
-				if (!model_01->bounds[1][axis] || model_01->bounds[0][axis] < shape.mesh.indices[i + axis])
+				if (!model_01->bounds[1][axis] || model_01->bounds[0][axis] < shape.mesh.positions[i + axis])
 				{
-					model_01->bounds[1][axis] = shape.mesh.indices[i + axis];
+					model_01->bounds[1][axis] = shape.mesh.positions[i + axis];
 				}
 			}
 		}
@@ -175,10 +175,10 @@ int main(int argc, char* argv[])
 
 	std::cout << "Min:\t" << model_01->bounds[0][0] << ":" << model_01->bounds[0][1] << ":" << model_01->bounds[0][2] << std::endl;
 	std::cout << "Max:\t" << model_01->bounds[1][0] << ":" << model_01->bounds[1][1] << ":" << model_01->bounds[1][2] << std::endl;
-	int scale = 0;
+	float scale = 0;
 	for (unsigned int axis = 0; axis < 3; axis++)
 	{
-		int diff = model_01->bounds[1][axis] - model_01->bounds[0][axis];
+		float diff = fabs(model_01->bounds[1][axis] - model_01->bounds[0][axis]);
 		std::cout << diff << std::endl;
 		if (diff > scale)
 		{
