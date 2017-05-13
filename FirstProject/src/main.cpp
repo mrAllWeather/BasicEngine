@@ -64,13 +64,6 @@ void Keyboard_Input(float deltaTime);
 
 bool SHOW_FPS = false;
 
-// TODO TMP STRUCT 
-struct obj_loader_model {
-	std::vector<tinyobj::shape_t>* shapes;
-	std::vector<tinyobj::material_t>* materials;
-	glm::vec3 bounds[2];
-};
-
 int main(int argc, char* argv[])
 {
 	double start_time = glfwGetTime();
@@ -132,10 +125,8 @@ int main(int argc, char* argv[])
 	camera = current_level->camera;
 	RenderText ui_text(WIDTH, HEIGHT);
 
-	// Load Gamemode
-	obj_loader_model* model_01 = new obj_loader_model;
-	model_01->materials = new std::vector<tinyobj::material_t>;
-	model_01->shapes = new std::vector<tinyobj::shape_t>;
+	// Load Gamemode TODO: Move this into Scene I think
+
 
 	if (argc < 2)
 	{
@@ -144,52 +135,8 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		std::string err;
-		tinyobj::LoadObj(*model_01->shapes, *model_01->materials, err, argv[1], "./Materials/");
-		if (!err.empty())
-		{
-			std::cout << "Encountered error loading file: " << argv[1] << "\n" << err << std::endl;
-		}
+		current_level->setObject(argv[1]);
 	}
-
-	// Populate Bounding Box
-	for (auto shape : *model_01->shapes)
-	{
-		for (unsigned int i = 0; i < shape.mesh.positions.size() / 3; i += 3)
-		{
-
-			for (unsigned int axis = 0; axis < 3; axis++)
-			{
-				if (!model_01->bounds[0][axis] || model_01->bounds[0][axis] > shape.mesh.positions[i + axis])
-				{
-					model_01->bounds[0][axis] = shape.mesh.positions[i + axis];
-				}
-
-				if (!model_01->bounds[1][axis] || model_01->bounds[0][axis] < shape.mesh.positions[i + axis])
-				{
-					model_01->bounds[1][axis] = shape.mesh.positions[i + axis];
-				}
-			}
-		}
-	}
-
-	std::cout << "Min:\t" << model_01->bounds[0][0] << ":" << model_01->bounds[0][1] << ":" << model_01->bounds[0][2] << std::endl;
-	std::cout << "Max:\t" << model_01->bounds[1][0] << ":" << model_01->bounds[1][1] << ":" << model_01->bounds[1][2] << std::endl;
-	float scale = 0;
-	for (unsigned int axis = 0; axis < 3; axis++)
-	{
-		float diff = fabs(model_01->bounds[1][axis] - model_01->bounds[0][axis]);
-		std::cout << diff << std::endl;
-		if (diff > scale)
-		{
-			scale = diff;
-		}
-	}
-	std::cout << "Scale:\t" << scale << std::endl;
-
-	std::string min_report = "Min: " + std::to_string(model_01->bounds[0][0]) + ":" + std::to_string(model_01->bounds[0][1]) + ":" + std::to_string(model_01->bounds[0][2]);
-	std::string max_report = "Max: " + std::to_string(model_01->bounds[1][0]) + ":" + std::to_string(model_01->bounds[1][1]) + ":" + std::to_string(model_01->bounds[1][2]);
-	std::string scale_report = "Scale: " + std::to_string(scale);
 
 	// gamemode->initialise();
 
@@ -232,9 +179,9 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		current_level->draw();
 
-		ui_text.DrawString(min_report, 15.0f, HEIGHT - 15.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
-		ui_text.DrawString(max_report, 15.0f, HEIGHT - 30.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
-		ui_text.DrawString(scale_report, 15.0f, HEIGHT - 45.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
+		// ui_text.DrawString(min_report, 15.0f, HEIGHT - 15.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
+		// ui_text.DrawString(max_report, 15.0f, HEIGHT - 30.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
+		// ui_text.DrawString(scale_report, 15.0f, HEIGHT - 45.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
 
 		// Swap Buffers
 		glfwSwapBuffers(window);

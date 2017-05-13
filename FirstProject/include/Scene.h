@@ -26,6 +26,7 @@
 #include "../include/ComplexMesh.h"
 #include "../include/Camera.h"
 #include "../include/Light.h"
+#include "../include/tiny_obj_loader.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run
@@ -34,6 +35,13 @@ const GLuint s_WIDTH = 1024, s_HEIGHT = 768;
 struct technician {
 	Camera* camera;
 	//std::vector<Lights*> lights
+};
+
+// TODO TMP STRUCT 
+struct obj_loader_model {
+	std::vector<tinyobj::shape_t>* shapes;
+	std::vector<tinyobj::material_t>* materials;
+	glm::vec3 bounds[2];
 };
 
 class Scene {
@@ -50,6 +58,7 @@ public:
 	// and then add the each components ComplexMesh*, StaticMesh* paid to our
 	// scene_draw_list
 	bool attachStatic(std::string, ComplexMesh*);
+	void setObject(std::string);
 	
 	// Remove Static wil remove each component from the scene_draw_list and
 	// then call delete on the ComplexMesh*
