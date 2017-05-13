@@ -79,59 +79,7 @@ bool Scene::attachStatic(std::string new_name, ComplexMesh * new_mesh)
 	return true;
 }
 
-void Scene::setObject(std::string file_path)
-{
-	obj_loader_model* model_01 = new obj_loader_model;
-	model_01->materials = new std::vector<tinyobj::material_t>;
-	model_01->shapes = new std::vector<tinyobj::shape_t>;
 
-	std::string err;
-	tinyobj::LoadObj(*model_01->shapes, *model_01->materials, err, file_path.c_str(), "./Materials/");
-	if (!err.empty())
-	{
-		std::cout << "Encountered error loading file: " << file_path << "\n" << err << std::endl;
-	}
-
-	// Populate Bounding Box
-	for (auto shape : *model_01->shapes)
-	{
-		for (unsigned int i = 0; i < shape.mesh.positions.size() / 3; i += 3)
-		{
-
-			for (unsigned int axis = 0; axis < 3; axis++)
-			{
-				if (!model_01->bounds[0][axis] || model_01->bounds[0][axis] > shape.mesh.positions[i + axis])
-				{
-					model_01->bounds[0][axis] = shape.mesh.positions[i + axis];
-				}
-
-				if (!model_01->bounds[1][axis] || model_01->bounds[0][axis] < shape.mesh.positions[i + axis])
-				{
-					model_01->bounds[1][axis] = shape.mesh.positions[i + axis];
-				}
-			}
-		}
-	}
-
-	std::cout << "Min:\t" << model_01->bounds[0][0] << ":" << model_01->bounds[0][1] << ":" << model_01->bounds[0][2] << std::endl;
-	std::cout << "Max:\t" << model_01->bounds[1][0] << ":" << model_01->bounds[1][1] << ":" << model_01->bounds[1][2] << std::endl;
-	float scale = 0;
-	for (unsigned int axis = 0; axis < 3; axis++)
-	{
-		float diff = fabs(model_01->bounds[1][axis] - model_01->bounds[0][axis]);
-		std::cout << diff << std::endl;
-		if (diff > scale)
-		{
-			scale = diff;
-		}
-	}
-	std::cout << "Scale:\t" << scale << std::endl;
-
-	std::string min_report = "Min: " + std::to_string(model_01->bounds[0][0]) + ":" + std::to_string(model_01->bounds[0][1]) + ":" + std::to_string(model_01->bounds[0][2]);
-	std::string max_report = "Max: " + std::to_string(model_01->bounds[1][0]) + ":" + std::to_string(model_01->bounds[1][1]) + ":" + std::to_string(model_01->bounds[1][2]);
-	std::string scale_report = "Scale: " + std::to_string(scale);
-
-}
 
 void Scene::removeStatic(std::string static_name)
 {

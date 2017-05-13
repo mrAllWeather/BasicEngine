@@ -26,7 +26,7 @@
 #include "../include/ComplexMesh.h"
 #include "../include/Camera.h"
 #include "../include/Light.h"
-#include "../include/tiny_obj_loader.h"
+#include "../include/Mesh.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run
@@ -75,8 +75,10 @@ public:
 	// void removeLight();
 	// void setSkybox(void); // Pass texture?
 	Camera* camera;
-	std::map<std::string, ComplexMesh*>* statics;
+	std::map<std::string, Mesh*>* meshes;
+	std::map<std::string, GLuint> textures;
 private:
+	GLuint active_shader;
 	std::string scene_name;
 	std::vector<Light*>* lights;
 	ObjLoader* object_loader;
