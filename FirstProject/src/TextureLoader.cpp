@@ -1,8 +1,5 @@
 #include "../include/TextureLoader.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../include/stb_image.h"
-
 TextureLoader::TextureLoader ()
 {
 	this->loaded_textures = new std::map<std::string, std::pair<GLuint, GLuint> >;
@@ -49,6 +46,7 @@ GLuint TextureLoader::get_texture(std::string filename)
 
 void TextureLoader::load_texture(std::string texture_file)
 {
+	/*
 	// While based on LearnOpenGL's load texture code, this is also inspired by http://aras-p.info/blog/2007/05/28/now-thats-what-i-call-a-good-api-stb_image/
 	// which highlights how good stbi_load is
 	std::cout << "Loading Texture: " << texture_file << std::endl;
@@ -83,6 +81,7 @@ void TextureLoader::load_texture(std::string texture_file)
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 
 	loaded_textures->emplace(std::make_pair(texture_file, std::make_pair(load_texture, 0)));
+	*/
 }
 
 bool TextureLoader::is_texture_built(std::string filename)

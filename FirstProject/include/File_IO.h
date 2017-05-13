@@ -15,3 +15,8 @@
 #include <iostream>
 
 std::vector<std::string> DirectoryContents(std::string dir);
+
+// Taken from viewer.cc (in interest of time)
+std::string GetBaseDir(const std::string &filepath);
+
+bool FileExists(const std::string &abs_filename);

@@ -2,7 +2,7 @@
 
 ObjLoader::ObjLoader()
 {
-	this->built_meshes= new std::map<std::string, VertexObjects>;
+	this->built_meshes = new std::map<std::string, VertexObjects>;
 }
 
 // TODO: We need to track attachment and detachment of shaders

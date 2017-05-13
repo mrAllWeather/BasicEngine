@@ -27,6 +27,7 @@
 #include "../include/SceneLoader.h"
 #include "../include/RenderText.h"
 #include "../include/tiny_obj_loader.h"
+#include "../include/File_IO.h"
 
 // Window Dimensions
 // const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -135,7 +136,11 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		current_level->setObject(argv[1]);
+		std::cout << "Folder Check: " << GetBaseDir(argv[1]) << std::endl;
+		current_level->attachObject("model_01", argv[1], GetBaseDir(argv[1])+ "/");
+		current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
+		current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
+		current_level->setActiveShader("Debug");
 	}
 
 	// gamemode->initialise();

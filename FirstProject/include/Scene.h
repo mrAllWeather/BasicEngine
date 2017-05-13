@@ -57,9 +57,8 @@ public:
 	// Add Static (maybe rename?) will add a complex mesh, build all components
 	// and then add the each components ComplexMesh*, StaticMesh* paid to our
 	// scene_draw_list
-	bool attachStatic(std::string, ComplexMesh*);
-	void setObject(std::string);
-	
+	void attachObject(std::string object_scene_name, std::string file_name, std::string base_dir = "");
+	void attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file);
 	// Remove Static wil remove each component from the scene_draw_list and
 	// then call delete on the ComplexMesh*
 	void removeStatic(std::string); // Chance to Complex in the long run
@@ -68,6 +67,7 @@ public:
 
 	void tick(GLfloat delta); // Update All Actors
 
+	void setActiveShader(std::string);
 	// TODO
 	// bool attachActor();
 	// uint64_t attachLight();
@@ -77,10 +77,13 @@ public:
 	Camera* camera;
 	std::map<std::string, Mesh*>* meshes;
 	std::map<std::string, GLuint> textures;
+	std::map<std::string, GLuint> shaders;
 private:
 	GLuint active_shader;
+	Light* active_light;
 	std::string scene_name;
 	std::vector<Light*>* lights;
+
 	ObjLoader* object_loader;
 	ShaderLoader* shader_loader;
 	TextureLoader* texture_loader;
@@ -90,8 +93,10 @@ private:
 	// We store every static/actor component by shader program. We can then call
 	// the stored values we need for the draw call. As we are calling from the scene
 	// We also have access to our Camera and Lighting.
-	std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >* scene_draw_list;
-	std::vector< ComplexMesh*>* scene_tick_list;
+
+	// std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >* scene_draw_list;
+	// std::vector< ComplexMesh*>* scene_tick_list;
+	
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting

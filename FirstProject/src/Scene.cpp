@@ -3,11 +3,13 @@
 Scene::Scene(std::string scene_file)
 {
 	// Everything object in our scene
-	statics = new std::map<std::string, ComplexMesh*>;
+	// statics = new std::map<std::string, ComplexMesh*>;
 	// What we need to draw each frame
-	scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
+	// scene_draw_list = new std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >;
 	// What we need to update each frame
-	scene_tick_list = new std::vector< ComplexMesh*>;
+	// scene_tick_list = new std::vector< ComplexMesh*>;
+
+	meshes = new std::map<std::string, Mesh*>;
 
 	lights = new std::vector<Light*>;
 	object_loader = new ObjLoader();
@@ -20,6 +22,7 @@ Scene::Scene(std::string scene_file)
 	std::string key = "Ball_";
 
 	// Build Scene Draw List
+	/*
 	for (auto const mesh : *statics)
 	{
 		for(auto const component : (*(mesh.second)->components))
@@ -41,6 +44,7 @@ Scene::Scene(std::string scene_file)
 			}
 		}
 	}
+	*/
 
 	update_projection();
 
@@ -48,6 +52,7 @@ Scene::Scene(std::string scene_file)
 
 Scene::~Scene()
 {
+	/*
 	for (auto mesh : *statics) {
 		removeStatic(mesh.first);
 	}
@@ -55,42 +60,45 @@ Scene::~Scene()
 	delete object_loader;
 	delete shader_loader;
 	delete texture_loader;
+	*/
 }
 
-bool Scene::attachStatic(std::string new_name, ComplexMesh * new_mesh)
+void Scene::attachObject(std::string object_scene_name, std::string file_name, std::string base_dir)
 {
-	std::pair<std::string, ComplexMesh*> tmp_static = std::make_pair(new_name, new_mesh );
-	this->statics->insert(tmp_static);
-
-
-	for(auto const component : (*(tmp_static.second)->components))
+	if (meshes->find(object_scene_name) != meshes->end())
 	{
-		std::pair<ComplexMesh*, StaticMesh*> tmpPair;
-		tmpPair.first = new_mesh;
-		tmpPair.second = component.second;
-		if (!scene_draw_list->count(component.second->shader_program)) // If the key is not already in the map
-		{
-			scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
-		}
-		scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
+		delete meshes->at(object_scene_name);
 	}
 
-
-	return true;
+	if (base_dir != "")
+		meshes->operator[](object_scene_name) = new Mesh(file_name, textures, base_dir);
+	else
+		meshes->operator[](object_scene_name) = new Mesh(file_name, textures, base_dir);
 }
 
+void Scene::attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file)
+{
+	if (shaders.find(shader_scene_name) != shaders.end())
+	{
+		glDeleteProgram(shaders.at(shader_scene_name));
+		shaders.erase(shader_scene_name);
+	}
 
+	shaders[shader_scene_name] = shader_loader->build_program(std::make_pair(fragment_file, vertex_file));
+}
 
 void Scene::removeStatic(std::string static_name)
 {
+	/*
 	delete (statics->at(static_name));
 	statics->erase(static_name);
+	*/
 }
 
 void Scene::draw()
 {
 	update_projection();
-
+	/*
 	for(auto shader_program : *scene_draw_list)
 	{
 		glUseProgram(shader_program.first);
@@ -116,24 +124,9 @@ void Scene::draw()
 		GLuint projectionLoc = glGetUniformLocation(shader_program.first, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
 
-		/*
-		std::cout << "Projection matrix:\t";
-		const float *pSource = (const float*)glm::value_ptr(projection_transform);
-		for (int i = 0; i < 16; ++i)
-			std::cout << pSource[i] << "\t";
-		std::cout << std::endl;
-		*/
-
 		GLuint cameraLoc = glGetUniformLocation(shader_program.first, "view");
 		glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
 
-		/*
-		std::cout << "View matrix:\t";
-		const float *vSource = (const float*)glm::value_ptr(camera->GetViewMatrix());
-		for (int i = 0; i < 16; ++i)
-			std::cout << vSource[i] << "\t";
-		std::cout << std::endl;
-		*/
 		for(auto component : shader_program.second)
 		{
 			// Get component Specular Value
@@ -158,10 +151,12 @@ void Scene::draw()
 			glBindVertexArray(0);
 		}
 	}
+	*/
 }
 
 void Scene::tick(GLfloat delta)
 {
+	/*
 	for (auto mesh : *scene_tick_list)
 	{
 		// Build Complex Transform (actor moving around world) (Ball Moving on table)
@@ -173,6 +168,20 @@ void Scene::tick(GLfloat delta)
 		}
 	}
 	camera->tick();
+
+	*/
+}
+
+void Scene::setActiveShader(std::string shader_scene_name)
+{
+	if (shaders.find(shader_scene_name) != shaders.end())
+	{
+		active_shader = shaders.at(shader_scene_name);
+	}
+	else
+	{
+		std::cout << "Shader " << shader_scene_name << " does not exist in scene.\n";
+	}
 }
 
 void Scene::update_projection()

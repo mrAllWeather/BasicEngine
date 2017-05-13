@@ -68,6 +68,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Statics:")
 			{
+				/*
 				std::streampos last_line = fb.tellg();
 
 				std::cout << "Loading Static:" << LineBuf << std::endl;
@@ -77,8 +78,9 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 					this->scene->statics->operator[](c_mesh->name) = c_mesh;
 					last_line = fb.tellg();
 				}
-
+				
 				fb.seekg(last_line);
+				*/
 			}
 			else if (!load_success)
 			{

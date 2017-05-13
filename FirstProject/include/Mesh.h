@@ -2,9 +2,8 @@
 /*
 	Description:
 		Combines code from tinyobjloader's example file (viewer.cc) and openGlTutorial's Mesh loader.
-	This process is not kind to memory, it will not check to confirm if an object has already been loaded, not will
-	it check textures.
-	DO NOT USE IN LARGE PRODUCTION, IT WILL BE EACH GPU RAM
+	This process is not kind to memory, it will not check to confirm if an object has already been loaded (thus we cannot save buffer space)
+	DO NOT USE IN LARGE PRODUCTION! We need to track textures currently in use, as well as objects currently in use
 */
 
 #include <algorithm>
@@ -17,6 +16,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../include/tiny_obj_loader.h"
+#include "../include/File_IO.h"
 
 typedef struct {
 	GLuint vb;  // vertex buffer
@@ -26,10 +26,6 @@ typedef struct {
 
 // TODO: replace all float arrays with vec3s. Fujita is obsessed with STL even when writing code for GLM!
 void calculate_surface_normal(float Normal[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3]);
-
-// Taken from viewer.cc (in interest of time)
-static std::string GetBaseDir(const std::string &filepath);
-static bool FileExists(const std::string &abs_filename);
 
 class Mesh {
 public:

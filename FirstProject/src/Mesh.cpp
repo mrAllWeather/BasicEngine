@@ -18,6 +18,7 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 	{
 		std::cout << "Encountered error loading file: " << filename << "\n" << err << std::endl;
 	}
+
 	bounding_maximum = glm::vec3(std::numeric_limits<float>::lowest());
 	bounding_minimum = glm::vec3(std::numeric_limits<float>::max());
 
@@ -250,26 +251,4 @@ void calculate_surface_normal(float Normal[3], float const vertex_1[3], float co
 	Normal[0] = cross[0];
 	Normal[1] = cross[1];
 	Normal[2] = cross[2];
-}
-
-std::string GetBaseDir(const std::string & filepath)
-{
-	if (filepath.find_last_of("/\\") != std::string::npos)
-		return filepath.substr(0, filepath.find_last_of("/\\"));
-	return "";
-}
-
-static bool FileExists(const std::string &abs_filename)
-{
-	bool ret;
-	FILE *fp = fopen(abs_filename.c_str(), "rb");
-	if (fp) {
-		ret = true;
-		fclose(fp);
-	}
-	else {
-		ret = false;
-	}
-
-	return ret;
 }
