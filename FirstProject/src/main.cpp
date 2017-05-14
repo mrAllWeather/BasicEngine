@@ -146,8 +146,9 @@ int main(int argc, char* argv[])
 	// gamemode->initialise();
 
 	// Configure our look at and circling
-	// camera->SetCircleFocus(current_level->statics->at("CueBall")->location, 1.0, camera->Position);
-	// camera->SetLookFocus(current_level->statics->at("CueBall")->location);
+	glm::vec3 origin(0.0f);
+	camera->SetCircleFocus(&origin, 1.0, camera->Position);
+	camera->SetLookFocus(&origin);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;

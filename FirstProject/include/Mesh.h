@@ -19,7 +19,8 @@
 #include "../include/File_IO.h"
 
 typedef struct {
-	GLuint vb;  // vertex buffer
+	GLuint va;
+	GLuint vb[4];  // vertex buffer
 	int numTriangles;
 	size_t material_id;
 } DrawObject;
@@ -30,7 +31,7 @@ void calculate_surface_normal(float Normal[3], float const vertex_1[3], float co
 class Mesh {
 public:
 	Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, std::string base_mat_location = "./Materials/");
-	void draw(GLuint shader_program);
+	void draw(GLuint shader);
 
 private:
 	std::map<std::string, GLuint>* loaded_textures;

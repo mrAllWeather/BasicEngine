@@ -98,60 +98,38 @@ void Scene::removeStatic(std::string static_name)
 void Scene::draw()
 {
 	update_projection();
-	/*
-	for(auto shader_program : *scene_draw_list)
+
+	glUseProgram(active_shader);
+
+	// Scene Uniforms
+	// Set up Light (only 1 for now)
+	GLuint lightCount = glGetUniformLocation(active_shader, "lightCount");
+	GLuint ambientStrength = glGetUniformLocation(active_shader, "ambientStrength");
+	GLuint specularStrength = glGetUniformLocation(active_shader, "specularStrength");
+	GLuint lightColor = glGetUniformLocation(active_shader, "lightColor");
+	GLuint lightPos = glGetUniformLocation(active_shader, "lightPos");
+	GLuint viewPosLoc = glGetUniformLocation(active_shader, "viewPos");
+
+	glUniform1i(lightCount, lights->size());
+
+	if (lights->size() > 0)
 	{
-		glUseProgram(shader_program.first);
-
-		// Set up Light (only 1 for now)
-		GLuint lightCount = glGetUniformLocation(shader_program.first, "lightCount");
-		GLuint ambientStrength = glGetUniformLocation(shader_program.first, "ambientStrength");
-		GLuint specularStrength = glGetUniformLocation(shader_program.first, "specularStrength");
-		GLuint lightColor = glGetUniformLocation(shader_program.first, "lightColor");
-		GLuint lightPos = glGetUniformLocation(shader_program.first, "lightPos");
-		GLuint viewPosLoc = glGetUniformLocation(shader_program.first, "viewPos");
-
-		glUniform1i(lightCount, lights->size());
-		
-		if(lights->size() > 0)
-		{
-			glUniform1f(ambientStrength, this->lights->at(0)->ambient_strength);
-			glUniform3fv(lightColor, 1, glm::value_ptr(*this->lights->at(0)->color));
-			glUniform3fv(lightPos, 1, glm::value_ptr(*this->lights->at(0)->location));
-			glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
-		}
-
-		GLuint projectionLoc = glGetUniformLocation(shader_program.first, "projection");
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
-
-		GLuint cameraLoc = glGetUniformLocation(shader_program.first, "view");
-		glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-
-		for(auto component : shader_program.second)
-		{
-			// Get component Specular Value
-			glUniform1f(specularStrength, component.second->specular);
-
-			GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
-	
-			for (unsigned int tex_num = 0; tex_num < component.second->textures.size() && tex_num < 32; tex_num++)
-			{
-				std::string texture_name = "texture_" + std::to_string(tex_num);
-				glActiveTexture(GL_TEXTURE0+tex_num);
-				glBindTexture(GL_TEXTURE_2D, component.second->textures.at(tex_num).second);
-				glUniform1i(glGetUniformLocation(shader_program.first, texture_name.c_str()), tex_num);
-			}
-	
-			GLuint componentLoc = glGetUniformLocation(shader_program.first, "component");
-			glUniformMatrix4fv(componentLoc, 1, GL_FALSE, glm::value_ptr(component.second->component_transform));
-		
-			glBindVertexArray(*component.second->VAO);
-			glDrawArrays(GL_TRIANGLES, 0, component.second->vertices);
-			glBindVertexArray(0);
-		}
+		glUniform1f(ambientStrength, this->lights->at(0)->ambient_strength);
+		glUniform3fv(lightColor, 1, glm::value_ptr(*this->lights->at(0)->color));
+		glUniform3fv(lightPos, 1, glm::value_ptr(*this->lights->at(0)->location));
+		glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
 	}
-	*/
+
+	GLuint projectionLoc = glGetUniformLocation(active_shader, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
+
+	GLuint cameraLoc = glGetUniformLocation(active_shader, "view");
+	glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+
+	for(auto object : *meshes)
+	{
+		object.second->draw(active_shader);
+	}
 }
 
 void Scene::tick(GLfloat delta)

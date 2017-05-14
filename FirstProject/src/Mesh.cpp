@@ -29,8 +29,32 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 	setupTextures(base_dir);
 }
 
-void Mesh::draw(GLuint shader_program)
+void Mesh::draw(GLuint shader)
 {
+	for (const auto object : *objects)
+	{
+		// materials->at(object.material_id).
+		// Get component Specular Value
+		// glUniform1f(specularStrength, component.second->specular);
+		// GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
+		// glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
+
+		if ((object.material_id < materials->size())) {
+			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
+			if (loaded_textures->find(diffuse_texname) != loaded_textures->end()) {
+				glBindTexture(GL_TEXTURE_2D, loaded_textures->at(diffuse_texname));
+			}
+		}
+
+		//GLuint componentLoc = glGetUniformLocation(shader_program.first, "component");
+		// glUniformMatrix4fv(componentLoc, 1, GL_FALSE, glm::value_ptr(component.second->component_transform));
+
+		glBindVertexArray(object.va);
+		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles);
+		glBindVertexArray(0);
+
+	}
+
 }
 
 void Mesh::setupMesh()
@@ -38,7 +62,11 @@ void Mesh::setupMesh()
 	
 	for (size_t s = 0; s < shapes->size(); s++) {
 		DrawObject o;
-		std::vector<float> vb;  // pos(3float), normal(3float), color(3float)
+		std::vector<glm::vec3> vb_pos;  // Buffer for Position
+		std::vector<glm::vec3> vb_norm;  // Buffer for Normal
+		std::vector<glm::vec3> vb_col;  // Buffer for Color
+		std::vector<glm::vec2> vb_tex;	// Buffer for Texture Coords
+
 		for (size_t f = 0; f < shapes->at(s).mesh.indices.size() / 3; f++) {
 			tinyobj::index_t idx0 = shapes->at(s).mesh.indices[3 * f + 0];
 			tinyobj::index_t idx1 = shapes->at(s).mesh.indices[3 * f + 1];
@@ -122,38 +150,30 @@ void Mesh::setupMesh()
 			}
 
 			for (int k = 0; k < 3; k++) {
-				vb.push_back(v[k][0]);
-				vb.push_back(v[k][1]);
-				vb.push_back(v[k][2]);
-				vb.push_back(n[k][0]);
-				vb.push_back(n[k][1]);
-				vb.push_back(n[k][2]);
+				vb_pos.push_back(glm::vec3(v[k][0], v[k][1], v[k][2]));
+				vb_norm.push_back(glm::vec3(n[k][0], n[k][1], n[k][2]));
+
 				// Combine normal and diffuse to get color.
 				float normal_factor = 0.2;
 				float diffuse_factor = 1 - normal_factor;
-				float c[3] = {
+				glm::vec3 color = {
 					n[k][0] * normal_factor + diffuse[0] * diffuse_factor,
 					n[k][1] * normal_factor + diffuse[1] * diffuse_factor,
 					n[k][2] * normal_factor + diffuse[2] * diffuse_factor
 				};
-				float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
-				if (len2 > 0.0f) {
-					float len = sqrtf(len2);
+				color = glm::normalize(color);
+				color = {
+					color.x * 0.5 + 0.5,
+					color.y * 0.5 + 0.5,
+					color.z * 0.5 + 0.5
+				};
 
-					c[0] /= len;
-					c[1] /= len;
-					c[2] /= len;
-				}
-				vb.push_back(c[0] * 0.5 + 0.5);
-				vb.push_back(c[1] * 0.5 + 0.5);
-				vb.push_back(c[2] * 0.5 + 0.5);
-
-				vb.push_back(tc[k][0]);
-				vb.push_back(tc[k][1]);
+				vb_col.push_back(color);
+				vb_tex.push_back(glm::vec2(tc[k][0], tc[k][1]));
 			}
 		}
 
-		o.vb = 0;
+		o.va, o.vb[0], o.vb[1], o.vb[2], o.vb[3] = 0;
 		o.numTriangles = 0;
 
 		// OpenGL viewer does not support texturing with per-face material.
@@ -165,16 +185,45 @@ void Mesh::setupMesh()
 			o.material_id = materials->size() - 1; // = ID for default material.
 		}
 
-		if (vb.size() > 0) {
-			glGenBuffers(1, &o.vb);
-			glBindBuffer(GL_ARRAY_BUFFER, o.vb);
-			glBufferData(GL_ARRAY_BUFFER, vb.size() * sizeof(float), &vb.at(0),
-				GL_STATIC_DRAW);
-			o.numTriangles = vb.size() / (3 + 3 + 3 + 2) * 3;
-			printf("shape[%d] # of triangles = %d\n", static_cast<int>(s),
-				o.numTriangles);
-		}
+		// Generate and Bind our VAO
+		glGenVertexArrays(1, &o.va);
+		glBindVertexArray(o.va);
 
+		// Generate our VBOs
+		glGenBuffers(3, o.vb);
+
+		// Bind Vertex Buffer Object
+		glBindBuffer(GL_ARRAY_BUFFER, o.vb[0]);
+		glBufferData(GL_ARRAY_BUFFER, vb_pos.size() * sizeof(glm::vec3), vb_pos.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		// Bind Normal Buffer Object
+		glBindBuffer(GL_ARRAY_BUFFER, o.vb[1]);
+		glBufferData(GL_ARRAY_BUFFER, vb_norm.size() * sizeof(glm::vec3), vb_norm.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		// Bind Color Buffer Object
+		glBindBuffer(GL_ARRAY_BUFFER, o.vb[2]);
+		glBufferData(GL_ARRAY_BUFFER, vb_norm.size() * sizeof(glm::vec3), vb_norm.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		// Bind UV Buffer Object
+		glBindBuffer(GL_ARRAY_BUFFER, o.vb[3]);
+		glBufferData(GL_ARRAY_BUFFER, vb_tex.size() * sizeof(glm::vec2), vb_tex.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		// Clean up
+		glBindVertexArray(0); // Unbind VAO
+		glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind Buffer Object
+
+		o.numTriangles = vb_pos.size() / 3;
+		printf("shape[%d] # of triangles = %d\n", static_cast<int>(s),
+				o.numTriangles);
+		
 		objects->push_back(o);
 	}
 
@@ -188,6 +237,7 @@ void Mesh::setupMesh()
 			scale = diff;
 		}
 	}
+	normalise_scale = 1 / scale;
 }
 
 void Mesh::setupTextures(std::string base_dir)
