@@ -15,7 +15,7 @@ Scene::Scene(std::string scene_file)
 	object_loader = new ObjLoader();
 	shader_loader = new ShaderLoader();
 	texture_loader = new TextureLoader();
-
+	
 	SceneLoader load_scene(scene_file, this);
 
 	// Actor Key (This way we can add balls to scene without recompiling)

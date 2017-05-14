@@ -190,7 +190,7 @@ void Mesh::setupMesh()
 		glBindVertexArray(o.va);
 
 		// Generate our VBOs
-		glGenBuffers(3, o.vb);
+		glGenBuffers(4, o.vb);
 
 		// Bind Vertex Buffer Object
 		glBindBuffer(GL_ARRAY_BUFFER, o.vb[0]);
@@ -206,7 +206,7 @@ void Mesh::setupMesh()
 
 		// Bind Color Buffer Object
 		glBindBuffer(GL_ARRAY_BUFFER, o.vb[2]);
-		glBufferData(GL_ARRAY_BUFFER, vb_norm.size() * sizeof(glm::vec3), vb_norm.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vb_col.size() * sizeof(glm::vec3), vb_col.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 

@@ -16,14 +16,14 @@ out vec3 FragPos;
 
 void main()
 {
-	// gl_Position = projection * view * model * component * vec4(position, 1);
 	gl_Position = vec4(position, 1);
 
 	vertexColor = color;
 
 	TexCoord = vec2(texCoord.x, 1-texCoord.y);
 
-	Normal = mat3(transpose(inverse(model * component))) * normal;
+	// Normal = mat3(transpose(inverse(model * component))) * normal;
+	Normal = normal;
 
 	FragPos = position;
 };

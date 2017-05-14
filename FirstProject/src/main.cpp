@@ -138,9 +138,10 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "Folder Check: " << GetBaseDir(argv[1]) << std::endl;
 		current_level->attachObject("model_01", argv[1], GetBaseDir(argv[1])+ "/");
+		current_level->attachShader("Simple", "./Shaders/simple.vert", "./Shaders/simple.frag");
 		current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 		current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
-		current_level->setActiveShader("Debug");
+		current_level->setActiveShader("Simple");
 	}
 
 	// gamemode->initialise();
