@@ -297,19 +297,26 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = ypos - lastY;
 	lastX = xpos;
+	lastY = ypos;
 
 	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
 	{
 		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
 
 		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
-		camera->CircleObject(xoffset * MOUSE_SPEED, 0.0);
+		camera->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
 	}
 
 	if (mouse_button[GLFW_MOUSE_BUTTON_RIGHT])
 	{
-
+		// TIL that Zoom works the opposite to the way I thought, high numbers is zoomed out, low numbers zoomed in
+		camera->Zoom += xoffset * MOUSE_SPEED;
+		if (camera->Zoom > 3)
+			camera->Zoom = 3;
+		if (camera->Zoom < 0.1)
+			camera->Zoom = 0.1;
 	}
 
 }

@@ -14,7 +14,7 @@ OBJECTS := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 rm = rm -f
 
-TARGET = assign3
+TARGET = assign3_part1
 
 # all: $(SOURCES) $(EXECUTABLE)
 

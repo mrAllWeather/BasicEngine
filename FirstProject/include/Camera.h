@@ -10,6 +10,8 @@
 */
 // Std. Includes
 #include <vector>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 // GL Includes
 #include <GL/glew.h>
@@ -83,7 +85,7 @@ private:
 	glm::vec3* LookAtFocus;  // What we are looking at
 	glm::vec3* CircleFocus;  // What we are circling
 	float CircleRadius = 0;
-	float Theta = 11.0f;
+	float Theta = M_PI / 2;
 	float Phi = 0.0f;
 
 	// Camera Attributes

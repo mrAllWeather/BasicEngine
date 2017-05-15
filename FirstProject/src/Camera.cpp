@@ -103,14 +103,25 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 		// We wish to circle the focused object at a set distance
 		// https://www.opengl.org/discussion_boards/showthread.php/176504-Orbit-around-object
 
-		this->Theta = this->Theta + xoffset; // horizontal movement
-		this->Phi = this->Phi + yoffset; // vertical movement
+		this->Theta = this->Theta + yoffset; // vertical movement
+		this->Phi = this->Phi + xoffset; // horizontal movement
 
-		// We take a offset to allow us control over where the camera is in relation to the object before circling
-		// Will cause clipping if offset is greater than size of item
+		if (this->Theta < 0)
+			this->Theta = 0;
+
+		if (this->Theta > M_PI)
+			this->Theta = M_PI;
+
+		// We take a world offset to allow us control over where the camera is in relation to the object before circling
+
 		this->Position.x = this->WorldPositionOffset.x + this->CircleFocus->x + CircleRadius*glm::cos(this->Phi)*glm::sin(this->Theta);
-		this->Position.y = this->WorldPositionOffset.y + this->CircleFocus->y + CircleRadius*glm::sin(this->Phi)*glm::cos(this->Theta);
+		this->Position.z = this->WorldPositionOffset.z + this->CircleFocus->z + CircleRadius*glm::sin(this->Phi)*glm::sin(this->Theta);
+		this->Position.y = this->WorldPositionOffset.y + this->CircleFocus->y + CircleRadius*glm::cos(this->Theta);
+		/*
+		this->Position.x = this->WorldPositionOffset.x + this->CircleFocus->x + CircleRadius*glm::cos(this->Phi)*glm::sin(this->Theta);
+		this->Position.y = this->WorldPositionOffset.y + this->CircleFocus->y + CircleRadius*glm::sin(this->Phi)*glm::sin(this->Theta);
 		this->Position.z = this->WorldPositionOffset.z + this->CircleFocus->z + CircleRadius*glm::cos(this->Theta);
+		*/
 	}
 }
 
