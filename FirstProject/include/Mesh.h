@@ -14,6 +14,7 @@
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "../include/tiny_obj_loader.h"
 #include "../include/File_IO.h"
@@ -32,8 +33,12 @@ class Mesh {
 public:
 	Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, std::string base_mat_location = "./Materials/");
 	void draw(GLuint shader);
+	std::string get_lower_bounds();
+	std::string get_upper_bounds();
+	std::string get_scale();
 
 private:
+	glm::mat4 transform;
 	std::map<std::string, GLuint>* loaded_textures;
 	std::vector<tinyobj::material_t>* materials;
 	std::vector<tinyobj::shape_t>* shapes;
@@ -44,11 +49,16 @@ private:
 
 	void setupMesh();
 	void setupTextures(std::string base_dir);
+	void generateTransform();
+
 	// Smallest value for each axis (unnormalised)
 	glm::vec3 bounding_minimum;
 	// Largest value for each axis (unnormalised)
 	glm::vec3 bounding_maximum;
+	// Center of Bounding
+	glm::vec3 bounding_center;
 	// Store our scale to normalise the size of this object to 1. Value is 1 / LargestAxisLength
-	GLfloat normalise_scale;	
+	glm::vec3 offset;
 
+	GLfloat scale;
 };

@@ -68,6 +68,7 @@ public:
 	void tick(GLfloat delta); // Update All Actors
 
 	void setActiveShader(std::string);
+	void setViewMode(GLuint);
 	// TODO
 	// bool attachActor();
 	// uint64_t attachLight();
@@ -79,6 +80,7 @@ public:
 	std::map<std::string, GLuint> textures;
 	std::map<std::string, GLuint> shaders;
 private:
+	GLuint view_mode;
 	GLuint active_shader;
 	Light* active_light;
 	std::string scene_name;

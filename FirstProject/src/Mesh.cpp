@@ -19,7 +19,7 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 		std::cout << "Encountered error loading file: " << filename << "\n" << err << std::endl;
 	}
 
-	bounding_maximum = glm::vec3(std::numeric_limits<float>::lowest());
+	bounding_maximum = glm::vec3(-std::numeric_limits<float>::max());
 	bounding_minimum = glm::vec3(std::numeric_limits<float>::max());
 
 	// Add a default material TODO Confirm this doesn't mess with anything
@@ -27,6 +27,7 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 
 	setupMesh();
 	setupTextures(base_dir);
+	generateTransform();
 }
 
 void Mesh::draw(GLuint shader)
@@ -36,8 +37,9 @@ void Mesh::draw(GLuint shader)
 		// materials->at(object.material_id).
 		// Get component Specular Value
 		// glUniform1f(specularStrength, component.second->specular);
-		// GLuint modelLoc = glGetUniformLocation(shader_program.first, "model");
-		// glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(component.first->static_transform));
+
+		GLuint modelLoc = glGetUniformLocation(shader, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 		if ((object.material_id < materials->size())) {
 			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
@@ -46,8 +48,8 @@ void Mesh::draw(GLuint shader)
 			}
 		}
 
-		//GLuint componentLoc = glGetUniformLocation(shader_program.first, "component");
-		// glUniformMatrix4fv(componentLoc, 1, GL_FALSE, glm::value_ptr(component.second->component_transform));
+		GLuint diffuseColor = glGetUniformLocation(shader, "diffuseColor");
+		glUniform3fv(diffuseColor, 3, materials->at(object.material_id).diffuse);
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles);
@@ -55,6 +57,21 @@ void Mesh::draw(GLuint shader)
 
 	}
 
+}
+
+std::string Mesh::get_lower_bounds()
+{
+	return std::to_string(bounding_minimum.x) + ":" + std::to_string(bounding_minimum.y) + ":" + std::to_string(bounding_minimum.z);
+}
+
+std::string Mesh::get_upper_bounds()
+{
+	return std::to_string(bounding_maximum.x) + ":" + std::to_string(bounding_maximum.y) + ":" + std::to_string(bounding_maximum.z);
+}
+
+std::string Mesh::get_scale()
+{
+	return std::to_string(scale);
 }
 
 void Mesh::setupMesh()
@@ -227,7 +244,6 @@ void Mesh::setupMesh()
 		objects->push_back(o);
 	}
 
-	float scale = 0;
 	for (unsigned int axis = 0; axis < 3; axis++)
 	{
 		float diff = fabs(bounding_maximum[axis] - bounding_minimum[axis]);
@@ -237,7 +253,13 @@ void Mesh::setupMesh()
 			scale = diff;
 		}
 	}
-	normalise_scale = 1 / scale;
+
+	bounding_center = glm::vec3(
+		(bounding_maximum.x + bounding_minimum.x) / 2,
+		(bounding_maximum.y + bounding_minimum.y) / 2,
+		(bounding_maximum.z + bounding_minimum.z) / 2
+	);
+
 }
 
 void Mesh::setupTextures(std::string base_dir)
@@ -286,6 +308,13 @@ void Mesh::setupTextures(std::string base_dir)
 			}
 		}
 	}
+}
+
+void Mesh::generateTransform()
+{
+	transform = glm::mat4();
+	transform = glm::translate(transform, -bounding_center);
+	transform = glm::scale(transform, glm::vec3(1 / scale));
 }
 
 

@@ -1,7 +1,8 @@
 #version 330 core
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 texCoord;
+layout(location = 2) in vec3 color;
+layout(location = 3) in vec2 texCoord;
 
 uniform mat4 component;
 uniform mat4 model;
@@ -15,9 +16,13 @@ out vec3 FragPos;
 
 void main()
 {
-	gl_Position = projection * view * model * component * vec4(position, 1);
-	vertexColor = vec3(1.0f, 0.0f, 0.0f);
+	gl_Position = projection * view * model * vec4(position, 1);
+	
+	vertexColor = color;
+	
 	TexCoord = vec2(texCoord.x, 1-texCoord.y);
-	Normal = mat3(transpose(inverse(model * component))) * normal;
-	FragPos = vec3(model * component * vec4(position, 1.0f));
+	
+	Normal = mat3(transpose(inverse(model))) * normal;
+	
+	FragPos = vec3(model * vec4(position, 1.0f));
 };

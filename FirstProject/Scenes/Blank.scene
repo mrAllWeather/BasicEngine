@@ -1,7 +1,7 @@
 SceneName:
 Blank
 Camera:
-	Camera_01 0.0 1.0 0.0	0.0 1.0 0.0 	0.0 -30.0
+	Camera_01 	-1.5 0.0 0.0	0.0 1.0 0.0 	0.0 0.0
 Lights:
 	Overhead 	0.0 1.7 0.0	0.5 0.5 1.0		0.1
 	CamLight 	0.0 0.0 0.0	1.0 1.0 1.0		0.1

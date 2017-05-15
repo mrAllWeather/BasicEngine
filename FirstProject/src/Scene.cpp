@@ -18,33 +18,7 @@ Scene::Scene(std::string scene_file)
 	
 	SceneLoader load_scene(scene_file, this);
 
-	// Actor Key (This way we can add balls to scene without recompiling)
-	std::string key = "Ball_";
-
-	// Build Scene Draw List
-	/*
-	for (auto const mesh : *statics)
-	{
-		for(auto const component : (*(mesh.second)->components))
-		{
-			std::pair<ComplexMesh*, StaticMesh*> tmpPair;
-			tmpPair.first = mesh.second;
-			tmpPair.second = component.second;
-			if (!scene_draw_list->count(component.second->shader_program)) // If the key is already in the map
-			{
-				scene_draw_list->emplace(std::make_pair(component.second->shader_program, std::vector< std::pair<ComplexMesh*, StaticMesh*> >()));
-			}
-
-			scene_draw_list->at(component.second->shader_program).push_back(tmpPair);
-
-			// Add to tick if a ball of some description
-			if (mesh.first.compare(0, key.size(), key) == 0 || mesh.first.compare("CueBall") == 0)
-			{
-				scene_tick_list->push_back(tmpPair.first);
-			}
-		}
-	}
-	*/
+	active_light = this->lights->at(0);
 
 	update_projection();
 
@@ -108,23 +82,27 @@ void Scene::draw()
 	GLuint specularStrength = glGetUniformLocation(active_shader, "specularStrength");
 	GLuint lightColor = glGetUniformLocation(active_shader, "lightColor");
 	GLuint lightPos = glGetUniformLocation(active_shader, "lightPos");
-	GLuint viewPosLoc = glGetUniformLocation(active_shader, "viewPos");
-
+	
 	glUniform1i(lightCount, lights->size());
 
 	if (lights->size() > 0)
 	{
-		glUniform1f(ambientStrength, this->lights->at(0)->ambient_strength);
-		glUniform3fv(lightColor, 1, glm::value_ptr(*this->lights->at(0)->color));
-		glUniform3fv(lightPos, 1, glm::value_ptr(*this->lights->at(0)->location));
-		glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
+		glUniform1f(ambientStrength, active_light->ambient_strength);
+		glUniform3fv(lightColor, 1, glm::value_ptr(*active_light->color));
+		glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
 	}
+
+	GLuint viewPosLoc = glGetUniformLocation(active_shader, "viewPos");
+	glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
 
 	GLuint projectionLoc = glGetUniformLocation(active_shader, "projection");
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
 
 	GLuint cameraLoc = glGetUniformLocation(active_shader, "view");
 	glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+
+	GLuint viewer_mode = glGetUniformLocation(active_shader, "view_mode");
+	glUniform1i(viewer_mode, view_mode);
 
 	for(auto object : *meshes)
 	{
@@ -134,6 +112,7 @@ void Scene::draw()
 
 void Scene::tick(GLfloat delta)
 {
+	// TODO Transform Light position and orientation within scene (for spinning light)
 	/*
 	for (auto mesh : *scene_tick_list)
 	{
@@ -145,9 +124,9 @@ void Scene::tick(GLfloat delta)
 			component.second->build_component_transform();
 		}
 	}
-	camera->tick();
-
 	*/
+
+	camera->tick();
 }
 
 void Scene::setActiveShader(std::string shader_scene_name)
@@ -160,6 +139,11 @@ void Scene::setActiveShader(std::string shader_scene_name)
 	{
 		std::cout << "Shader " << shader_scene_name << " does not exist in scene.\n";
 	}
+}
+
+void Scene::setViewMode(GLuint mode)
+{
+	view_mode = mode;
 }
 
 void Scene::update_projection()

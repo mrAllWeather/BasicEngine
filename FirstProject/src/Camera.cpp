@@ -118,6 +118,7 @@ void Camera::tick()
 {
 	// We don't need to move, but we do want to ensure we're in the correct location
 	this->CircleObject(0.0, 0.0);
+
 	// Update out look rotation
 	this->LookAtObject(true);
 }

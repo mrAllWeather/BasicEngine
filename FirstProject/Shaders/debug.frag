@@ -22,15 +22,17 @@ uniform sampler2D texture_01;
 uniform sampler2D texture_02;
 uniform sampler2D texture_03;
 
+// Materials
+uniform vec3 diffuseColor;
+
 // View Mode
 uniform int view_mode;
 
 void main()
 {
-
 	if(view_mode == 0) // Wireframe Mode (We expect glPolygonMode to be called, so present default color)
 	{
-		color =  vec4(vertexColor, 1.0);
+		color =  vec4(1.0);
 	}
 	else if(view_mode == 1) // Vertex Normal Mode
 	{
@@ -39,31 +41,10 @@ void main()
 	}
 	else if(view_mode == 2) // Diffuse Color Mode
 	{
+		color = vec4(diffuseColor, 1.0);
 	}
-	else // Default to old mode
+	else // Default to white model
 	{
-		color = texture(texture_01, TexCoord); // Will just use one texture for now
-		if(lightCount > 0)
-		{
-
-			vec3 norm = normalize(Normal);
-			vec3 lightDir = normalize(lightPos - FragPos);
-			vec3 viewDir = normalize(viewPos - FragPos);
-			vec3 reflectDir = reflect(-lightDir, norm);
-
-			// Diffuse Calculations
-			float diff = max(dot(norm, lightDir), 0.0);
-			vec3 diffuse = diff * lightColor;
-			
-			// Specular Calculations
-			float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-			vec3 specular = specularStrength * spec * lightColor;
-
-			// Ambient Calculation
-			vec3 ambient = ambientStrength * lightColor;
-			
-			vec3 result = (ambient + diffuse + specular) * vec3(color.r, color.g, color.b);
-			color =  vec4(result, 1.0);
-		}
+		color =  vec4(1.0);
 	}
 };

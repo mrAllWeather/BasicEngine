@@ -22,6 +22,9 @@ uniform sampler2D texture_01;
 uniform sampler2D texture_02;
 uniform sampler2D texture_03;
 
+// Materials
+uniform vec3 diffuseColor;
+
 void main()
 {
 	color = texture(texture_01, TexCoord); // Will just use one texture for now

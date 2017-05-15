@@ -64,7 +64,7 @@ public:
 
 	// Stop circling and return to original position
 	void RemoveCircleFocus();
-	
+
 	// Update pitch and roll 
 	void LookAtObject(GLboolean constrainPitch);
 	

@@ -48,11 +48,10 @@ Camera* camera;
 int inspection_mode = 0;
 int lighting_mode = 0;
 bool is_fully_rendered; // False = Inspection Mode, True = Lighting Mode
-GLuint active_program, lighting_program, inspection_program;
-
+GLenum fill_mode = GL_LINE;
 
 // View / Focus Swapping
-const double VIEW_SWAP_DELAY = 1;	// Only swap view focus (<TAB>) once every this many seconds
+const double VIEW_SWAP_DELAY = 0.5;	// Only swap view this many times per second
 double time_since_last_swap = 0; // How long since we last swapped view focus
 
 
@@ -138,17 +137,16 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "Folder Check: " << GetBaseDir(argv[1]) << std::endl;
 		current_level->attachObject("model_01", argv[1], GetBaseDir(argv[1])+ "/");
-		current_level->attachShader("Simple", "./Shaders/simple.vert", "./Shaders/simple.frag");
 		current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 		current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
-		current_level->setActiveShader("Simple");
+		current_level->setActiveShader("Debug");
 	}
 
 	// gamemode->initialise();
 
 	// Configure our look at and circling
 	glm::vec3 origin(0.0f);
-	camera->SetCircleFocus(&origin, 1.0, camera->Position);
+	camera->SetCircleFocus(&origin, 1.5, origin);
 	camera->SetLookFocus(&origin);
 
 	// Initialise Seconds per Frame counter
@@ -184,11 +182,23 @@ int main(int argc, char* argv[])
 
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glPolygonMode(GL_FRONT_AND_BACK, fill_mode);
+
 		current_level->draw();
 
-		// ui_text.DrawString(min_report, 15.0f, HEIGHT - 15.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
-		// ui_text.DrawString(max_report, 15.0f, HEIGHT - 30.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
-		// ui_text.DrawString(scale_report, 15.0f, HEIGHT - 45.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		std::string bounds = "Bounds: [" + current_level->meshes->at("model_01")->get_lower_bounds() +
+			"]-[" + current_level->meshes->at("model_01")->get_upper_bounds() + "]";
+		ui_text.DrawString(bounds, 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 35.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		ui_text.DrawString("Camera: " + std::to_string(current_level->camera->Position.x) + ":" +
+			std::to_string(current_level->camera->Position.y) + ":" +
+			std::to_string(current_level->camera->Position.z), 
+			15.0f, HEIGHT - 50.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
@@ -209,14 +219,16 @@ void Keyboard_Input(float deltaTime)
 			inspection_mode++;
 			if (inspection_mode > 0)
 			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				fill_mode = GL_FILL;
 			}
-			else if(inspection_mode > 2)
+
+			if(inspection_mode > 2)
 			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				fill_mode = GL_LINE;
 				inspection_mode = 0;
 			}
 			time_since_last_swap = glfwGetTime();
+			current_level->setViewMode(inspection_mode);
 		}
 	}
 	// Lighting Mode
@@ -238,9 +250,19 @@ void Keyboard_Input(float deltaTime)
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
 		{
 			if (is_fully_rendered == false) // If Currently Debug
-				active_program = lighting_program;
+			{
+				current_level->setActiveShader("Light-Texture");
+				fill_mode = GL_FILL;
+			}
 			else
-				active_program = inspection_program;
+			{
+				current_level->setActiveShader("Debug");
+				inspection_mode = 0;
+				fill_mode = GL_LINE;
+			}
+
+			is_fully_rendered = !is_fully_rendered;
+
 			time_since_last_swap = glfwGetTime();
 		}
 	}
