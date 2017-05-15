@@ -142,11 +142,15 @@ int main(int argc, char* argv[])
 		current_level->setActiveShader("Debug");
 	}
 
+	if (current_level->meshes->find("model_01") == current_level->meshes->end()) {
+		std::cerr << "Viewing object failed to load. Exiting..." << std::endl;
+		return -1;
+	}
 	// gamemode->initialise();
 
 	// Configure our look at and circling
 	glm::vec3 origin(0.0f);
-	camera->SetCircleFocus(&origin, 1.5, origin);
+	camera->SetCircleFocus(&origin, 2, origin);
 	camera->SetLookFocus(&origin);
 
 	// Initialise Seconds per Frame counter

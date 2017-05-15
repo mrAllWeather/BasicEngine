@@ -36,7 +36,7 @@ public:
 	std::string get_lower_bounds();
 	std::string get_upper_bounds();
 	std::string get_scale();
-
+	bool loaded_successfully = true;
 private:
 	glm::mat4 transform;
 	std::map<std::string, GLuint>* loaded_textures;

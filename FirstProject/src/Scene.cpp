@@ -44,10 +44,16 @@ void Scene::attachObject(std::string object_scene_name, std::string file_name, s
 		delete meshes->at(object_scene_name);
 	}
 
+	Mesh* loading_mesh;
 	if (base_dir != "")
-		meshes->operator[](object_scene_name) = new Mesh(file_name, textures, base_dir);
+		loading_mesh = new Mesh(file_name, textures, base_dir);
 	else
-		meshes->operator[](object_scene_name) = new Mesh(file_name, textures, base_dir);
+		loading_mesh = new Mesh(file_name, textures, base_dir);
+
+	if (loading_mesh->loaded_successfully)
+	{
+		meshes->operator[](object_scene_name) = loading_mesh;
+	}
 }
 
 void Scene::attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file)

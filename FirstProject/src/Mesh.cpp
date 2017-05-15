@@ -16,7 +16,10 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 
 	if (!err.empty())
 	{
-		std::cout << "Encountered error loading file: " << filename << "\n" << err << std::endl;
+		std::cerr << "Encountered error loading file: " << filename << "\n" << err << std::endl;
+		std::cerr << "Skipping.\n";
+		loaded_successfully = false;
+		return;
 	}
 
 	bounding_maximum = glm::vec3(-std::numeric_limits<float>::max());
@@ -52,7 +55,7 @@ void Mesh::draw(GLuint shader)
 		glUniform3fv(diffuseColor, 3, materials->at(object.material_id).diffuse);
 
 		glBindVertexArray(object.va);
-		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles);
+		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);
 		glBindVertexArray(0);
 
 	}
@@ -167,9 +170,6 @@ void Mesh::setupMesh()
 			}
 
 			for (int k = 0; k < 3; k++) {
-				vb_pos.push_back(glm::vec3(v[k][0], v[k][1], v[k][2]));
-				vb_norm.push_back(glm::vec3(n[k][0], n[k][1], n[k][2]));
-
 				// Combine normal and diffuse to get color.
 				float normal_factor = 0.2;
 				float diffuse_factor = 1 - normal_factor;
@@ -187,8 +187,13 @@ void Mesh::setupMesh()
 
 				vb_col.push_back(color);
 				vb_tex.push_back(glm::vec2(tc[k][0], tc[k][1]));
+				vb_pos.push_back(glm::vec3(v[k][0], v[k][1], v[k][2]));
+				vb_norm.push_back(glm::vec3(n[k][0], n[k][1], n[k][2]));
 			}
 		}
+
+		// Report on Position Date
+		std::cout << "Vertices: " << vb_pos.size() << std::endl;
 
 		o.va, o.vb[0], o.vb[1], o.vb[2], o.vb[3] = 0;
 		o.numTriangles = 0;
