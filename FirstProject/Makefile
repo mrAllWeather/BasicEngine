@@ -27,7 +27,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 
 .PHONY: clean
 clean:
-	$(rm) $(OBJECTS)
+	$(rm) $(OBJDIR)/*.o
 
 .PHONY: remove
 remove: clean
