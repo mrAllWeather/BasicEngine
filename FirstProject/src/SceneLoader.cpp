@@ -53,10 +53,23 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Lights:")
 			{
-				// Again only handle 1 light at a time for the moment, but best to be prepared
-				std::getline(fb, LineBuf);
-				Light* tmpLight = new Light(LineBuf);
-				this->scene->lights->push_back(tmpLight);
+				std::streampos last_line = fb.tellg();
+
+				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
+				{
+					std::cerr << "L: " << LineBuf << std::endl;
+					Light* tmpLight = new Light(LineBuf);
+					if (this->scene->lights->find(tmpLight->get_name()) != this->scene->lights->end())
+					{
+						std::cout << "Duplicate light name: '" << tmpLight->get_name() << "' replacing existing light\n";
+						delete this->scene->lights->at(tmpLight->get_name());
+					}
+					this->scene->lights->operator[](tmpLight->get_name()) = tmpLight;
+					last_line = fb.tellg();
+				}
+
+				fb.seekg(last_line);
+
 			}
 			else if (LineBuf == "SceneName:")
 			{

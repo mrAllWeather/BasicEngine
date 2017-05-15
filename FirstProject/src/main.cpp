@@ -45,6 +45,7 @@ Scene* current_level;
 Camera* camera;
 
 // View Mode
+bool show_details = false;
 int inspection_mode = 0;
 int lighting_mode = 0;
 bool is_fully_rendered; // False = Inspection Mode, True = Lighting Mode
@@ -193,17 +194,21 @@ int main(int argc, char* argv[])
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		std::string bounds = "Bounds: [" + current_level->meshes->at("model_01")->get_lower_bounds() +
-			"]-[" + current_level->meshes->at("model_01")->get_upper_bounds() + "]";
-		ui_text.DrawString(bounds, 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		if (show_details)
+		{
+			std::string bounds = "Bounds: [" + current_level->meshes->at("model_01")->get_lower_bounds() +
+				"]-[" + current_level->meshes->at("model_01")->get_upper_bounds() + "]";
+			ui_text.DrawString(bounds, 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
-		ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 35.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+			ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 35.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
-		ui_text.DrawString("Camera: " + std::to_string(current_level->camera->Position.x) + ":" +
-			std::to_string(current_level->camera->Position.y) + ":" +
-			std::to_string(current_level->camera->Position.z), 
-			15.0f, HEIGHT - 50.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+			ui_text.DrawString("Camera: " + std::to_string(current_level->camera->Position.x) + ":" +
+				std::to_string(current_level->camera->Position.y) + ":" +
+				std::to_string(current_level->camera->Position.z),
+				15.0f, HEIGHT - 50.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
+			ui_text.DrawString("Active Light:" + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 65.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		}
 		// Swap Buffers
 		glfwSwapBuffers(window);
 	}
@@ -245,6 +250,19 @@ void Keyboard_Input(float deltaTime)
 			{
 				lighting_mode = 0;
 			}
+			switch (lighting_mode)
+			{
+			case 0:
+				current_level->setActiveLight("Overhead");
+				break;
+			case 1:
+				current_level->setActiveLight("CamLight");
+				break;
+			case 2:
+				current_level->setActiveLight("RotateLight");
+			default:
+				break;
+			}
 			time_since_last_swap = glfwGetTime();
 		}
 	}
@@ -267,6 +285,14 @@ void Keyboard_Input(float deltaTime)
 
 			is_fully_rendered = !is_fully_rendered;
 
+			time_since_last_swap = glfwGetTime();
+		}
+	}
+	if (keys[GLFW_KEY_GRAVE_ACCENT])
+	{
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		{
+			show_details = !show_details;
 			time_since_last_swap = glfwGetTime();
 		}
 	}

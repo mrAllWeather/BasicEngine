@@ -17,3 +17,13 @@ Light::Light( std::string light_details )
 Light::~Light()
 {
 }
+
+std::string Light::get_name()
+{
+	return name;
+}
+
+void Light::tick()
+{
+	// pass
+}

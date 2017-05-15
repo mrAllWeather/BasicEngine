@@ -19,11 +19,15 @@
 // GLM
 #include <glm/glm.hpp>
 
+#define LIGHT_REGEX "\\t.*"
 
 class Light {
 public:
 	Light(	std::string light_details );
 	~Light();
+
+	std::string get_name();
+	void tick();
 
 	std::string name;
 	GLfloat ambient_strength;

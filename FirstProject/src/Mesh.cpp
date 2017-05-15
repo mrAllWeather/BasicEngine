@@ -25,8 +25,9 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 	bounding_maximum = glm::vec3(-std::numeric_limits<float>::max());
 	bounding_minimum = glm::vec3(std::numeric_limits<float>::max());
 
-	// Add a default material TODO Confirm this doesn't mess with anything
+	// Add a default material. Set default texture
 	materials->push_back(tinyobj::material_t());
+	materials->at(materials->size() - 1).diffuse_texname = "_default.png";
 
 	setupMesh();
 	setupTextures(base_dir);
@@ -49,10 +50,14 @@ void Mesh::draw(GLuint shader)
 			if (loaded_textures->find(diffuse_texname) != loaded_textures->end()) {
 				glBindTexture(GL_TEXTURE_2D, loaded_textures->at(diffuse_texname));
 			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, loaded_textures->at("_default.png"));
+			}
 		}
 
-		GLuint diffuseColor = glGetUniformLocation(shader, "diffuseColor");
-		glUniform3fv(diffuseColor, 3, materials->at(object.material_id).diffuse);
+		GLuint diffuseColor = glGetUniformLocation(shader, "diff_color");
+		glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);
@@ -283,8 +288,13 @@ void Mesh::setupTextures(std::string base_dir)
 
 				// TODO fix this
 				if (!FileExists(texture_filename)) {
-					// Append base dir.
-					texture_filename = base_dir + mp->diffuse_texname;
+					
+					// If desired, grab the default material (from it's default location)
+					if(texture_filename == "_default.png")
+						texture_filename = "./Materials/" + mp->diffuse_texname;
+					else // Append base dir.
+						texture_filename = base_dir + mp->diffuse_texname;
+
 					if (!FileExists(texture_filename)) {
 						std::cerr << "Unable to find file: " << mp->diffuse_texname << std::endl;
 						exit(1);
@@ -318,7 +328,7 @@ void Mesh::setupTextures(std::string base_dir)
 void Mesh::generateTransform()
 {
 	transform = glm::mat4();
-	transform = glm::translate(transform, -bounding_center);
+	transform = glm::translate(transform, -(bounding_center * (1/scale)));
 	transform = glm::scale(transform, glm::vec3(1 / scale));
 }
 

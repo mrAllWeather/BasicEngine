@@ -11,14 +11,15 @@ Scene::Scene(std::string scene_file)
 
 	meshes = new std::map<std::string, Mesh*>;
 
-	lights = new std::vector<Light*>;
+	lights = new std::map<std::string, Light*>;
 	object_loader = new ObjLoader();
 	shader_loader = new ShaderLoader();
 	texture_loader = new TextureLoader();
 	
 	SceneLoader load_scene(scene_file, this);
 
-	active_light = this->lights->at(0);
+	// Default to first light
+	active_light = this->lights->begin()->second;
 
 	update_projection();
 
@@ -145,6 +146,23 @@ void Scene::setActiveShader(std::string shader_scene_name)
 	{
 		std::cout << "Shader " << shader_scene_name << " does not exist in scene.\n";
 	}
+}
+
+void Scene::setActiveLight(std::string light_scene_name)
+{
+	if (lights->find(light_scene_name) != lights->end())
+	{
+		active_light = lights->at(light_scene_name);
+	}
+	else
+	{
+		std::cout << "Light " << light_scene_name << " does not exist in scene.\n";
+	}
+}
+
+Light * Scene::getActiveLight()
+{
+	return active_light;
 }
 
 void Scene::setViewMode(GLuint mode)

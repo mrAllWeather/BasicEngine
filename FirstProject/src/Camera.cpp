@@ -70,7 +70,7 @@ void Camera::LookAtObject(GLboolean constrainPitch = true)
 		this->Yaw = glm::degrees(-glm::atan(direction.x, direction.z)) + 90.0f;
 
 		// Make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (!constrainPitch)
+		if (constrainPitch)
 		{
 			if (this->Pitch > 89.0f)
 				this->Pitch = 89.0f;
@@ -106,11 +106,12 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 		this->Theta = this->Theta + yoffset; // vertical movement
 		this->Phi = this->Phi + xoffset; // horizontal movement
 
+		// Ensure we limit to a 180 degree rotation. Add a small epsilon to prevent locking
 		if (this->Theta < 0)
-			this->Theta = 0;
+			this->Theta = 0 + 0.000001;
 
 		if (this->Theta > M_PI)
-			this->Theta = M_PI;
+			this->Theta = M_PI - 0.000001;
 
 		// We take a world offset to allow us control over where the camera is in relation to the object before circling
 

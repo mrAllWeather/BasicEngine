@@ -23,7 +23,7 @@ uniform sampler2D texture_02;
 uniform sampler2D texture_03;
 
 // Materials
-uniform vec3 diffuseColor;
+uniform vec3 diff_color;
 
 // View Mode
 uniform int view_mode;
@@ -41,7 +41,7 @@ void main()
 	}
 	else if(view_mode == 2) // Diffuse Color Mode
 	{
-		color = vec4(diffuseColor, 1.0);
+		color = vec4(diff_color, 1.0);
 	}
 	else // Default to white model
 	{
