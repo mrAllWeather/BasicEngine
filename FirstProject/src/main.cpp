@@ -130,8 +130,6 @@ int main(int argc, char* argv[])
 	camera = current_level->camera;
 	RenderText ui_text(WIDTH, HEIGHT);
 
-	// Load Gamemode TODO: Move this into Scene I think
-
 	if (argc < 2)
 	{
 		std::cout << "Usage: " << argv[0] << " File.obj" << std::endl;
@@ -153,7 +151,6 @@ int main(int argc, char* argv[])
 		std::cerr << "Viewing object failed to load. Exiting..." << std::endl;
 		return -1;
 	}
-	// gamemode->initialise();
 
 	// Configure our look at and circling
 	camera->SetCircleFocus(&origin, 2, origin);
@@ -187,7 +184,6 @@ int main(int argc, char* argv[])
 		glfwPollEvents();
 
 		// Update Level
-		// gamemode->update(delta);
 		current_level->tick(delta);
 
 		// Rendering Commands here
@@ -199,10 +195,13 @@ int main(int argc, char* argv[])
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+		// Add UI to screen (only text atm)
 		show_ui(ui_text);
+
 		// Swap Buffers
 		glfwSwapBuffers(window);
 
+		// Hide notes for assessor after 30 seconds (they get in the way)
 		if (currentFrame - start_time > 30)
 			student_note = false;
 	}
@@ -273,6 +272,9 @@ void Keyboard_Input(float deltaTime)
 			{
 				current_level->setActiveShader("Light-Texture");
 				fill_mode = GL_FILL;
+				lighting_mode = 0;
+				current_level->setActiveLight("Overhead");
+
 			}
 			else
 			{
@@ -344,8 +346,8 @@ void show_ui(RenderText ui_text)
 		{
 			if (lighting_mode < 3) 
 			{
-				ui_text.DrawString("Active Light:" + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-				ui_text.DrawString("Light Location:" +
+				ui_text.DrawString("Active Light: " + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+				ui_text.DrawString("Light Location: " +
 				std::to_string(current_level->getActiveLight()->location->x) + ":" +
 				std::to_string(current_level->getActiveLight()->location->y) + ":" +
 				std::to_string(current_level->getActiveLight()->location->z),

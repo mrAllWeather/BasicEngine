@@ -42,8 +42,14 @@ uniform Material material;
 
 void main()
 {
+	float alpha = (texture(material.diffuse, TexCoord)).a; 
+
+	if(alpha < 0.1)
+		discard;
+
 	if(light.active > 0)
 	{
+
 		vec3 lightDir;
 		if(light.type == 0)
 		{
@@ -57,8 +63,9 @@ void main()
 		vec3 norm = normalize(Normal);	
 		
 		vec3 viewDir = normalize(viewPos - FragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);
-		
+
+		vec3 halfwayDir = normalize(lightDir + viewDir);
+
 		// Ambient Calculation
 		vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoord));
 			
@@ -67,7 +74,7 @@ void main()
 		vec3 diffuse = diff * light.diffuse * vec3(texture(material.diffuse, TexCoord));
 
 		// Specular Calculations
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+		float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
 		vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
 
 		if(light.type == 2) // If Spotlight, soften our edges
@@ -89,7 +96,7 @@ void main()
 			specular *= attenuation;   
 		}
 
-		color =  vec4(ambient + diffuse + specular, 1.0);
+		color =  vec4(ambient + diffuse + specular, alpha);
 	}
 	else
 	{

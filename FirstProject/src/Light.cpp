@@ -62,8 +62,6 @@ void Light::tick(GLfloat delta)
 {
 	if (circling)
 	{
-		std::cout << "L:Tick\n";
-
 		// We wish to circle the focused object at a set distance
 		// https://www.opengl.org/discussion_boards/showthread.php/176504-Orbit-around-object
 
