@@ -30,8 +30,8 @@
 #include "../include/File_IO.h"
 
 // Window Dimensions
-// const GLuint WIDTH = 1024, HEIGHT = 768;
-const GLuint WIDTH = 1280, HEIGHT = 1024;
+const GLuint WIDTH = 1024, HEIGHT = 768;
+// const GLuint WIDTH = 1280, HEIGHT = 1024;
 bool firstMouse = true;
 GLfloat lastX = 400, lastY = 300;
 
@@ -47,6 +47,8 @@ Camera* camera;
 // View Mode
 glm::vec3 origin(0.0f);
 bool show_details = false;
+bool student_note = true;
+
 int inspection_mode = 0;
 int lighting_mode = 0;
 bool is_fully_rendered; // False = Inspection Mode, True = Lighting Mode
@@ -80,7 +82,7 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	// Create window
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Complex Mesh Project", nullptr, nullptr); // Window 1
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ben Weatherall - a1617712 (Assignment 3 Part 1)", nullptr, nullptr); // Window 1
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -200,6 +202,9 @@ int main(int argc, char* argv[])
 		show_ui(ui_text);
 		// Swap Buffers
 		glfwSwapBuffers(window);
+
+		if (currentFrame - start_time > 30)
+			student_note = false;
 	}
 
 	glfwTerminate();
@@ -235,7 +240,7 @@ void Keyboard_Input(float deltaTime)
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && is_fully_rendered)
 		{
 			lighting_mode++;
-			if (lighting_mode > 2)
+			if (lighting_mode > 3)
 			{
 				lighting_mode = 0;
 			}
@@ -249,6 +254,10 @@ void Keyboard_Input(float deltaTime)
 				break;
 			case 2:
 				current_level->setActiveLight("RotateLight");
+				break;
+			case 3:
+				current_level->setActiveLight("NULL");
+				break;
 			default:
 				break;
 			}
@@ -289,6 +298,11 @@ void Keyboard_Input(float deltaTime)
 
 void show_ui(RenderText ui_text)
 {
+	if (student_note)
+	{
+		ui_text.DrawString("Sorry, I am generating my own normals instead of setting them to (0,0,0)", 15.0f, 30.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
+		ui_text.DrawString("Assignment makes heavy use of suggested resources OpenGlTutorials and Tiny_Obj_Loader's example viewer.cc (available with latest version of loader)", 15.0f, 15.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
+	}
 	if (show_details)
 	{
 		ui_text.DrawString("Press ` to hide details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
@@ -328,12 +342,20 @@ void show_ui(RenderText ui_text)
 
 		if (is_fully_rendered)
 		{
-			ui_text.DrawString("Active Light:" + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-			ui_text.DrawString("Light Location:" +
+			if (lighting_mode < 3) 
+			{
+				ui_text.DrawString("Active Light:" + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+				ui_text.DrawString("Light Location:" +
 				std::to_string(current_level->getActiveLight()->location->x) + ":" +
 				std::to_string(current_level->getActiveLight()->location->y) + ":" +
 				std::to_string(current_level->getActiveLight()->location->z),
 				15.0f, HEIGHT - 105.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+			}
+			else
+			{
+				ui_text.DrawString("Unlit", 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+			}
 		}
 	}
 	else

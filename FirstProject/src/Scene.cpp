@@ -83,42 +83,50 @@ void Scene::draw()
 	glUseProgram(active_shader);
 
 	// -- Light Uniforms -- 
-	GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
-	glUniform1i(hasLight, lights->size());
+	if (active_light)
+	{
+		GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
+		glUniform1i(hasLight, 1);
 
-	GLuint light_type = glGetUniformLocation(active_shader, "light.type");
-	glUniform1i(light_type, active_light->type);
+		GLuint light_type = glGetUniformLocation(active_shader, "light.type");
+		glUniform1i(light_type, active_light->type);
 
-	GLuint lightPos = glGetUniformLocation(active_shader, "light.position");
-	glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
+		GLuint lightPos = glGetUniformLocation(active_shader, "light.position");
+		glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
 
-	GLuint lightDir = glGetUniformLocation(active_shader, "light.direction");
-	glUniform3fv(lightDir, 1, glm::value_ptr(*active_light->direction));
+		GLuint lightDir = glGetUniformLocation(active_shader, "light.direction");
+		glUniform3fv(lightDir, 1, glm::value_ptr(*active_light->direction));
 
-	GLuint cut_off = glGetUniformLocation(active_shader, "light.cut_off");
-	glUniform1f(cut_off, active_light->cut_off);
+		GLuint cut_off = glGetUniformLocation(active_shader, "light.cut_off");
+		glUniform1f(cut_off, active_light->cut_off);
 
-	GLuint outer_cut_off = glGetUniformLocation(active_shader, "light.outer_cut_off");
-	glUniform1f(cut_off, active_light->outer_cut_off);
+		GLuint outer_cut_off = glGetUniformLocation(active_shader, "light.outer_cut_off");
+		glUniform1f(cut_off, active_light->outer_cut_off);
 
-	GLuint constant = glGetUniformLocation(active_shader, "light.constant");
-	glUniform1f(constant, active_light->constant);
+		GLuint constant = glGetUniformLocation(active_shader, "light.constant");
+		glUniform1f(constant, active_light->constant);
 
-	GLuint linear = glGetUniformLocation(active_shader, "light.linear");
-	glUniform1f(linear , active_light->linear);
+		GLuint linear = glGetUniformLocation(active_shader, "light.linear");
+		glUniform1f(linear, active_light->linear);
 
-	GLuint quadratic = glGetUniformLocation(active_shader, "light.quadratic");
-	glUniform1f(quadratic, active_light->quadratic);
+		GLuint quadratic = glGetUniformLocation(active_shader, "light.quadratic");
+		glUniform1f(quadratic, active_light->quadratic);
 
-	GLuint ambient_color = glGetUniformLocation(active_shader, "light.ambient");
-	glUniform3fv(ambient_color, 1, glm::value_ptr(*active_light->ambient));
+		GLuint ambient_color = glGetUniformLocation(active_shader, "light.ambient");
+		glUniform3fv(ambient_color, 1, glm::value_ptr(*active_light->ambient));
 
-	GLuint specular_color = glGetUniformLocation(active_shader, "light.specular");
-	glUniform3fv(specular_color, 1, glm::value_ptr(*active_light->specular));
+		GLuint specular_color = glGetUniformLocation(active_shader, "light.specular");
+		glUniform3fv(specular_color, 1, glm::value_ptr(*active_light->specular));
 
-	GLuint diffuse_color = glGetUniformLocation(active_shader, "light.diffuse");
-	glUniform3fv(diffuse_color, 1, glm::value_ptr(*active_light->diffuse));
-	
+		GLuint diffuse_color = glGetUniformLocation(active_shader, "light.diffuse");
+		glUniform3fv(diffuse_color, 1, glm::value_ptr(*active_light->diffuse));
+	}
+	else
+	{
+		GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
+		glUniform1i(hasLight, 0);
+	}
+
 	// -- Camera Uniforms --
 	GLuint viewPosLoc = glGetUniformLocation(active_shader, "viewPos");
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
@@ -156,7 +164,8 @@ void Scene::tick(GLfloat delta)
 	*/
 
 	camera->tick();
-	active_light->tick(delta);
+	if(active_light)
+		active_light->tick(delta);
 }
 
 void Scene::setActiveShader(std::string shader_scene_name)
@@ -176,6 +185,10 @@ void Scene::setActiveLight(std::string light_scene_name)
 	if (lights->find(light_scene_name) != lights->end())
 	{
 		active_light = lights->at(light_scene_name);
+	}
+	else if (light_scene_name == "NULL")
+	{
+		active_light = NULL;
 	}
 	else
 	{
