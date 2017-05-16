@@ -82,28 +82,53 @@ void Scene::draw()
 
 	glUseProgram(active_shader);
 
-	// Scene Uniforms
-	// Set up Light (only 1 for now)
+	// -- Light Uniforms -- 
 	GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
-	GLuint ambientStrength = glGetUniformLocation(active_shader, "light.ambientStrength");
-	GLuint specularStrength = glGetUniformLocation(active_shader, "light.specularStrength");
-	GLuint lightColor = glGetUniformLocation(active_shader, "light.diffuse");
-	GLuint lightPos = glGetUniformLocation(active_shader, "light.position");
-	
 	glUniform1i(hasLight, lights->size());
 
-	glUniform1f(ambientStrength, active_light->ambient_strength);
-	glUniform3fv(lightColor, 1, glm::value_ptr(*active_light->color));
+	GLuint light_type = glGetUniformLocation(active_shader, "light.type");
+	glUniform1i(light_type, active_light->type);
+
+	GLuint lightPos = glGetUniformLocation(active_shader, "light.position");
 	glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
 
+	GLuint lightDir = glGetUniformLocation(active_shader, "light.direction");
+	glUniform3fv(lightDir, 1, glm::value_ptr(*active_light->direction));
+
+	GLuint cut_off = glGetUniformLocation(active_shader, "light.cut_off");
+	glUniform1f(cut_off, active_light->cut_off);
+
+	GLuint outer_cut_off = glGetUniformLocation(active_shader, "light.outer_cut_off");
+	glUniform1f(cut_off, active_light->outer_cut_off);
+
+	GLuint constant = glGetUniformLocation(active_shader, "light.constant");
+	glUniform1f(constant, active_light->constant);
+
+	GLuint linear = glGetUniformLocation(active_shader, "light.linear");
+	glUniform1f(linear , active_light->linear);
+
+	GLuint quadratic = glGetUniformLocation(active_shader, "light.quadratic");
+	glUniform1f(quadratic, active_light->quadratic);
+
+	GLuint ambient_color = glGetUniformLocation(active_shader, "light.ambient");
+	glUniform3fv(ambient_color, 1, glm::value_ptr(*active_light->ambient));
+
+	GLuint specular_color = glGetUniformLocation(active_shader, "light.specular");
+	glUniform3fv(specular_color, 1, glm::value_ptr(*active_light->specular));
+
+	GLuint diffuse_color = glGetUniformLocation(active_shader, "light.diffuse");
+	glUniform3fv(diffuse_color, 1, glm::value_ptr(*active_light->diffuse));
+	
+	// -- Camera Uniforms --
 	GLuint viewPosLoc = glGetUniformLocation(active_shader, "viewPos");
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));
 
-	GLuint projectionLoc = glGetUniformLocation(active_shader, "projection");
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
-
 	GLuint cameraLoc = glGetUniformLocation(active_shader, "view");
 	glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+
+	// -- Scene Uniforms --
+	GLuint projectionLoc = glGetUniformLocation(active_shader, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
 
 	GLuint viewer_mode = glGetUniformLocation(active_shader, "view_mode");
 	glUniform1i(viewer_mode, view_mode);
@@ -131,6 +156,7 @@ void Scene::tick(GLfloat delta)
 	*/
 
 	camera->tick();
+	active_light->tick(delta);
 }
 
 void Scene::setActiveShader(std::string shader_scene_name)
@@ -160,6 +186,16 @@ void Scene::setActiveLight(std::string light_scene_name)
 Light * Scene::getActiveLight()
 {
 	return active_light;
+}
+
+Light * Scene::getLight(std::string scene_light_name)
+{
+	if (lights->find(scene_light_name) != lights->end())
+		return lights->find(scene_light_name)->second;
+	
+	std::cerr << "Light not found: " << scene_light_name << std::endl;
+
+	return nullptr;
 }
 
 void Scene::setViewMode(GLuint mode)

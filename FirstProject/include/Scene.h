@@ -70,6 +70,7 @@ public:
 	void setActiveShader(std::string);
 	void setActiveLight(std::string);
 	Light* getActiveLight();
+	Light* getLight(std::string);
 	void setViewMode(GLuint);
 	// TODO
 	// bool attachActor();

@@ -20,7 +20,7 @@ void main()
 	
 	vertexColor = color;
 	
-	TexCoord = vec2(texCoord.x, 1-texCoord.y);
+	TexCoord = vec2(texCoord.x, texCoord.y);
 	
 	Normal = mat3(transpose(inverse(model))) * normal;
 	

@@ -36,16 +36,17 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 
 void Mesh::draw(GLuint shader)
 {
+	// Will be true for every object in mesh, so set up now to save calls
+	glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
+	glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
+
 	for (const auto object : *objects)
 	{
-		// materials->at(object.material_id).
-		// Get component Specular Value
-		// glUniform1f(specularStrength, component.second->specular);
-
-		GLuint modelLoc = glGetUniformLocation(shader, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
-
 		if ((object.material_id < materials->size())) {
+			// -- Texture Uniforms --
+			
+			// Load diffuse texture
+			glActiveTexture(GL_TEXTURE0);
 			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
 			if (loaded_textures->find(diffuse_texname) != loaded_textures->end()) {
 				glBindTexture(GL_TEXTURE_2D, loaded_textures->at(diffuse_texname));
@@ -54,13 +55,31 @@ void Mesh::draw(GLuint shader)
 			{
 				glBindTexture(GL_TEXTURE_2D, loaded_textures->at("_default.png"));
 			}
+
+			// Load specular texture
+			glActiveTexture(GL_TEXTURE1);
+			std::string specular_texname = materials->at(object.material_id).specular_texname;
+			if (loaded_textures->find(specular_texname) != loaded_textures->end()) {
+				glBindTexture(GL_TEXTURE_2D, loaded_textures->at(specular_texname));
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, loaded_textures->at("_default.png"));
+			}
+
+			// -- Material Uniforms -- 
+
+			GLuint diffuseColor = glGetUniformLocation(shader, "material.diffuse_color");
+			glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
+
+			GLuint shininess = glGetUniformLocation(shader, "material.shininess");
+			glUniform1f(shininess, materials->at(object.material_id).shininess);
 		}
 
-		glUniform1i(glGetUniformLocation(shader, "material.diffuse"),  0);
-		// glUniform1i(glGetUniformLocation(lightingShader.Program, "material.specular"), 1);
 
-		GLuint diffuseColor = glGetUniformLocation(shader, "material.diffuse_color");
-		glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
+		// Mesh Uniforms
+		GLuint modelLoc = glGetUniformLocation(shader, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);

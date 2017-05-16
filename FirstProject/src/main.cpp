@@ -45,6 +45,7 @@ Scene* current_level;
 Camera* camera;
 
 // View Mode
+glm::vec3 origin(0.0f);
 bool show_details = false;
 int inspection_mode = 0;
 int lighting_mode = 0;
@@ -55,6 +56,7 @@ GLenum fill_mode = GL_LINE;
 const double VIEW_SWAP_DELAY = 0.5;	// Only swap view this many times per second
 double time_since_last_swap = 0; // How long since we last swapped view focus
 
+void show_ui(RenderText);
 
 // Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -128,7 +130,6 @@ int main(int argc, char* argv[])
 
 	// Load Gamemode TODO: Move this into Scene I think
 
-
 	if (argc < 2)
 	{
 		std::cout << "Usage: " << argv[0] << " File.obj" << std::endl;
@@ -141,6 +142,9 @@ int main(int argc, char* argv[])
 		current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 		current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
 		current_level->setActiveShader("Debug");
+		current_level->getLight("CamLight")->attach_light(&current_level->camera->Position, &origin);
+		
+		current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 	}
 
 	if (current_level->meshes->find("model_01") == current_level->meshes->end()) {
@@ -150,7 +154,6 @@ int main(int argc, char* argv[])
 	// gamemode->initialise();
 
 	// Configure our look at and circling
-	glm::vec3 origin(0.0f);
 	camera->SetCircleFocus(&origin, 2, origin);
 	camera->SetLookFocus(&origin);
 
@@ -194,21 +197,7 @@ int main(int argc, char* argv[])
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		if (show_details)
-		{
-			std::string bounds = "Bounds: [" + current_level->meshes->at("model_01")->get_lower_bounds() +
-				"]-[" + current_level->meshes->at("model_01")->get_upper_bounds() + "]";
-			ui_text.DrawString(bounds, 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-			ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 35.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-			ui_text.DrawString("Camera: " + std::to_string(current_level->camera->Position.x) + ":" +
-				std::to_string(current_level->camera->Position.y) + ":" +
-				std::to_string(current_level->camera->Position.z),
-				15.0f, HEIGHT - 50.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-			ui_text.DrawString("Active Light:" + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 65.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		}
+		show_ui(ui_text);
 		// Swap Buffers
 		glfwSwapBuffers(window);
 	}
@@ -223,7 +212,7 @@ void Keyboard_Input(float deltaTime)
 	// Inspection Mode
 	if (keys[GLFW_KEY_D])
 	{
-		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && !is_fully_rendered)
 		{
 			inspection_mode++;
 			if (inspection_mode > 0)
@@ -243,7 +232,7 @@ void Keyboard_Input(float deltaTime)
 	// Lighting Mode
 	if (keys[GLFW_KEY_L])
 	{
-		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && is_fully_rendered)
 		{
 			lighting_mode++;
 			if (lighting_mode > 2)
@@ -295,6 +284,69 @@ void Keyboard_Input(float deltaTime)
 			show_details = !show_details;
 			time_since_last_swap = glfwGetTime();
 		}
+	}
+}
+
+void show_ui(RenderText ui_text)
+{
+	if (show_details)
+	{
+		ui_text.DrawString("Press ` to hide details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		std::string bounds = "Bounds: [" + current_level->meshes->at("model_01")->get_lower_bounds() +
+			"]-[" + current_level->meshes->at("model_01")->get_upper_bounds() + "]";
+		ui_text.DrawString(bounds, 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		std::string drawmode;
+		if (is_fully_rendered)
+		{
+			drawmode = "Fully Rendered";
+		}
+		else
+		{
+			switch (inspection_mode)
+			{
+			case 0:
+				drawmode = "Wire Frame";
+				break;
+			case 1:
+				drawmode = "Normals";
+				break;
+			case 2:
+				drawmode = "Diffuse colour";
+			default:
+				break;
+			}
+		}
+		ui_text.DrawString("Draw Mode: " + drawmode, 15.0f, HEIGHT - 60.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		ui_text.DrawString("Camera: " + std::to_string(current_level->camera->Position.x) + ":" +
+			std::to_string(current_level->camera->Position.y) + ":" +
+			std::to_string(current_level->camera->Position.z),
+			15.0f, HEIGHT - 75.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		if (is_fully_rendered)
+		{
+			ui_text.DrawString("Active Light:" + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+			ui_text.DrawString("Light Location:" +
+				std::to_string(current_level->getActiveLight()->location->x) + ":" +
+				std::to_string(current_level->getActiveLight()->location->y) + ":" +
+				std::to_string(current_level->getActiveLight()->location->z),
+				15.0f, HEIGHT - 105.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		}
+	}
+	else
+	{
+		ui_text.DrawString("Press ` for details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		ui_text.DrawString("Press S to switch between shaders", 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		if (is_fully_rendered)
+			ui_text.DrawString("Press L to switch active lights", 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		else
+			ui_text.DrawString("Press D to switch debug modes", 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		
+		ui_text.DrawString("Hold Left mouse and drag to rotate model", 15.0f, HEIGHT - 60.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		ui_text.DrawString("Hold Right mouse and drag to zoom in and out", 15.0f, HEIGHT - 75.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 	}
 }
 

@@ -118,11 +118,6 @@ void Camera::CircleObject(GLfloat xoffset, GLfloat yoffset)
 		this->Position.x = this->WorldPositionOffset.x + this->CircleFocus->x + CircleRadius*glm::cos(this->Phi)*glm::sin(this->Theta);
 		this->Position.z = this->WorldPositionOffset.z + this->CircleFocus->z + CircleRadius*glm::sin(this->Phi)*glm::sin(this->Theta);
 		this->Position.y = this->WorldPositionOffset.y + this->CircleFocus->y + CircleRadius*glm::cos(this->Theta);
-		/*
-		this->Position.x = this->WorldPositionOffset.x + this->CircleFocus->x + CircleRadius*glm::cos(this->Phi)*glm::sin(this->Theta);
-		this->Position.y = this->WorldPositionOffset.y + this->CircleFocus->y + CircleRadius*glm::sin(this->Phi)*glm::sin(this->Theta);
-		this->Position.z = this->WorldPositionOffset.z + this->CircleFocus->z + CircleRadius*glm::cos(this->Theta);
-		*/
 	}
 }
 
