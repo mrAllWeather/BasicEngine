@@ -84,20 +84,17 @@ void Scene::draw()
 
 	// Scene Uniforms
 	// Set up Light (only 1 for now)
-	GLuint lightCount = glGetUniformLocation(active_shader, "lightCount");
-	GLuint ambientStrength = glGetUniformLocation(active_shader, "ambientStrength");
-	GLuint specularStrength = glGetUniformLocation(active_shader, "specularStrength");
-	GLuint lightColor = glGetUniformLocation(active_shader, "lightColor");
-	GLuint lightPos = glGetUniformLocation(active_shader, "lightPos");
+	GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
+	GLuint ambientStrength = glGetUniformLocation(active_shader, "light.ambientStrength");
+	GLuint specularStrength = glGetUniformLocation(active_shader, "light.specularStrength");
+	GLuint lightColor = glGetUniformLocation(active_shader, "light.diffuse");
+	GLuint lightPos = glGetUniformLocation(active_shader, "light.position");
 	
-	glUniform1i(lightCount, lights->size());
+	glUniform1i(hasLight, lights->size());
 
-	if (lights->size() > 0)
-	{
-		glUniform1f(ambientStrength, active_light->ambient_strength);
-		glUniform3fv(lightColor, 1, glm::value_ptr(*active_light->color));
-		glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
-	}
+	glUniform1f(ambientStrength, active_light->ambient_strength);
+	glUniform3fv(lightColor, 1, glm::value_ptr(*active_light->color));
+	glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
 
 	GLuint viewPosLoc = glGetUniformLocation(active_shader, "viewPos");
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(this->camera->Position));

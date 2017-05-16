@@ -56,7 +56,10 @@ void Mesh::draw(GLuint shader)
 			}
 		}
 
-		GLuint diffuseColor = glGetUniformLocation(shader, "diff_color");
+		glUniform1i(glGetUniformLocation(shader, "material.diffuse"),  0);
+		// glUniform1i(glGetUniformLocation(lightingShader.Program, "material.specular"), 1);
+
+		GLuint diffuseColor = glGetUniformLocation(shader, "material.diffuse_color");
 		glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
 
 		glBindVertexArray(object.va);

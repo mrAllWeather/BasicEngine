@@ -21,6 +21,13 @@
 
 #define LIGHT_REGEX "\\t.*"
 
+enum light_type{
+	DIRECTIONAL,
+	POINT,
+	SPOT,
+	FLASH
+};
+
 class Light {
 public:
 	Light(	std::string light_details );
@@ -35,4 +42,5 @@ public:
 	glm::vec3* color;
 
 private:
+	light_type type;
 };
