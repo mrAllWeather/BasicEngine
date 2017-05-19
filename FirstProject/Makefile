@@ -19,11 +19,13 @@ TARGET = assign3_part1
 # all: $(SOURCES) $(EXECUTABLE)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@ $(CFLAGS) $(LDFLAGS)
+	@$(CC) $(OBJECTS) -o $@ $(CFLAGS) $(LDFLAGS)
+	@echo "Compiled "$<" successfully!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
-	$(CC) -c $< -o $@ $(CFLAGS) $(LDFLAGS)
-	echo "Compiled "$<" successfully!"
+	@mkdir -p $(@D)
+	@$(CC) -c $< -o $@ $(CFLAGS) $(LDFLAGS)
+	@echo "Compiled "$<" successfully!"
 
 .PHONY: clean
 clean:
