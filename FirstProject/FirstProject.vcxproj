@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\OpenGL_Projects\ThirdPartyLibs\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\OpenGL_Projects\ThirdPartyLibs\Include;D:\OpenGL_Projects\ThirdPartyLibs\Include\freetype;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;D:\OpenGL_Projects\ThirdPartyLibs\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -86,9 +86,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\OpenGL_Projects\ThirdPartyLibs\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype271d.lib;glew32s.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\OpenGL_Projects\ThirdPartyLibs\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,32 +134,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ComplexMesh.cpp" />
-    <ClCompile Include="File_IO.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneLoader.cpp" />
-    <ClCompile Include="Seconds_Per_Frame_Counter.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="StaticMesh.cpp" />
-    <ClCompile Include="ObjLoader.cpp" />
-    <ClCompile Include="ShaderLoader.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\ComplexMesh.h" />
+    <ClInclude Include="include\File_IO.h" />
+    <ClInclude Include="include\Light.h" />
+    <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\ObjLoader.h" />
+    <ClInclude Include="include\RenderText.h" />
+    <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\SceneLoader.h" />
+    <ClInclude Include="include\Seconds_Per_Frame_Counter.h" />
+    <ClInclude Include="include\ShaderLoader.h" />
+    <ClInclude Include="include\StaticMesh.h" />
+    <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\TextureLoader.h" />
+    <ClInclude Include="include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="ComplexMesh.h" />
-    <ClInclude Include="File_IO.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="SceneLoader.h" />
-    <ClInclude Include="Seconds_Per_Frame_Counter.h" />
-    <ClInclude Include="StaticMesh.h" />
-    <ClInclude Include="ObjLoader.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="ShaderLoader.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="TextureLoader.h" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\ComplexMesh.cpp" />
+    <ClCompile Include="src\File_IO.cpp" />
+    <ClCompile Include="src\Light.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\ObjLoader.cpp" />
+    <ClCompile Include="src\RenderText.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\SceneLoader.cpp" />
+    <ClCompile Include="src\Seconds_Per_Frame_Counter.cpp" />
+    <ClCompile Include="src\ShaderLoader.cpp" />
+    <ClCompile Include="src\StaticMesh.cpp" />
+    <ClCompile Include="src\TextureLoader.cpp" />
+    <ClCompile Include="src\tiny_obj_loader.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

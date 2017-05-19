@@ -1,3 +1,4 @@
 ./Meshes/billiards/felt.obj
 ./Textures/suede_green.jpg
 ./Shaders/static.vert,./Shaders/static.frag
+0.1

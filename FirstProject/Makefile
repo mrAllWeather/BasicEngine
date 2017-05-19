@@ -1,18 +1,34 @@
 # Keep this for future
 CC=g++
-LDFLAGS=-lGLEW -lglfw3 -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl -std=c++11
+LDFLAGS=`pkg-config --static --libs glfw3 --cflags freetype2` -lGLEW -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl -std=c++11
 CFLAGS=-std=c++11
-SOURCES=Light.cpp Camera.cpp SceneLoader.cpp StaticMesh.cpp ComplexMesh.cpp ObjLoader.cpp TextureLoader.cpp Seconds_Per_Frame_Counter.cpp File_IO.cpp Scene.cpp ShaderLoader.cpp main.cpp
-OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE := main
 
-all: $(SOURCES) $(EXECUTABLE)
+SRCDIR= src
+OBJDIR= obj
+BINDIR= .
+INCDIR= include
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
+SOURCES := $(wildcard $(SRCDIR)/*.c*)
+INCLUDES := $(wildcard $(INCDIR)/*.h)
+OBJECTS := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
-.cpp.o: #M make object files
+rm = rm -f
+
+TARGET = assign3_part1
+
+# all: $(SOURCES) $(EXECUTABLE)
+
+$(BINDIR)/$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $@ $(CFLAGS) $(LDFLAGS)
+
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(LDFLAGS)
+	echo "Compiled "$<" successfully!"
 
+.PHONY: clean
 clean:
-	rm $(EXECUTABLE) *.o
+	$(rm) $(OBJDIR)/*.o
+
+.PHONY: remove
+remove: clean
+	$(rm) $(BINDIR)/$(TARGET)
