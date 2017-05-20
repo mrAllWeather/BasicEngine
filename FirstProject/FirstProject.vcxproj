@@ -148,6 +148,7 @@
     <ClInclude Include="include\StaticMesh.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\TextureLoader.h" />
+    <ClInclude Include="include\tinyxml2.h" />
     <ClInclude Include="include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +166,7 @@
     <ClCompile Include="src\ShaderLoader.cpp" />
     <ClCompile Include="src\StaticMesh.cpp" />
     <ClCompile Include="src\TextureLoader.cpp" />
+    <ClCompile Include="src\tinyxml2.cpp" />
     <ClCompile Include="src\tiny_obj_loader.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
