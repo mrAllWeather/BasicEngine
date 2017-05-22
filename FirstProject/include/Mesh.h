@@ -32,6 +32,18 @@ struct loadedComponents {
 	std::map<std::string, std::pair<Mesh*, int>>* Meshes;
 	std::map<std::string, std::pair<GLuint, int>>* Textures;
 	std::map<std::string, GLuint>* Shaders;
+	loadedComponents()
+	{
+		Meshes = new std::map<std::string, std::pair<Mesh*, int>>;
+		Textures = new std::map<std::string, std::pair<GLuint, int>>;
+		Shaders = new std::map<std::string, GLuint>;
+	};
+	~loadedComponents()
+	{
+		delete Meshes;
+		delete Textures;
+		delete Shaders;
+	}
 };
 
 void calculate_surface_normal(float Normal[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3]);

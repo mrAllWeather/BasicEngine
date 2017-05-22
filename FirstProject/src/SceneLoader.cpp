@@ -31,13 +31,11 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				// TODO We name cameras but only support one for now; so toss the provided name and only load first
 				// Though changes to how views work might mean new cameras become easy to attach
 
-				std::getline(fb, LineBuf);
+				std::streampos last_line = fb.tellg();
 				
 				std::string name;
 				glm::vec3 location, up;
 				GLfloat yaw, pitch;
-
-				std::streampos last_line = fb.tellg();
 
 				// TODO set Camera_REGEX (Tho' Light regex will probably work for now :P)
 				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))

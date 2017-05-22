@@ -42,7 +42,6 @@ bool mouse_button[8];
 
 // Scene Components
 Scene* current_level;
-Camera* camera;
 
 // View Mode
 glm::vec3 origin(0.0f);
@@ -396,17 +395,17 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
 
 		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
-		camera->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
+		current_level->getActiveCamera()->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
 	}
 
 	if (mouse_button[GLFW_MOUSE_BUTTON_RIGHT])
 	{
 		// TIL that Zoom works the opposite to the way I thought, high numbers is zoomed out, low numbers zoomed in
-		camera->Zoom += xoffset * MOUSE_SPEED;
-		if (camera->Zoom > 3)
-			camera->Zoom = 3;
-		if (camera->Zoom < 0.1)
-			camera->Zoom = 0.1;
+		current_level->getActiveCamera()->Zoom += xoffset * MOUSE_SPEED;
+		if (current_level->getActiveCamera()->Zoom > 3)
+			current_level->getActiveCamera()->Zoom = 3;
+		if (current_level->getActiveCamera()->Zoom < 0.1)
+			current_level->getActiveCamera()->Zoom = 0.1;
 	}
 
 }

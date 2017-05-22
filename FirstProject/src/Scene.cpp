@@ -7,6 +7,7 @@ Scene::Scene(std::string scene_file)
 	scene_tracker = new loadedComponents;
 
 	objects = new std::map<std::string, Object*>;
+	cameras = new std::map<std::string, Camera*>;
 	
 	lights = new std::map<std::string, Light*>;
 	shader_loader = new ShaderLoader();
