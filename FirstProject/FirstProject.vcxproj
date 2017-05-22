@@ -135,7 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
-    <ClInclude Include="include\ComplexMesh.h" />
+    <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\File_IO.h" />
     <ClInclude Include="include\Light.h" />
     <ClInclude Include="include\Mesh.h" />
@@ -145,14 +145,14 @@
     <ClInclude Include="include\SceneLoader.h" />
     <ClInclude Include="include\Seconds_Per_Frame_Counter.h" />
     <ClInclude Include="include\ShaderLoader.h" />
-    <ClInclude Include="include\StaticMesh.h" />
+    <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\TextureLoader.h" />
     <ClInclude Include="include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\ComplexMesh.cpp" />
+    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\File_IO.cpp" />
     <ClCompile Include="src\Light.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -163,7 +163,7 @@
     <ClCompile Include="src\SceneLoader.cpp" />
     <ClCompile Include="src\Seconds_Per_Frame_Counter.cpp" />
     <ClCompile Include="src\ShaderLoader.cpp" />
-    <ClCompile Include="src\StaticMesh.cpp" />
+    <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\TextureLoader.cpp" />
     <ClCompile Include="src\tiny_obj_loader.cc" />
   </ItemGroup>

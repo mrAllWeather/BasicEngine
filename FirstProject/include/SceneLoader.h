@@ -12,9 +12,9 @@
 #include <istream>
 
 #include "../include/Scene.h"
-#include "../include/ComplexMesh.h"
-#include "../include/TextureLoader.h"
+#include "../include/Object.h"
 #include "../include/Light.h"
+#include "../include/Camera.h"
 
 class Scene; // TODO find out why I am using parent references
 
@@ -25,8 +25,7 @@ public:
 private:
 	Scene * scene;
 	ShaderLoader * scene_shader_loader;
-	ObjLoader * scene_object_loader;
-	TextureLoader * scene_texture_loader;
+
 	bool BuildActors(std::ifstream* fb, std::string* LineBuf);
 	bool BuildAnimations(std::ifstream* fb, std::string* LineBuf);
 	bool BuildCamera(std::ifstream* fb, std::string* LineBuf);

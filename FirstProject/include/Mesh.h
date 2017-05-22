@@ -19,6 +19,8 @@
 #include "../include/tiny_obj_loader.h"
 #include "../include/File_IO.h"
 
+class Mesh;
+
 typedef struct {
 	GLuint va;
 	GLuint vb[4];  // vertex buffer
@@ -26,20 +28,30 @@ typedef struct {
 	size_t material_id;
 } DrawObject;
 
-// TODO: replace all float arrays with vec3s. Fujita is obsessed with STL even when writing code for GLM!
+struct loadedComponents {
+	std::map<std::string, std::pair<Mesh*, int>>* Meshes;
+	std::map<std::string, std::pair<GLuint, int>>* Textures;
+	std::map<std::string, GLuint>* Shaders;
+};
+
 void calculate_surface_normal(float Normal[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3]);
 
 class Mesh {
 public:
-	Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, std::string base_mat_location = "./Materials/");
+	Mesh(std::string filename, loadedComponents* scene_tracker, std::string base_mat_location = "./Materials/");
+	~Mesh();
 	void draw(GLuint shader);
 	std::string get_lower_bounds();
 	std::string get_upper_bounds();
 	std::string get_scale();
 	bool loaded_successfully = true;
+	void remove_instance();
+
 private:
+	std::string name;
 	glm::mat4 transform;
-	std::map<std::string, GLuint>* loaded_textures;
+	loadedComponents* scene_tracker;
+	// std::map<std::string, GLuint>* loaded_textures;
 	std::vector<tinyobj::material_t>* materials;
 	std::vector<tinyobj::shape_t>* shapes;
 
@@ -49,6 +61,7 @@ private:
 
 	void setupMesh();
 	void setupTextures(std::string base_dir);
+	void loadTexture(std::string base_dir, std::string texture_name);
 	void generateTransform();
 
 	// Smallest value for each axis (unnormalised)

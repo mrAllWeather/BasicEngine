@@ -15,7 +15,7 @@ Light::Light( std::string light_details )
 
 	int l_type;
 
-	iss >> name >> l_type;
+	iss >> l_type;
 	
 
 	switch ((light_types)l_type)

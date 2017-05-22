@@ -20,10 +20,8 @@
 #include<vector>
 
 #include "../include/ShaderLoader.h"
-#include "../include/ObjLoader.h"
-#include "../include/TextureLoader.h"
 #include "../include/SceneLoader.h"
-#include "../include/ComplexMesh.h"
+#include "../include/Object.h"
 #include "../include/Camera.h"
 #include "../include/Light.h"
 #include "../include/Mesh.h"
@@ -32,24 +30,13 @@
 // Intend to fix in long run
 const GLuint s_WIDTH = 1024, s_HEIGHT = 768;
 
-struct technician {
-	Camera* camera;
-	//std::vector<Lights*> lights
-};
-
-// TODO TMP STRUCT 
-struct obj_loader_model {
-	std::vector<tinyobj::shape_t>* shapes;
-	std::vector<tinyobj::material_t>* materials;
-	glm::vec3 bounds[2];
-};
-
 class Scene {
+
 public:
 	friend class SceneLoader;
 	friend class Actor;
-	friend class ComplexMesh;
-	friend class StaticMesh;
+	friend class Object;
+	friend class Component;
 
 	Scene(std::string scene_file);
 	~Scene();
@@ -57,52 +44,79 @@ public:
 	// Add Static (maybe rename?) will add a complex mesh, build all components
 	// and then add the each components ComplexMesh*, StaticMesh* paid to our
 	// scene_draw_list
-	void attachObject(std::string object_scene_name, std::string file_name, std::string base_dir = "");
-	void attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file);
-	// Remove Static wil remove each component from the scene_draw_list and
-	// then call delete on the ComplexMesh*
-	void removeStatic(std::string); // Chance to Complex in the long run
+	void attachObject(std::string object_scene_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, std::string file_name, std::string base_dir = "");
+	void attachObject(std::string object_scene_name, std::string object_details);
+	void removeObject(std::string object_scene_name);
 
-	void draw();
+	void attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file);
+
+	void draw(GLfloat delta);
 
 	void tick(GLfloat delta); // Update All Actors
 
 	void setActiveShader(std::string);
+	
+	Light* getLight(std::string);
+
+	void attachLight(std::string light_scene_name, std::string light_details);
 	void setActiveLight(std::string);
 	Light* getActiveLight();
-	Light* getLight(std::string);
+
+	void attachCamera(std::string, glm::vec3 location, glm::vec3 up, GLfloat yaw, GLfloat pitch);
+	void setActiveCamera(std::string);
+	Camera* getActiveCamera();
+
+
+	
+	
 	void setViewMode(GLuint);
+
+	bool hasObject(std::string);
+	Object* getObject(std::string);
+
 	// TODO
 	// bool attachActor();
 	// uint64_t attachLight();
 	// void removeActor(Actor*);
 	// void removeLight();
 	// void setSkybox(void); // Pass texture?
-	Camera* camera;
-	std::map<std::string, Mesh*>* meshes;
-	std::map<std::string, GLuint> textures;
-	std::map<std::string, GLuint> shaders;
+
 private:
-	GLuint view_mode;
-	GLuint active_shader;
-	Light* active_light;
-	std::string scene_name;
-	std::map<std::string, Light*>* lights;
-	// std::vector<Light*>* lights;
-
-	ObjLoader* object_loader;
-	ShaderLoader* shader_loader;
-	TextureLoader* texture_loader;
-	glm::mat4 projection_transform;
-
 	void update_projection();
-	// We store every static/actor component by shader program. We can then call
-	// the stored values we need for the draw call. As we are calling from the scene
-	// We also have access to our Camera and Lighting.
 
-	// std::map<GLuint, std::vector< std::pair<ComplexMesh*, StaticMesh*> > >* scene_draw_list;
-	// std::vector< ComplexMesh*>* scene_tick_list;
+	std::string scene_name;
+	std::map<std::string, Object*>* objects;
+	std::map<std::string, Light*>* lights;
+	std::map<std::string, Camera*>* cameras;
+
+	glm::mat4 m_transform;
+
+	// Active Components
+	GLuint active_shader;
+	Camera* active_camera;
+	// TODO we want all lights; so replace this
+	Light* active_light;
+
+	// TODO Shader Switch; Consider using to switch effects on and off
+	GLuint view_mode;
+
+
+	loadedComponents* scene_tracker;
 	
+	ShaderLoader* shader_loader;
+
+
+
+
+
+
+
+
+	// TODO with Actors we will have a tick list
+	// std::vector< Actor*>* scene_tick_list;
+	
+
+
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting

@@ -3,9 +3,7 @@
 SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 {
 	this->scene = loading_scene;
-	this->scene_object_loader = loading_scene->object_loader;
 	this->scene_shader_loader = loading_scene->shader_loader;
-	this->scene_texture_loader = loading_scene->texture_loader;
 	
 	std::ifstream fb; // FileBuffer
 
@@ -34,22 +32,31 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				// Though changes to how views work might mean new cameras become easy to attach
 
 				std::getline(fb, LineBuf);
-				std::stringstream iss(LineBuf);
+				
 				std::string name;
 				glm::vec3 location, up;
-
 				GLfloat yaw, pitch;
-				iss >>	name >> location.x >> location.y >> location.z >>
+
+				std::streampos last_line = fb.tellg();
+
+				// TODO set Camera_REGEX (Tho' Light regex will probably work for now :P)
+				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
+				{
+					std::stringstream iss(LineBuf);
+
+					iss >> name >> location.x >> location.y >> location.z >>
 						up.x >> up.y >> up.z >>
 						yaw >> pitch;
 
-				std::cout << "\tLocation: " << location.x << " " << location.y << " " << location.z;
-				std::cout << "\n\tUp:" << up.x << " " << up.y << " " << up.z;
-				std::cout << "\n\tYaw: " << yaw << "\tPitch: " << pitch << std::endl;
+					std::cout << "\tLocation: " << location.x << " " << location.y << " " << location.z;
+					std::cout << "\n\tUp:" << up.x << " " << up.y << " " << up.z;
+					std::cout << "\n\tYaw: " << yaw << "\tPitch: " << pitch << std::endl;
 
-				Camera* load_camera = new Camera(location, up, yaw, pitch);
+					this->scene->attachCamera(name, location, up, yaw, pitch);
 
-				this->scene->camera = load_camera;
+				}
+				fb.seekg(last_line);
+
 			}
 			else if (LineBuf == "Lights:")
 			{
@@ -57,14 +64,12 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 
 				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
 				{
-					std::cerr << "L: " << LineBuf << std::endl;
-					Light* tmpLight = new Light(LineBuf);
-					if (this->scene->lights->find(tmpLight->get_name()) != this->scene->lights->end())
-					{
-						std::cout << "Duplicate light name: '" << tmpLight->get_name() << "' replacing existing light\n";
-						delete this->scene->lights->at(tmpLight->get_name());
-					}
-					this->scene->lights->operator[](tmpLight->get_name()) = tmpLight;
+					std::stringstream iss(LineBuf);
+					std::string name;
+					iss >> name;
+
+					scene->attachLight(name, iss.str());
+
 					last_line = fb.tellg();
 				}
 
@@ -81,19 +86,21 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Statics:")
 			{
-				/*
 				std::streampos last_line = fb.tellg();
 
 				std::cout << "Loading Static:" << LineBuf << std::endl;
 				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(CMESH_REGEX)))
 				{
-					ComplexMesh* c_mesh = new ComplexMesh(LineBuf, this->scene_shader_loader, this->scene_object_loader, this->scene_texture_loader);
-					this->scene->statics->operator[](c_mesh->name) = c_mesh;
+					std::stringstream iss(LineBuf);
+					std::string name;
+					iss >> name;
+
+					scene->attachObject(name, iss.str());
+
 					last_line = fb.tellg();
 				}
 				
 				fb.seekg(last_line);
-				*/
 			}
 			else if (!load_success)
 			{

@@ -127,34 +127,21 @@ int main(int argc, char* argv[])
 
 	// Load Scene
 	current_level = new Scene("./Scenes/Blank.scene");
-	camera = current_level->camera;
 	RenderText ui_text(WIDTH, HEIGHT);
 
-	if (argc < 2)
-	{
-		std::cout << "Usage: " << argv[0] << " File.obj" << std::endl;
-		return -1;
-	}
-	else
-	{
-		std::cout << "Folder Check: " << GetBaseDir(argv[1]) << std::endl;
-		current_level->attachObject("model_01", argv[1], GetBaseDir(argv[1])+ "/");
-		current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
-		current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
-		current_level->setActiveShader("Debug");
-		current_level->getLight("CamLight")->attach_light(&current_level->camera->Position, &origin);
-		
-		current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
-	}
+	// Attaching Scene Shaders (Move into Level.scene).
+	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
+	current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
+	// Default to First Shader?
+	current_level->setActiveShader("Debug");
 
-	if (current_level->meshes->find("model_01") == current_level->meshes->end()) {
-		std::cerr << "Viewing object failed to load. Exiting..." << std::endl;
-		return -1;
-	}
+	// We can attach lights to locations and set up circling.
+	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &origin);
+	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 
 	// Configure our look at and circling
-	camera->SetCircleFocus(&origin, 2, origin);
-	camera->SetLookFocus(&origin);
+	current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
+	current_level->getActiveCamera()->SetLookFocus(&origin);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -191,7 +178,7 @@ int main(int argc, char* argv[])
 
 		glPolygonMode(GL_FRONT_AND_BACK, fill_mode);
 
-		current_level->draw();
+		current_level->draw(delta);
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -307,13 +294,14 @@ void show_ui(RenderText ui_text)
 	}
 	if (show_details)
 	{
+		/* TODO: Add bounds calls for Component and Object. Component will use Mesh * transform, Object will use Object.Bounds * transform (tho' consider using vector of bounds at Object for collision)
 		ui_text.DrawString("Press ` to hide details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		std::string bounds = "Bounds: [" + current_level->meshes->at("model_01")->get_lower_bounds() +
-			"]-[" + current_level->meshes->at("model_01")->get_upper_bounds() + "]";
+		std::string bounds = "Bounds: [" + current_level->getObject("model_01")->get_lower_bounds() +
+			"]-[" + current_level->getObject("model_01")->get_upper_bounds() + "]";
 		ui_text.DrawString(bounds, 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
 		ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
+		*/
 		std::string drawmode;
 		if (is_fully_rendered)
 		{
@@ -337,9 +325,9 @@ void show_ui(RenderText ui_text)
 		}
 		ui_text.DrawString("Draw Mode: " + drawmode, 15.0f, HEIGHT - 60.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
-		ui_text.DrawString("Camera: " + std::to_string(current_level->camera->Position.x) + ":" +
-			std::to_string(current_level->camera->Position.y) + ":" +
-			std::to_string(current_level->camera->Position.z),
+		ui_text.DrawString("Camera: " + std::to_string(current_level->getActiveCamera()->Position.x) + ":" +
+			std::to_string(current_level->getActiveCamera()->Position.y) + ":" +
+			std::to_string(current_level->getActiveCamera()->Position.z),
 			15.0f, HEIGHT - 75.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
 		if (is_fully_rendered)

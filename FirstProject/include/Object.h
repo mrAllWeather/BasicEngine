@@ -25,27 +25,31 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "../include/StaticMesh.h"
+#include "../include/Component.h"
 
 // This does need to be heavily reviewed for rights
 // Everything is currently public as we give up our details constantly to pretty much everyone
-class ComplexMesh {
+class Object {
 public:
-	friend class StaticMesh;
-	ComplexMesh(	std::string cmesh_details, 
-			ShaderLoader* scene_shader_loader, 
-			ObjLoader* scene_object_loader,
-			TextureLoader* scene_texture_loader);
-
-	std::string name;
-	// List of all out components (by name so we can call them for local transforms if needed)
-	std::map<std::string, StaticMesh*>* components;
-	glm::vec3* location;
-	glm::vec3* rotation;
-	glm::vec3* scale;
-	glm::mat4 static_transform;
-	glm::quat* rot;
-	void build_static_transform();
+	Object(std::string cmesh_details, loadedComponents* scene_tracker);
+	Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker);
+	void addComponent(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale);
+	void remComponent(std::string name);
+	void draw(GLuint shader);
 
 private:
+	std::string m_name;
+	// List of all out components (by name so we can call them for local transforms if needed)
+	std::map<std::string, Component*>* components;
+	
+	glm::vec3* m_location;
+	glm::vec3* m_scale;
+	
+	glm::quat* m_rotation;
+
+	glm::mat4 m_transform;
+	
+	loadedComponents* scene_tracker;
+
+	void build_static_transform();
 };

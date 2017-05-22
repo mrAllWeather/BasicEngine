@@ -3,11 +3,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
-Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, std::string base_dir)
+Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string base_dir)
 {
+	this->name = filename;
 	this->attrib = new tinyobj::attrib_t;
 	this->objects = new std::vector<DrawObject>;
-	this->loaded_textures = &scene_textures;
+	this->scene_tracker = scene_tracker;
 	this->materials = new std::vector<tinyobj::material_t>;
 	this->shapes = new std::vector<tinyobj::shape_t>;
 	std::string err;
@@ -34,6 +35,11 @@ Mesh::Mesh(std::string filename, std::map<std::string, GLuint>& scene_textures, 
 	generateTransform();
 }
 
+Mesh::~Mesh()
+{
+	// Code to free Mesh Details
+}
+
 void Mesh::draw(GLuint shader)
 {
 	// Will be true for every object in mesh, so set up now to save calls
@@ -48,23 +54,23 @@ void Mesh::draw(GLuint shader)
 			// Load diffuse texture
 			glActiveTexture(GL_TEXTURE0);
 			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
-			if (loaded_textures->find(diffuse_texname) != loaded_textures->end()) {
-				glBindTexture(GL_TEXTURE_2D, loaded_textures->at(diffuse_texname));
+			if (scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
 			}
 			else
 			{
-				glBindTexture(GL_TEXTURE_2D, loaded_textures->at("_default.png"));
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
 			}
 
 			// Load specular texture
 			glActiveTexture(GL_TEXTURE1);
 			std::string specular_texname = materials->at(object.material_id).specular_texname;
-			if (loaded_textures->find(specular_texname) != loaded_textures->end()) {
-				glBindTexture(GL_TEXTURE_2D, loaded_textures->at(specular_texname));
+			if (scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
 			}
 			else
 			{
-				glBindTexture(GL_TEXTURE_2D, loaded_textures->at("_default.png"));
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
 			}
 
 			// -- Material Uniforms -- 
@@ -102,6 +108,48 @@ std::string Mesh::get_upper_bounds()
 std::string Mesh::get_scale()
 {
 	return std::to_string(scale);
+}
+
+void Mesh::remove_instance()
+{
+	for (size_t m = 0; m < materials->size(); m++) {
+		tinyobj::material_t* mp = &materials->at(m);
+
+		if (mp->ambient_texname.length() > 0)
+			scene_tracker->Textures->at(mp->ambient_texname).second--;
+
+		if (mp->diffuse_texname.length() > 0)
+			scene_tracker->Textures->at(mp->diffuse_texname).second--;
+
+		if (mp->specular_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->specular_texname).second;
+
+		if (mp->specular_highlight_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->specular_highlight_texname).second;
+
+		if (mp->bump_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->bump_texname).second;
+
+		if (mp->displacement_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->displacement_texname).second;
+
+		if (mp->alpha_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->alpha_texname).second;
+
+
+		if (mp->roughness_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->roughness_texname).second;
+
+		if (mp->metallic_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->metallic_texname).second;
+		if (mp->sheen_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->sheen_texname).second;
+		if (mp->emissive_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->emissive_texname).second;
+		if (mp->normal_texname.length() > 0)
+			--scene_tracker->Textures->at(mp->normal_texname).second;
+	}
+	--scene_tracker->Meshes->at(name).second;
 }
 
 void Mesh::setupMesh()
@@ -292,6 +340,8 @@ void Mesh::setupMesh()
 		(bounding_maximum.z + bounding_minimum.z) / 2
 	);
 
+	// Add to our scene tracker
+	scene_tracker->Meshes->insert(std::make_pair(this->name, std::make_pair(this, 1)));
 }
 
 void Mesh::setupTextures(std::string base_dir)
@@ -299,51 +349,81 @@ void Mesh::setupTextures(std::string base_dir)
 	for (size_t m = 0; m < materials->size(); m++) {
 		tinyobj::material_t* mp = &materials->at(m);
 
-		if (mp->diffuse_texname.length() > 0) {
-			// Only load the texture if it is not already loaded
-			if (loaded_textures->find(mp->diffuse_texname) == loaded_textures->end()) {
-				GLuint texture_id;
-				int w, h;
-				int comp;
+		if (mp->ambient_texname.length() > 0)
+			loadTexture(base_dir, mp->ambient_texname);
+		if (mp->diffuse_texname.length() > 0)
+			loadTexture(base_dir, mp->diffuse_texname);
+		if (mp->specular_texname.length() > 0)
+			loadTexture(base_dir, mp->specular_texname);
+		if (mp->specular_highlight_texname.length() > 0)
+			loadTexture(base_dir, mp->specular_highlight_texname);
+		if (mp->bump_texname.length() > 0)
+			loadTexture(base_dir, mp->bump_texname);
+		if (mp->displacement_texname.length() > 0)
+			loadTexture(base_dir, mp->displacement_texname);
+		if (mp->alpha_texname.length() > 0)
+			loadTexture(base_dir, mp->alpha_texname);
 
-				std::string texture_filename = mp->diffuse_texname;
+		if (mp->roughness_texname.length() > 0)
+			loadTexture(base_dir, mp->roughness_texname);
+		if (mp->metallic_texname.length() > 0)
+			loadTexture(base_dir, mp->metallic_texname);
+		if (mp->sheen_texname.length() > 0)
+			loadTexture(base_dir, mp->sheen_texname);
+		if (mp->emissive_texname.length() > 0)
+			loadTexture(base_dir, mp->emissive_texname);
+		if (mp->normal_texname.length() > 0)
+			loadTexture(base_dir, mp->normal_texname);
+	}
+}
 
-				// TODO fix this
-				if (!FileExists(texture_filename)) {
-					
-					// If desired, grab the default material (from it's default location)
-					if(texture_filename == "_default.png")
-						texture_filename = "./Materials/" + mp->diffuse_texname;
-					else // Append base dir.
-						texture_filename = base_dir + mp->diffuse_texname;
+void Mesh::loadTexture(std::string base_dir, std::string texture_name)
+{
+	// Only load the texture if it is not already loaded
+	if (scene_tracker->Textures->find(texture_name) == scene_tracker->Textures->end()) {
+		GLuint texture_id;
+		int w, h;
+		int comp;
 
-					if (!FileExists(texture_filename)) {
-						std::cerr << "Unable to find file: " << mp->diffuse_texname << std::endl;
-						exit(1);
-					}
-				}
+		std::string texture_filename = texture_name;
 
-				unsigned char* image = stbi_load(texture_filename.c_str(), &w, &h, &comp, STBI_default);
-				if (!image) {
-					std::cerr << "Unable to load texture: " << texture_filename << std::endl;
-					exit(1);
-				}
+		if (!FileExists(texture_filename)) {
 
-				glGenTextures(1, &texture_id);
-				glBindTexture(GL_TEXTURE_2D, texture_id);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				if (comp == 3) {
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-				}
-				else if (comp == 4) {
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-				}
-				glBindTexture(GL_TEXTURE_2D, 0);
-				stbi_image_free(image);
-				loaded_textures->insert(std::make_pair(mp->diffuse_texname, texture_id));
+			// If desired, grab the default material (from it's default location)
+			if (texture_filename == "_default.png")
+				texture_filename = "./Materials/" + texture_name;
+			else // Append base dir.
+				texture_filename = base_dir + texture_name;
+
+			if (!FileExists(texture_filename)) {
+				std::cerr << "Unable to find file: " << texture_name << std::endl;
+				exit(1);
 			}
 		}
+
+		unsigned char* image = stbi_load(texture_filename.c_str(), &w, &h, &comp, STBI_default);
+		if (!image) {
+			std::cerr << "Unable to load texture: " << texture_filename << std::endl;
+			exit(1);
+		}
+
+		glGenTextures(1, &texture_id);
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		if (comp == 3) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		}
+		else if (comp == 4) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
+		stbi_image_free(image);
+
+		scene_tracker->Textures->insert(std::make_pair(texture_name, std::make_pair(texture_id, 1)));
+	}
+	else {
+		scene_tracker->Textures->at(texture_name).second++;
 	}
 }
 
