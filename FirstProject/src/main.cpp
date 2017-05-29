@@ -125,7 +125,8 @@ int main(int argc, char* argv[])
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Load Scene
-	current_level = new Scene("./Scenes/Test.scene");
+	// current_level = new Scene("./Scenes/Test.scene");
+	current_level = new Scene("./Scenes/Chopper.scene");
 	RenderText ui_text(WIDTH, HEIGHT);
 
 	// Attaching Scene Shaders (Move into Level.scene).
@@ -297,8 +298,8 @@ void show_ui(RenderText ui_text)
 	{
 		/* TODO: Add bounds calls for Component and Object. Component will use Mesh * transform, Object will use Object.Bounds * transform (tho' consider using vector of bounds at Object for collision) */
 		ui_text.DrawString("Press ` to hide details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		std::string bounds = "Bounds: " + current_level->getObject("Cube_00")->report_bounds();
-		ui_text.DrawString(bounds, 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+		// std::string bounds = "Bounds: " + current_level->getObject("Cube_00")->report_bounds();
+		// ui_text.DrawString(bounds, 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
 		// ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
