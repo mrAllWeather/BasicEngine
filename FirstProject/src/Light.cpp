@@ -15,7 +15,7 @@ Light::Light( std::string light_details )
 
 	int l_type;
 
-	iss >> l_type;
+	iss >> name >> l_type;
 	
 
 	switch ((light_types)l_type)
@@ -47,6 +47,14 @@ Light::Light( std::string light_details )
 	default:
 		break;
 	}
+	std::cout << name <<
+		"\n\tLocation: " << location->x << ":" << location->y << ":" << location->z <<
+		"\n\tDirection: " << direction->x << ":" << direction->y << ":" << direction->z <<
+		"\n\tAmbient: " << ambient->x << ":" << ambient->y << ":" << ambient->z <<
+		"\n\tDiffuse: " << diffuse->x << ":" << diffuse->y << ":" << diffuse->z <<
+		"\n\tSpecular: " << specular->x << ":" << specular->y << ":" << specular->z <<
+		"\n\tLinear: " << linear << "\tQuadratic: " << quadratic <<
+		"\n\tCutoff: " << cut_off << "\tOuter Cutoff: " << outer_cut_off << std::endl;
 }
 
 Light::~Light()

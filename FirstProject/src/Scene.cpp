@@ -39,7 +39,7 @@ void Scene::attachObject(std::string object_scene_name, std::string object_detai
 {
 	if (objects->find(object_scene_name) == objects->end())
 	{
-		objects->operator[](object_scene_name) = new Object(object_details, scene_tracker);
+		objects->operator[](object_scene_name) = new Object(object_scene_name, object_details, scene_tracker);
 	}
 
 }
@@ -63,7 +63,7 @@ void Scene::removeObject(std::string object_scene_name)
 	}
 }
 
-void Scene::draw(GLfloat delta)
+void Scene::draw()
 {
 	update_projection();
 
@@ -130,7 +130,7 @@ void Scene::draw(GLfloat delta)
 
 	for(auto object : *objects)
 	{
-		object.second->draw(delta);
+		object.second->draw(active_shader);
 	}
 }
 

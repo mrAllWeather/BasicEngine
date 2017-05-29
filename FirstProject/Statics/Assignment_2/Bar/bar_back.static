@@ -1,0 +1,4 @@
+./Meshes/bar_back.obj
+./Textures/cherry_dark.jpg
+./Shaders/static.vert,./Shaders/static.frag
+0.01

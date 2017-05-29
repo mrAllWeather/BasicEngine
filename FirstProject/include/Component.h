@@ -23,23 +23,31 @@
 
 class Component {
 public:
-	Component(std::string static_details, loadedComponents* scene_tracker);
+	Component(std::string name, std::string static_details, loadedComponents* scene_tracker);
 	Component(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker);
 	~Component();
 
 	void draw(GLuint shader);
 
+	glm::vec3 get_lower_bounds();
+	glm::vec3 get_upper_bounds();
+
 private:
 	void build_component_transform();
+
+	void compute_bounds();
 
 	std::string m_name;
 	std::string m_mesh_name;
 	Mesh* m_Mesh;
 	
-	glm::quat* m_rototation;
+	glm::quat* m_rotation;
 	glm::vec3* m_location;
 	glm::vec3* m_scale;
 	glm::mat4 m_transform;
+
+	glm::vec3 m_lower_bounds;
+	glm::vec3 m_upper_bounds;
 
 	std::vector<std::pair<std::string, GLuint>> textures;
 

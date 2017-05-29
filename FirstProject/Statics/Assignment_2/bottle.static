@@ -1,0 +1,4 @@
+./Meshes/bottle.obj
+./Textures/suede_green.jpg
+./Shaders/static.vert,./Shaders/static.frag
+0.8

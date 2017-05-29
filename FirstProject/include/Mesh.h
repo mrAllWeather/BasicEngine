@@ -53,8 +53,8 @@ public:
 	Mesh(std::string filename, loadedComponents* scene_tracker, std::string base_mat_location = "./Materials/");
 	~Mesh();
 	void draw(GLuint shader);
-	std::string get_lower_bounds();
-	std::string get_upper_bounds();
+	glm::vec3 get_lower_bounds();
+	glm::vec3 get_upper_bounds();
 	std::string get_scale();
 	bool loaded_successfully = true;
 	void remove_instance();

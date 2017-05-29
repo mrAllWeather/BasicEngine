@@ -68,7 +68,6 @@ public:
 
 	light_types type;
 private:
-	
 	glm::vec3* circle_focus;
 	// Point Light / Spotlight
 	glm::vec3* old_location;

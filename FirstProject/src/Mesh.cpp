@@ -33,6 +33,7 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	setupMesh();
 	setupTextures(base_dir);
 	generateTransform();
+	std::cerr << "Mesh Loaded: " << filename << "\n" << std::endl;
 }
 
 Mesh::~Mesh()
@@ -42,6 +43,7 @@ Mesh::~Mesh()
 
 void Mesh::draw(GLuint shader)
 {
+	// std::cout << "Mesh::Draw\n";
 	// Will be true for every object in mesh, so set up now to save calls
 	glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
 	glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
@@ -95,14 +97,14 @@ void Mesh::draw(GLuint shader)
 
 }
 
-std::string Mesh::get_lower_bounds()
+glm::vec3 Mesh::get_lower_bounds()
 {
-	return std::to_string(bounding_minimum.x) + ":" + std::to_string(bounding_minimum.y) + ":" + std::to_string(bounding_minimum.z);
+	return bounding_minimum;
 }
 
-std::string Mesh::get_upper_bounds()
+glm::vec3 Mesh::get_upper_bounds()
 {
-	return std::to_string(bounding_maximum.x) + ":" + std::to_string(bounding_maximum.y) + ":" + std::to_string(bounding_maximum.z);
+	return bounding_maximum;
 }
 
 std::string Mesh::get_scale()
@@ -327,7 +329,6 @@ void Mesh::setupMesh()
 	for (unsigned int axis = 0; axis < 3; axis++)
 	{
 		float diff = fabs(bounding_maximum[axis] - bounding_minimum[axis]);
-		std::cout << diff << std::endl;
 		if (diff > scale)
 		{
 			scale = diff;
@@ -433,7 +434,6 @@ void Mesh::generateTransform()
 	transform = glm::translate(transform, -(bounding_center * (1/scale)));
 	transform = glm::scale(transform, glm::vec3(1 / scale));
 }
-
 
 void calculate_surface_normal(float Normal[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3])
 {

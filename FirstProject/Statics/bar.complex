@@ -1,3 +1,0 @@
-Bar ./Statics/Bar/bar.static 1.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0
-Bar_Back ./Statics/Bar/bar_back.static 1.0 1.0 1.0 -0.1 0.0 0.0 0.0 0.0 0.0
-Stairs ./Statics/Bar/stairs.static 1.0 1.0 1.0 0.0 0.0 -2.75 0.0 0.0 0.0

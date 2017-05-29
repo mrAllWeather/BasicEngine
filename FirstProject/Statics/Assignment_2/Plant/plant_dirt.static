@@ -1,0 +1,4 @@
+./Meshes/plant/dirt.obj
+./Textures/plant/dirt.jpg
+./Shaders/static.vert,./Shaders/static.frag
+0.0

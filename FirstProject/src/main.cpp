@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Load Scene
-	current_level = new Scene("./Scenes/Blank.scene");
+	current_level = new Scene("./Scenes/Test.scene");
 	RenderText ui_text(WIDTH, HEIGHT);
 
 	// Attaching Scene Shaders (Move into Level.scene).
@@ -134,10 +134,12 @@ int main(int argc, char* argv[])
 	// Default to First Shader?
 	current_level->setActiveShader("Debug");
 
+
 	// We can attach lights to locations and set up circling.
-	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &origin);
+	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
 	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 
+	;
 	// Configure our look at and circling
 	current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
 	current_level->getActiveCamera()->SetLookFocus(&origin);
@@ -177,7 +179,7 @@ int main(int argc, char* argv[])
 
 		glPolygonMode(GL_FRONT_AND_BACK, fill_mode);
 
-		current_level->draw(delta);
+		current_level->draw();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -293,14 +295,13 @@ void show_ui(RenderText ui_text)
 	}
 	if (show_details)
 	{
-		/* TODO: Add bounds calls for Component and Object. Component will use Mesh * transform, Object will use Object.Bounds * transform (tho' consider using vector of bounds at Object for collision)
+		/* TODO: Add bounds calls for Component and Object. Component will use Mesh * transform, Object will use Object.Bounds * transform (tho' consider using vector of bounds at Object for collision) */
 		ui_text.DrawString("Press ` to hide details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		std::string bounds = "Bounds: [" + current_level->getObject("model_01")->get_lower_bounds() +
-			"]-[" + current_level->getObject("model_01")->get_upper_bounds() + "]";
+		std::string bounds = "Bounds: " + current_level->getObject("Cube_00")->report_bounds();
 		ui_text.DrawString(bounds, 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 
-		ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		*/
+		// ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
+
 		std::string drawmode;
 		if (is_fully_rendered)
 		{

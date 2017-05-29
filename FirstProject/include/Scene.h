@@ -50,7 +50,7 @@ public:
 
 	void attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file);
 
-	void draw(GLfloat delta);
+	void draw();
 
 	void tick(GLfloat delta); // Update All Actors
 

@@ -17,7 +17,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 		bool load_success = true;
 		
 		while (std::getline(fb, LineBuf)) {
-			std::cout << LineBuf << std::endl;
+
 			if (LineBuf == "Actors:")
 			{
 				load_success = BuildActors(&fb, &LineBuf);
@@ -30,7 +30,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			{
 				// TODO We name cameras but only support one for now; so toss the provided name and only load first
 				// Though changes to how views work might mean new cameras become easy to attach
-
+				std::cout << LineBuf << std::endl;
 				std::streampos last_line = fb.tellg();
 				
 				std::string name;
@@ -58,6 +58,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Lights:")
 			{
+				std::cout << LineBuf << std::endl;
 				std::streampos last_line = fb.tellg();
 
 				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
@@ -84,10 +85,10 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Statics:")
 			{
+				std::cout << LineBuf << std::endl;
 				std::streampos last_line = fb.tellg();
 
-				std::cout << "Loading Static:" << LineBuf << std::endl;
-				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(CMESH_REGEX)))
+				while (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
 				{
 					std::stringstream iss(LineBuf);
 					std::string name;
