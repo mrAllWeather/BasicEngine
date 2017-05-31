@@ -4,7 +4,7 @@ OS		:= $(shell uname)
 CC		:= g++
 CFLAGS 	:= -Wall -Wextra -std=c++11 -O2
 LDFLAGS	:=`pkg-config --cflags glfw3 freetype2`
-CLIBS	:=`pkg-config --static --libs glfw3` -lGLEW
+CLIBS	:=`pkg-config --static --libs glfw3 freetype2` -lGLEW
 
 SRCDIR= src
 OBJDIR= obj
@@ -26,20 +26,20 @@ ifeq ($(OS),GYGWIN)
 endif
 
 ifeq ($(OS),Darwin)
-	GLLIBS	+=-framework OpenGL
+	CLIBS	+=-framework OpenGL
 else
-	GLLIBS	+=-lGL -lGLU -lX11
+	CLIBS	+=-lGL -lGLU
 endif
 
 .PHONY: all clean remove
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJECTS) $(CLIBS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJECTS) $(CLIBS)
 	@echo "Compiled "$<" successfully!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 	@mkdir -p $(@D)
-	@$(CC) -c $< -o $@ $(CFLAGS) $(LDFLAGS)
+	$(CC) -c $< -o $@ $(CFLAGS) $(LDFLAGS)
 	@echo "Compiled "$<" successfully!"
 
 clean:
