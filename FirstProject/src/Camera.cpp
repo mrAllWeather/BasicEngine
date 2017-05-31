@@ -1,6 +1,6 @@
 #include "../include/Camera.h"
 
-Camera::Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+Camera::Camera(glm::vec3 position , glm::vec3 up , GLfloat yaw, GLfloat pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 {
 		this->Position = position;
 		this->WorldUp = up;
@@ -25,7 +25,7 @@ glm::mat4 Camera::GetViewMatrix()
 
 void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 {
-	
+
 	GLfloat velocity = this->MovementSpeed * deltaTime;
 
 	if (direction == FORWARD)
@@ -138,7 +138,7 @@ void Camera::SetLookFocus(glm::vec3* focus)
 
 void Camera::SetCircleFocus(glm::vec3* focus, float radius, glm::vec3 offset)
 {
-	// If we aren't currently circling something, save where we were when we started circling. 
+	// If we aren't currently circling something, save where we were when we started circling.
 	if (!this->CircleFocus)
 		this->SavedPosition = this->Position;
 
