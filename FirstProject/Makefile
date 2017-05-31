@@ -28,7 +28,7 @@ endif
 ifeq ($(OS),Darwin)
 	GLLIBS	+=-framework OpenGL
 else
-	GLLIBS	+=-lGL -lGLU
+	GLLIBS	+=-lGL -lGLU -lX11
 endif
 
 .PHONY: all clean remove
