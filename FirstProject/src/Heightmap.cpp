@@ -1,37 +1,59 @@
 #include "../include/Heightmap.h"
 
+#include <fstream>
+#include <sstream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
 CMultiLayeredHeightmap::CMultiLayeredHeightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker)
 {
-	m_mesh_scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	m_texture_scale = glm::vec2(0.1);
-}
+	m_name = name;
+	materials = new std::vector<tinyobj::material_t>;
+	std::ifstream fb; // FileBuffer
+	fb.open((height_map_file), std::ios::in);
+	std::string LineBuf, component_name;
+	std::stringstream ss;
 
-/*-----------------------------------------------
+	if (fb.is_open()) {
+		std::getline(fb, LineBuf);
+		ss.str(LineBuf);
+		ss >> m_height_file >>
+			m_mesh_scale.x >> m_mesh_scale.y >> m_mesh_scale.z >>
+			m_texture_scale.x >> m_texture_scale.y;
 
-Name:	LoadTerrainShaderProgram
+		for (uint32_t mat = 0; mat < 3; mat++)
+		{
+			// Get component name
+			std::getline(fb, LineBuf);
+			ss.clear();
+			ss.str(LineBuf);
+			
+			// Create component TODO: Completely replace with Material Load
+			tinyobj::material_t load_mat;
+			ss >> load_mat.ambient_texname >>
+				load_mat.diffuse_texname >>
+				load_mat.specular_texname >>
+				load_mat.specular_highlight_texname >>
+				load_mat.bump_texname >>
+				load_mat.displacement_texname >>
+				load_mat.alpha_texname >>
+				load_mat.roughness_texname >>
+				load_mat.metallic_texname >>
+				load_mat.sheen_texname >>
+				load_mat.emissive_texname >>
+				load_mat.normal_texname;
 
-Params:	none
+			materials->push_back(load_mat);
+		}
+	}
+	else
+	{
+		std::cerr << "ERROR: " << height_map_file << " Failed to open.\n";
+	}
 
-Result: Loads common shader program used for
-rendering heightmaps.
+	fb.close();
 
-/*---------------------------------------------*/
-
-bool CMultiLayeredHeightmap::LoadTerrainShaderProgram()
-{
-	bool bOK = true;
-	bOK &= shShaders[0].LoadShader("data\\shaders\\terrain.vert", GL_VERTEX_SHADER);
-	bOK &= shShaders[1].LoadShader("data\\shaders\\terrain.frag", GL_FRAGMENT_SHADER);
-	bOK &= shShaders[2].LoadShader("data\\shaders\\dirLight.frag", GL_FRAGMENT_SHADER);
-
-	spTerrain.CreateProgram();
-	FOR(i, NUMTERRAINSHADERS)spTerrain.AddShaderToProgram(&shShaders[i]);
-	spTerrain.LinkProgram();
-
-	return bOK;
+	LoadHeightMapFromImage(m_height_file);
 }
 
 /*-----------------------------------------------
@@ -70,15 +92,12 @@ Result: Guess what it does :)
 
 /*---------------------------------------------*/
 
-void CMultiLayeredHeightmap::Draw()
+void CMultiLayeredHeightmap::Draw(GLuint shader)
 {
-	glUseProgram(shader);
-
-	spTerrain.SetUniform("fRenderHeight", m_mesh_scale.y);
-	spTerrain.SetUniform("fMaxTextureU", float(iCols)*0.1f);
-	spTerrain.SetUniform("fMaxTextureV", float(iRows)*0.1f);
-
-	spTerrain.SetUniform("HeightmapScaleMatrix", glm::scale(glm::mat4(1.0), m_mesh_scale));
+	glUniform1f(glGetUniformLocation(shader, "Heightmap.render_height"), m_mesh_scale.y);
+	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_u"), float(iCols)*m_texture_scale.x);
+	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_v"), float(iRows)*m_texture_scale.y);
+	glUniform3fv(glGetUniformLocation(shader, "Heightmap.scale_matrix"), 1, glm::value_ptr(m_mesh_scale));
 
 	// Now we're ready to render - we are drawing set of triangle strips using one call, but we g otta enable primitive restart
 	glBindVertexArray(vao);
@@ -103,43 +122,8 @@ void CMultiLayeredHeightmap::ReleaseHeightmap()
 {
 	if (!bLoaded)
 		return; // Heightmap must be loaded
-	vboHeightmapData.DeleteVBO();
-	vboHeightmapIndices.DeleteVBO();
 	glDeleteVertexArrays(1, &vao);
 	bLoaded = false;
-}
-
-/*-----------------------------------------------
-
-Name:	GetShaderProgram
-
-Params:	none
-
-Result: Returns pointer to shader program ussed for
-rendering heightmaps.
-
-/*---------------------------------------------*/
-
-CShaderProgram* CMultiLayeredHeightmap::GetShaderProgram()
-{
-	return &spTerrain;
-}
-
-/*-----------------------------------------------
-
-Name:	ReleaseTerrainShaderProgramx
-
-Params:	none
-
-Result: Releases a common shader program used for
-rendering heightmaps.
-
-/*---------------------------------------------*/
-
-void CMultiLayeredHeightmap::ReleaseTerrainShaderProgram()
-{
-	spTerrain.DeleteProgram();
-	FOR(i, NUMTERRAINSHADERS)shShaders[i].DeleteShader();
 }
 
 /*-----------------------------------------------
@@ -198,7 +182,6 @@ bool CMultiLayeredHeightmap::LoadHeightMapFromImage(std::string sImagePath)
 	// Length of one row in data
 	unsigned int row_step = ptr_inc*iCols;
 
-	vboHeightmapData.CreateVBO();
 	// All vertex data are here (there are iRows*iCols vertices in this heightmap), we will get to normals later
 	std::vector< std::vector< glm::vec3> > vVertexData(iRows, std::vector<glm::vec3>(iCols));
 	std::vector< std::vector< glm::vec2> > vCoordsData(iRows, std::vector<glm::vec2>(iCols));
@@ -288,25 +271,26 @@ bool CMultiLayeredHeightmap::LoadHeightMapFromImage(std::string sImagePath)
 						vFinalNormal += vNormals[1][i][j - 1];
 					}
 
-					vFinalNormal = glm::normalize(vFinalNormal);
-
-					vFinalNormals[i][j] = vFinalNormal; // Store final normal of j-th vertex in i-th row
+					vFinalNormals[i][j] = glm::normalize(vFinalNormal); // Store final normal of j-th vertex in i-th row
 				}
 			}
 
-			// First, create a VBO with only vertex data
-			vboHeightmapData.CreateVBO(iRows*iCols*(2 * sizeof(glm::vec3) + sizeof(glm::vec2))); // Preallocate memory
+			std::vector<glm::vec3> vb_pos, vb_norm, vb_col;
+			std::vector<glm::vec2> vb_tex;
+
 			for (unsigned int i = 0; i < iRows; i++)
 			{
 				for (unsigned int j = 0; j < iCols; j++)
 				{
-					vboHeightmapData.AddData(&vVertexData[i][j], sizeof(glm::vec3)); // Add vertex
-					vboHeightmapData.AddData(&vCoordsData[i][j], sizeof(glm::vec2)); // Add tex. coord
-					vboHeightmapData.AddData(&vFinalNormals[i][j], sizeof(glm::vec3)); // Add normal
+					vb_pos.push_back(vVertexData[i][j]); // Add vertex
+					vb_tex.push_back(vCoordsData[i][j]); // Add tex. coord
+					vb_tex.push_back(vFinalNormals[i][j]);// Add normal
+					vb_tex.push_back(glm::vec3(1.0, 0.07, 0.57)); // Add Bright Pink
 				}
 			}
+
 			// Now create a VBO with heightmap indices
-			vboHeightmapIndices.CreateVBO();
+			std::vector<int> indices; 
 			int iPrimitiveRestartIndex = iRows*iCols;
 			for (unsigned int i = 0; i < iRows; i++)
 			{
@@ -316,33 +300,53 @@ bool CMultiLayeredHeightmap::LoadHeightMapFromImage(std::string sImagePath)
 					{
 						int iRow = i + (1 - k);
 						int iIndex = iRow*iCols + j;
-						vboHeightmapIndices.AddData(&iIndex, sizeof(int));
+						indices.push_back(iIndex);
 					}
 				}
 				// Restart triangle strips
-				vboHeightmapIndices.AddData(&iPrimitiveRestartIndex, sizeof(int));
+				indices.push_back(iPrimitiveRestartIndex);
 			}
 
-			glGenVertexArrays(1, &vao);
-			glBindVertexArray(vao);
-			// Attach vertex data to this VAO
-			vboHeightmapData.BindVBO();
-			vboHeightmapData.UploadDataToGPU(GL_STATIC_DRAW);
+			// Gen and Bind our VAO
+			glGenVertexArrays(1, &m_map.va);
+			glBindVertexArray(m_map.va);
 
-			// Vertex positions
+			// Generate our VBO's
+			glGenBuffers(4, m_map.vb);
+
+			// Bind Vertex Buffer Object
+			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[0]);
+			glBufferData(GL_ARRAY_BUFFER, vb_pos.size() * sizeof(glm::vec3), vb_pos.data(), GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec3) + sizeof(glm::vec2), 0);
-			// Texture coordinates
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+			// Bind Normal Buffer Object
+			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[1]);
+			glBufferData(GL_ARRAY_BUFFER, vb_norm.size() * sizeof(glm::vec3), vb_norm.data(), GL_STATIC_DRAW);
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec3) + sizeof(glm::vec2), (void*)sizeof(glm::vec3));
-			// Normal vectors
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+			// Bind Color Buffer Object
+			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[2]);
+			glBufferData(GL_ARRAY_BUFFER, vb_col.size() * sizeof(glm::vec3), vb_col.data(), GL_STATIC_DRAW);
 			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec3) + sizeof(glm::vec2), (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+			// Bind UV Buffer Object
+			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[3]);
+			glBufferData(GL_ARRAY_BUFFER, vb_tex.size() * sizeof(glm::vec2), vb_tex.data(), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(3);
+			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 			// And now attach index data to this VAO
 			// Here don't forget to bind another type of VBO - the element array buffer, or simplier indices to vertices
-			vboHeightmapIndices.BindVBO(GL_ELEMENT_ARRAY_BUFFER);
-			vboHeightmapIndices.UploadDataToGPU(GL_STATIC_DRAW);
+			glGenBuffers(1, &m_map.idx);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_map.idx);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), indices.data(), GL_STATIC_DRAW);
+
+			// Unbind Buffers
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
 
 			bLoaded = true; // If get here, we succeeded with generating heightmap
 			return true;

@@ -23,19 +23,22 @@ to use multiple layers of textures with transitions between them.
 
 #include "../include/Mesh.h"
 
+typedef struct {
+	GLuint va;
+	GLuint vb[4];  // vertex buffer
+	GLuint idx;
+} DrawMap;
+
 class CMultiLayeredHeightmap
 {
 public:
 	CMultiLayeredHeightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker);
 
-	static bool LoadTerrainShaderProgram();
-	static void ReleaseTerrainShaderProgram();
-
 	bool LoadHeightMapFromImage(std::string sImagePath);
 
 	void ReleaseHeightmap();
 
-	void Draw();
+	void Draw(GLuint shader);
 
 	void SetRenderSize(float fQuadSize, float fHeight);
 	void SetRenderSize(float fRenderX, float fHeight, float fRenderZ);
@@ -46,10 +49,10 @@ public:
 
 
 private:
-	std::string name;
+	std::string m_name;
+	std::string m_height_file;
 
-	GLuint vao;
-	GLuint shader;
+	DrawMap m_map;
 
 	bool bLoaded;
 	bool bShaderProgramLoaded;
@@ -62,10 +65,4 @@ private:
 	glm::vec3 m_location;
 
 	std::vector<tinyobj::material_t>* materials;
-
-	// CVertexBufferObject vboHeightmapData;
-	// CVertexBufferObject vboHeightmapIndices;
-
-	// static CShaderProgram spTerrain;
-	// static CShader shTerrainShaders[NUMTERRAINSHADERS];
 };

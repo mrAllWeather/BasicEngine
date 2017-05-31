@@ -169,6 +169,16 @@
     <ClCompile Include="src\TextureLoader.cpp" />
     <ClCompile Include="src\tiny_obj_loader.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\debug.frag" />
+    <None Include="Shaders\debug.vert" />
+    <None Include="Shaders\light-texture.frag" />
+    <None Include="Shaders\light-texture.vert" />
+    <None Include="Shaders\simple.frag" />
+    <None Include="Shaders\simple.vert" />
+    <None Include="Shaders\text.frag" />
+    <None Include="Shaders\text.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

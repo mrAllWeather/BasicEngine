@@ -38,11 +38,11 @@ out vec4 color;
 uniform float time;
 uniform vec3 viewPos;
 uniform Light light;
-uniform Material material;
+uniform Material material[4];
 
 void main()
 {
-	float alpha = (texture(material.diffuse, TexCoord)).a; 
+	float alpha = (texture(material[0].diffuse, TexCoord)).a; 
 
 	if(alpha < 0.1)
 		discard;
@@ -67,15 +67,15 @@ void main()
 		vec3 halfwayDir = normalize(lightDir + viewDir);
 
 		// Ambient Calculation
-		vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoord));
+		vec3 ambient = light.ambient * vec3(texture(material[0].diffuse, TexCoord));
 			
 		// Diffuse Calculations
 		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = diff * light.diffuse * vec3(texture(material.diffuse, TexCoord));
+		vec3 diffuse = diff * light.diffuse * vec3(texture(material[0].diffuse, TexCoord));
 
 		// Specular Calculations
-		float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
-		vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+		float spec = pow(max(dot(norm, halfwayDir), 0.0), material[0].shininess);
+		vec3 specular = light.specular * spec * vec3(texture(material[0].specular, TexCoord));
 
 		if(light.type == 2) // If Spotlight, soften our edges
 		{
@@ -100,7 +100,7 @@ void main()
 	}
 	else
 	{
-		color = texture(material.diffuse, TexCoord); // If no lights, just show texture
+		color = texture(material[0].diffuse, TexCoord); // If no lights, just show texture
 	}
 
 };
