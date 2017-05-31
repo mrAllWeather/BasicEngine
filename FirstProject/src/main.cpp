@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
 	// Set GLFW req options
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -154,8 +155,8 @@ int main(int argc, char* argv[])
 
 	// How long did loading take? (Plants take up close to 4 seconds!)
 	std::cout << "Loaded after " << (currentFrame - start_time) << " seconds.\n";
-	
-	// Program Loop	
+
+	// Program Loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Frame Delta
@@ -333,7 +334,7 @@ void show_ui(RenderText ui_text)
 
 		if (is_fully_rendered)
 		{
-			if (lighting_mode < 3) 
+			if (lighting_mode < 3)
 			{
 				ui_text.DrawString("Active Light: " + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 				ui_text.DrawString("Light Location: " +
@@ -357,7 +358,7 @@ void show_ui(RenderText ui_text)
 			ui_text.DrawString("Press L to switch active lights", 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 		else
 			ui_text.DrawString("Press D to switch debug modes", 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		
+
 		ui_text.DrawString("Hold Left mouse and drag to rotate model", 15.0f, HEIGHT - 60.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 		ui_text.DrawString("Hold Right mouse and drag to zoom in and out", 15.0f, HEIGHT - 75.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 	}
