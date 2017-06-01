@@ -126,8 +126,8 @@ int main(int argc, char* argv[])
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Load Scene
-	// current_level = new Scene("./Scenes/Test.scene");
-	current_level = new Scene("./Scenes/Chopper.scene");
+	current_level = new Scene("./Scenes/Test.scene");
+	// current_level = new Scene("./Scenes/Chopper.scene");
 	RenderText ui_text(WIDTH, HEIGHT);
 
 	// Attaching Scene Shaders (Move into Level.scene).

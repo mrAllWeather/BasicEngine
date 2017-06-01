@@ -61,7 +61,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 
 				if (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
 				{
-					scene->attachHeightmap(LineBuf);
+					scene->setHeightmap(LineBuf);
 
 					last_line = fb.tellg();
 				}

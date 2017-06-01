@@ -29,6 +29,8 @@ typedef struct {
 	GLuint idx;
 } DrawMap;
 
+glm::vec3 calculate_surface_normal(glm::vec3 const vertex_1, glm::vec3 const vertex_2, glm::vec3 const vertex_3);
+
 class Heightmap
 {
 public:
@@ -38,7 +40,7 @@ public:
 
 	void ReleaseHeightmap();
 
-	void Draw(GLuint shader);
+	void draw(GLuint shader);
 
 	void SetRenderSize(float fQuadSize, float fHeight);
 	void SetRenderSize(float fRenderX, float fHeight, float fRenderZ);
@@ -63,6 +65,9 @@ private:
 
 	uint32_t iRows;
 	uint32_t iCols;
+	uint32_t composition;
+
+	unsigned char* image;
 
 	glm::vec3 m_mesh_scale;
 	glm::vec2 m_texture_scale;

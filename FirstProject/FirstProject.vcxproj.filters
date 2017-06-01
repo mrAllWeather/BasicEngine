@@ -16,6 +16,9 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{2f42506b-28ea-41ff-90d8-a5c23ff39844}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Scenes">
+      <UniqueIdentifier>{6bd94c41-757e-48b7-ba8c-04b547be02f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -101,9 +104,6 @@
     <ClCompile Include="src\TextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\tiny_obj_loader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -114,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Heightmap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiny_obj_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -141,6 +144,15 @@
     </None>
     <None Include="Shaders\text.vert">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Scenes\Blank.scene">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="Scenes\Chopper.scene">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="Scenes\Test.scene">
+      <Filter>Resource Files\Scenes</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -2,16 +2,21 @@
 
 #include <fstream>
 #include <sstream>
-#define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
 Heightmap::Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker)
 {
 	m_name = name;
+	if (height_map_file[0] == '\t')
+		height_map_file = height_map_file.substr(1, height_map_file.size() - 1);
+
+	std::cout << "Loading: " << height_map_file << std::endl;
 	this->scene_tracker = scene_tracker;
+
 	materials = new std::vector<tinyobj::material_t>;
+
 	std::ifstream fb; // FileBuffer
-	fb.open((height_map_file), std::ios::in);
+	fb.open(height_map_file, std::ios::in);
 	std::string LineBuf, material_file;
 	std::stringstream ss;
 
@@ -27,6 +32,7 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 	else
 	{
 		std::cerr << "ERROR: " << height_map_file << " Failed to open.\n";
+		std::cerr << "Error: " << strerror(errno);
 	}
 	fb.close();
 
@@ -37,7 +43,7 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 	std::string warn;
 	if(mat_fb.is_open()) 
 	{
-		tinyobj::LoadMtl(&material_map, materials, static_cast<std::istream*>(&mat_fb), warn);
+		tinyobj::LoadMtl(&material_map, materials, static_cast<std::istream*>(&mat_fb), &warn);
 	
 		if(!warn.empty())
 		{
@@ -51,8 +57,13 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 	}
 
 	mat_fb.close();
+	
+	// Add a default material. Set default texture
+	materials->push_back(tinyobj::material_t());
+	materials->at(materials->size() - 1).diffuse_texname = "_default.png";
 
 	LoadHeightMapFromImage(m_height_file);
+	setupTextures("./Materials/");
 }
 
 /*-----------------------------------------------
@@ -91,8 +102,9 @@ Result: Guess what it does :)
 
 ---------------------------------------------*/
 
-void Heightmap::Draw(GLuint shader)
+void Heightmap::draw(GLuint shader)
 {
+	glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 1);
 	glUniform1f(glGetUniformLocation(shader, "Heightmap.render_height"), m_mesh_scale.y);
 	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_u"), float(iCols)*m_texture_scale.x);
 	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_v"), float(iRows)*m_texture_scale.y);
@@ -143,6 +155,8 @@ void Heightmap::Draw(GLuint shader)
 
 	int iNumIndices = (iRows - 1)*iCols * 2 + iRows - 1;
 	glDrawElements(GL_TRIANGLE_STRIP, iNumIndices, GL_UNSIGNED_INT, 0);
+
+	glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 0);
 }
 
 /*-----------------------------------------------
@@ -173,12 +187,12 @@ Result:	They get something :)
 
 ---------------------------------------------*/
 
-int Heightmap::GetNumHeightmapRows()
+uint32_t Heightmap::GetNumHeightmapRows()
 {
 	return iRows;
 }
 
-int Heightmap::GetNumHeightmapCols()
+uint32_t Heightmap::GetNumHeightmapCols()
 {
 	return iCols;
 }
@@ -203,16 +217,21 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 		ReleaseHeightmap();
 	}
 
-	int iRows, iCols, composition;
-	unsigned char* image = stbi_load(sImagePath.c_str(), &iRows, &iCols, &composition, STBI_default);
+	int x, y, c;
+	image = stbi_load(sImagePath.c_str(), &x, &y, &c, STBI_default);
 	if (!image) {
 		std::cerr << "Unable to load texture: " << sImagePath << std::endl;
 		exit(1);
 	}
 
+	iRows = x;
+	iCols = y;
+	composition = c;
+
+	std::cout << "X: " << iRows << "\tY: " << iCols << "\tC: " << composition << std::endl;
 	// We also require our image to be either 24-bit (classic RGB) or 8-bit (luminance)
-	if (image == NULL || iRows == 0 || iCols == 0 || (composition != 3 && composition != 1))
-		return false;
+	//if (image == NULL || iRows == 0 || iCols == 0 || (composition != 3 && composition != 1))
+	//	return false;
 
 	// How much to increase data pointer to get to next pixel data
 	unsigned int ptr_inc = composition;
@@ -220,176 +239,131 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	unsigned int row_step = ptr_inc*iCols;
 
 	// All vertex data are here (there are iRows*iCols vertices in this heightmap), we will get to normals later
-	std::vector< std::vector< glm::vec3> > vVertexData(iRows, std::vector<glm::vec3>(iCols));
-	std::vector< std::vector< glm::vec2> > vCoordsData(iRows, std::vector<glm::vec2>(iCols));
+	std::vector< glm::vec3>* vb_pos = new std::vector< glm::vec3>;
+	std::vector<glm::vec3>* vb_norm = new std::vector<glm::vec3>;
+	std::vector<glm::vec3>* vb_col = new std::vector<glm::vec3>;
 
-	float fTextureU = float(iCols)*m_texture_scale.x;
-	float fTextureV = float(iRows)*m_texture_scale.y;
+	std::vector< glm::vec2>* vb_tex = new std::vector< glm::vec2>;
 
-	for (unsigned int i = 0; i < iRows; i++)
-	{
-		for (unsigned int j = 0; j < iCols; j++)
-		{
-			float fScaleC = float(j) / float(iCols - 1);
-			float fScaleR = float(i) / float(iRows - 1);
-			float fVertexHeight = float(*(image + row_step*i + j*ptr_inc)) / 255.0f;
-			vVertexData[i][j] = glm::vec3(-0.5f + fScaleC, fVertexHeight, -0.5f + fScaleR);
-			vCoordsData[i][j] = glm::vec2(fTextureU*fScaleC, fTextureV*fScaleR);
-		}
-	}
-
-	// Normals are here - the heightmap contains ( (iRows-1)*(iCols-1) quads, each one containing 2 triangles, therefore array of we have 3D array)
-	std::vector< std::vector<glm::vec3> > vNormals[2];
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		vNormals[i] = std::vector< std::vector<glm::vec3> >(iRows - 1, std::vector<glm::vec3>(iCols - 1));
-	}
+	std::cout << "**Heightmap Vertices**" << std::endl;
 
 	for (unsigned int i = 0; i < iRows; i++)
 	{
 		for (unsigned int j = 0; j < iCols; j++)
-		{
-			glm::vec3 vTriangle0[] =
-			{
-				vVertexData[i][j],
-				vVertexData[i + 1][j],
-				vVertexData[i + 1][j + 1]
-			};
-			glm::vec3 vTriangle1[] =
-			{
-				vVertexData[i + 1][j + 1],
-				vVertexData[i][j + 1],
-				vVertexData[i][j]
-			};
+		{	
+			uint32_t row = row_step * i;
+			uint32_t col = ptr_inc * j;
 
-			glm::vec3 vTriangleNorm0 = glm::cross(vTriangle0[0] - vTriangle0[1], vTriangle0[1] - vTriangle0[2]);
-			glm::vec3 vTriangleNorm1 = glm::cross(vTriangle1[0] - vTriangle1[1], vTriangle1[1] - vTriangle1[2]);
+			// all points will be between -1 and 1, we will then rescale based on m_mesh_scale
+			float x = -1 + 2*(float(j) / (iCols-1));
+			float z = -1 + 2 * (float(i) / (iRows - 1));
 
-			vNormals[0][i][j] = glm::normalize(vTriangleNorm0);
-			vNormals[1][i][j] = glm::normalize(vTriangleNorm1);
+			// We work with Y being up
+			float y = -1 + 2 * (*(image + row + col) / 255.0f); // Normalise our colour, then offset
+			
+			// Mesh scaling is applied via transform matrix
+			vb_pos->push_back(glm::vec3(x, y, z));
+
+			// We make texture_scale account for what % of the map should be covered by a single texture image. TODO Check that is right!
+			vb_tex->push_back(glm::vec2(x*m_texture_scale.x, y*m_texture_scale.y));
+
+			// Set up Normals
+			// Using very interesting code http://www.flipcode.com/archives/Calculating_Vertex_Normals_for_Height_Maps.shtml
+			uint32_t col_next = j < iCols - 1 ? j + 1 : j;
+			uint32_t col_last = j > 0 ? j - 1 : j;
+
+			col_next *= ptr_inc;
+			col_last *= ptr_inc;
+
+			float sx = *(image + row + col_next) - *(image + row + col_last);
+			if (j == 0 || j == iCols - 1)
+				sx *= 2;
+
+			uint32_t row_next = i < iRows - 1 ? i + 1 : i;
+			uint32_t row_last = i > 0 ? i - 1 : i;
+
+			row_next *= row_step;
+			row_last *= row_step;
+
+			float sy = *(image + row_next + col) - *(image + row_last + col);
+			if (i == 0 || i == iRows - 1)
+				sy *= 2;
+
+			vb_norm->push_back(glm::normalize(glm::vec3(-sx*m_mesh_scale.y, 2*m_mesh_scale.x, sy*m_mesh_scale.x*m_mesh_scale.y/m_mesh_scale.z)));
+
+			// Set up Base Colour (gonna default to bright pink)
+			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
 		}
 	}
 
-	std::vector< std::vector<glm::vec3> > vFinalNormals = std::vector< std::vector<glm::vec3> >(iRows, std::vector<glm::vec3>(iCols));
-
+	// Now create a VBO with heightmap indices
+	std::vector<int>* indices = new std::vector<int>;
+	int iPrimitiveRestartIndex = iRows*iCols;
 	for (unsigned int i = 0; i < iRows; i++)
 	{
 		for (unsigned int j = 0; j < iCols; j++)
 		{
-			// Now we wanna calculate final normal for [i][j] vertex. We will have a look at all triangles this vertex is part of, and then we will make average vector
-			// of all adjacent triangles' normals
-
-			glm::vec3 vFinalNormal = glm::vec3(0.0f, 0.0f, 0.0f);
-
-			// Look for upper-left triangles
-			if (j != 0 && i != 0)
+			for (unsigned int k = 0; k < 2; i++)
 			{
-				for (unsigned int k = 0; k < 2; i++)
-				{
-					vFinalNormal += vNormals[k][i - 1][j - 1];
-				}
-				{
-					// Look for upper-right triangles
-					if (i != 0 && j != iCols - 1)
-					{
-						vFinalNormal += vNormals[0][i - 1][j];
-					}
-					// Look for bottom-right triangles
-					if (i != iRows - 1 && j != iCols - 1)
-					{
-						for (unsigned int k = 0; k < 2; i++)
-						{
-							vFinalNormal += vNormals[k][i][j];
-						}
-					}
-					// Look for bottom-left triangles
-					if (i != iRows - 1 && j != 0)
-					{
-						vFinalNormal += vNormals[1][i][j - 1];
-					}
-
-					vFinalNormals[i][j] = glm::normalize(vFinalNormal); // Store final normal of j-th vertex in i-th row
-				}
+				int iRow = i + (1 - k);
+				int iIndex = iRow*iCols + j;
+				indices->push_back(iIndex);
 			}
-
-			std::vector<glm::vec3> vb_pos, vb_norm, vb_col;
-			std::vector<glm::vec2> vb_tex;
-
-			for (unsigned int i = 0; i < iRows; i++)
-			{
-				for (unsigned int j = 0; j < iCols; j++)
-				{
-					vb_pos.push_back(vVertexData[i][j]); // Add vertex
-					vb_tex.push_back(vCoordsData[i][j]); // Add tex. coord
-					vb_norm.push_back(vFinalNormals[i][j]);// Add normal
-					vb_col.push_back(glm::vec3(1.0, 0.07, 0.57)); // Add Bright Pink
-				}
-			}
-
-			// Now create a VBO with heightmap indices
-			std::vector<int> indices; 
-			int iPrimitiveRestartIndex = iRows*iCols;
-			for (unsigned int i = 0; i < iRows; i++)
-			{
-				for (unsigned int j = 0; j < iCols; j++)
-				{
-					for (unsigned int k = 0; k < 2; i++)
-					{
-						int iRow = i + (1 - k);
-						int iIndex = iRow*iCols + j;
-						indices.push_back(iIndex);
-					}
-				}
-				// Restart triangle strips
-				indices.push_back(iPrimitiveRestartIndex);
-			}
-
-			// Gen and Bind our VAO
-			glGenVertexArrays(1, &m_map.va);
-			glBindVertexArray(m_map.va);
-
-			// Generate our VBO's
-			glGenBuffers(4, m_map.vb);
-
-			// Bind Vertex Buffer Object
-			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[0]);
-			glBufferData(GL_ARRAY_BUFFER, vb_pos.size() * sizeof(glm::vec3), vb_pos.data(), GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-			// Bind Normal Buffer Object
-			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[1]);
-			glBufferData(GL_ARRAY_BUFFER, vb_norm.size() * sizeof(glm::vec3), vb_norm.data(), GL_STATIC_DRAW);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-			// Bind Color Buffer Object
-			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[2]);
-			glBufferData(GL_ARRAY_BUFFER, vb_col.size() * sizeof(glm::vec3), vb_col.data(), GL_STATIC_DRAW);
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-			// Bind UV Buffer Object
-			glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[3]);
-			glBufferData(GL_ARRAY_BUFFER, vb_tex.size() * sizeof(glm::vec2), vb_tex.data(), GL_STATIC_DRAW);
-			glEnableVertexAttribArray(3);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-			// And now attach index data to this VAO
-			// Here don't forget to bind another type of VBO - the element array buffer, or simplier indices to vertices
-			glGenBuffers(1, &m_map.idx);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_map.idx);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), indices.data(), GL_STATIC_DRAW);
-
-			// Unbind Buffers
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-
-			bLoaded = true; // If get here, we succeeded with generating heightmap
-			return true;
 		}
+		// Restart triangle strips
+		indices->push_back(iPrimitiveRestartIndex);
 	}
-	return false;
+
+	// Gen and Bind our VAO
+	glGenVertexArrays(1, &m_map.va);
+	glBindVertexArray(m_map.va);
+
+	// Generate our VBO's
+	glGenBuffers(4, m_map.vb);
+
+	// Bind Vertex Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[0]);
+	glBufferData(GL_ARRAY_BUFFER, vb_pos->size() * sizeof(glm::vec3), vb_pos->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Bind Normal Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[1]);
+	glBufferData(GL_ARRAY_BUFFER, vb_norm->size() * sizeof(glm::vec3), vb_norm->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Bind Color Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[2]);
+	glBufferData(GL_ARRAY_BUFFER, vb_col->size() * sizeof(glm::vec3), vb_col->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Bind UV Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[3]);
+	glBufferData(GL_ARRAY_BUFFER, vb_tex->size() * sizeof(glm::vec2), vb_tex->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// And now attach index data to this VAO
+	// Here don't forget to bind another type of VBO - the element array buffer, or simplier indices to vertices
+	glGenBuffers(1, &m_map.idx);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_map.idx);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices->size() * sizeof(int), indices->data(), GL_STATIC_DRAW);
+
+	// Unbind Buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	bLoaded = true; // If get here, we succeeded with generating heightmap
+
+	delete vb_pos;
+	delete vb_col;
+	delete vb_norm;
+	delete vb_tex;
+	
+	return true;
+
 }
 
 void Heightmap::setupTextures(std::string base_dir)
@@ -472,4 +446,21 @@ void Heightmap::loadTexture(std::string base_dir, std::string texture_name)
 	else {
 		scene_tracker->Textures->at(texture_name).second++;
 	}
+}
+
+glm::vec3 calculate_surface_normal(glm::vec3 const vertex_1, glm::vec3 const vertex_2, glm::vec3 const vertex_3)
+{
+	glm::vec3 normal;
+	// https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
+	glm::vec3 vector_1 = glm::vec3(vertex_2.x - vertex_1.x, vertex_2.y - vertex_1.y, vertex_2.z - vertex_1.z);
+	glm::vec3 vector_2 = glm::vec3(vertex_3.x - vertex_1.x, vertex_3.y - vertex_1.y, vertex_3.z - vertex_1.z);
+
+	glm::vec3 cross = glm::cross(vector_1, vector_2);
+	cross = glm::normalize(cross);
+
+	normal.x = cross.x;
+	normal.y = cross.y;
+	normal.z = cross.z;
+
+	return normal;
 }

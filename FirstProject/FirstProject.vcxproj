@@ -167,9 +167,12 @@
     <ClCompile Include="src\ShaderLoader.cpp" />
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\TextureLoader.cpp" />
-    <ClCompile Include="src\tiny_obj_loader.cc" />
+    <ClCompile Include="src\tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Scenes\Blank.scene" />
+    <None Include="Scenes\Chopper.scene" />
+    <None Include="Scenes\Test.scene" />
     <None Include="Shaders\debug.frag" />
     <None Include="Shaders\debug.vert" />
     <None Include="Shaders\light-texture.frag" />

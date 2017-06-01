@@ -33,6 +33,8 @@ in vec3 vertexColor;
 in vec3 Normal;
 in vec3 FragPos;
 
+flat in int HM_Enabled;
+
 out vec4 color;
 
 uniform float time;
@@ -47,7 +49,7 @@ void main()
 	if(alpha < 0.1)
 		discard;
 
-	if(light.active > 0)
+	if(light.active > 0 || HM_Enabled == 0)
 	{
 
 		vec3 lightDir;

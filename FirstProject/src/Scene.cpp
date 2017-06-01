@@ -134,7 +134,7 @@ void Scene::draw()
 	}
 
 	if(heightmap)
-		heightmap->draw();
+		heightmap->draw(active_shader);
 }
 
 void Scene::tick(GLfloat delta)
@@ -243,7 +243,7 @@ void Scene::update_projection()
 	m_transform = glm::perspective(active_camera->Zoom, (float)s_WIDTH / (float)s_HEIGHT, 0.1f, 1000.0f);
 }
 
-void setHeightmap(std::string heightmap_file)
+void Scene::setHeightmap(std::string heightmap_file)
 {
 	if(heightmap)
 		delete heightmap;
@@ -251,7 +251,7 @@ void setHeightmap(std::string heightmap_file)
 	heightmap = new Heightmap("ground", heightmap_file, scene_tracker);
 }
 
-Heightmap* getHeightmap()
+Heightmap* Scene::getHeightmap()
 {
 	return heightmap;
 }
