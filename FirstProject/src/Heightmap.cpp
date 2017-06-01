@@ -5,53 +5,52 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
-CMultiLayeredHeightmap::CMultiLayeredHeightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker)
+Heightmap::Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker)
 {
 	m_name = name;
+	this->scene_tracker = scene_tracker;
 	materials = new std::vector<tinyobj::material_t>;
 	std::ifstream fb; // FileBuffer
 	fb.open((height_map_file), std::ios::in);
-	std::string LineBuf, component_name;
+	std::string LineBuf, material_file;
 	std::stringstream ss;
 
 	if (fb.is_open()) {
 		std::getline(fb, LineBuf);
 		ss.str(LineBuf);
-		ss >> m_height_file >>
+
+		ss >> m_height_file >> material_file >>
 			m_mesh_scale.x >> m_mesh_scale.y >> m_mesh_scale.z >>
 			m_texture_scale.x >> m_texture_scale.y;
 
-		for (uint32_t mat = 0; mat < 3; mat++)
-		{
-			// Get component name
-			std::getline(fb, LineBuf);
-			ss.clear();
-			ss.str(LineBuf);
-			
-			// Create component TODO: Completely replace with Material Load
-			tinyobj::material_t load_mat;
-			ss >> load_mat.ambient_texname >>
-				load_mat.diffuse_texname >>
-				load_mat.specular_texname >>
-				load_mat.specular_highlight_texname >>
-				load_mat.bump_texname >>
-				load_mat.displacement_texname >>
-				load_mat.alpha_texname >>
-				load_mat.roughness_texname >>
-				load_mat.metallic_texname >>
-				load_mat.sheen_texname >>
-				load_mat.emissive_texname >>
-				load_mat.normal_texname;
-
-			materials->push_back(load_mat);
-		}
 	}
 	else
 	{
 		std::cerr << "ERROR: " << height_map_file << " Failed to open.\n";
 	}
-
 	fb.close();
+
+	// Load Heightmap Materials	
+	std::map<std::string, int> material_map;
+	std::ifstream mat_fb;
+	mat_fb.open((material_file), std::ios::in);	
+	std::string warn;
+	if(mat_fb.is_open()) 
+	{
+		tinyobj::LoadMtl(&material_map, materials, static_cast<std::istream*>(&mat_fb), warn);
+	
+		if(!warn.empty())
+		{
+			std::cout << "ERROR: Problem loading: " << LineBuf <<
+				"\n" << warn << std::endl;
+		}
+	}
+	else
+	{
+		std::cerr << "ERROR: " << material_file << " Failed to open.\n";
+	}
+
+	mat_fb.close();
 
 	LoadHeightMapFromImage(m_height_file);
 }
@@ -70,14 +69,14 @@ of heightmap and height is just height :)
 
 Result: Sets rendering size (scaling) of heightmap.
 
-/*---------------------------------------------*/
+---------------------------------------------*/
 
-void CMultiLayeredHeightmap::SetRenderSize(float fRenderX, float fHeight, float fRenderZ)
+void Heightmap::SetRenderSize(float fRenderX, float fHeight, float fRenderZ)
 {
 	m_mesh_scale = glm::vec3(fRenderX, fHeight, fRenderZ);
 }
 
-void CMultiLayeredHeightmap::SetRenderSize(float fQuadSize, float fHeight)
+void Heightmap::SetRenderSize(float fQuadSize, float fHeight)
 {
 	m_mesh_scale = glm::vec3(float(iCols)*fQuadSize, fHeight, float(iRows)*fQuadSize);
 }
@@ -90,17 +89,55 @@ Params:	none
 
 Result: Guess what it does :)
 
-/*---------------------------------------------*/
+---------------------------------------------*/
 
-void CMultiLayeredHeightmap::Draw(GLuint shader)
+void Heightmap::Draw(GLuint shader)
 {
 	glUniform1f(glGetUniformLocation(shader, "Heightmap.render_height"), m_mesh_scale.y);
 	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_u"), float(iCols)*m_texture_scale.x);
 	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_v"), float(iRows)*m_texture_scale.y);
 	glUniform3fv(glGetUniformLocation(shader, "Heightmap.scale_matrix"), 1, glm::value_ptr(m_mesh_scale));
 
+	glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
+	glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
+
+	for(uint32_t mat_idx = 0; mat_idx < materials->size(); mat_idx++)
+	{
+		// -- Texture Uniforms --
+	
+		// Load diffuse texture
+		glActiveTexture(GL_TEXTURE0+mat_idx);
+		std::string diffuse_texname = materials->at(mat_idx).diffuse_texname;
+		if (scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+		}
+
+		// Load specular texture
+		glActiveTexture(GL_TEXTURE1+mat_idx);
+		std::string specular_texname = materials->at(mat_idx).specular_texname;
+		if (scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+		}
+
+		// -- Material Uniforms -- 
+		std::string loc_str = "material["+ std::to_string(mat_idx) +"].diffuse_color";
+		GLuint diffuseColor = glGetUniformLocation(shader, loc_str.c_str());
+		glUniform3fv(diffuseColor, 1, materials->at(mat_idx).diffuse);
+
+		loc_str = "material["+ std::to_string(mat_idx) + "].shininess";
+		GLuint shininess = glGetUniformLocation(shader, loc_str.c_str());
+		glUniform1f(shininess, materials->at(mat_idx).shininess);
+	}
 	// Now we're ready to render - we are drawing set of triangle strips using one call, but we g otta enable primitive restart
-	glBindVertexArray(vao);
+	glBindVertexArray(m_map.va);
 	glEnable(GL_PRIMITIVE_RESTART);
 	glPrimitiveRestartIndex(iRows*iCols);
 
@@ -116,13 +153,13 @@ Params:	none
 
 Result: Releases all data of one heightmap instance.
 
-/*---------------------------------------------*/
+---------------------------------------------*/
 
-void CMultiLayeredHeightmap::ReleaseHeightmap()
+void Heightmap::ReleaseHeightmap()
 {
 	if (!bLoaded)
 		return; // Heightmap must be loaded
-	glDeleteVertexArrays(1, &vao);
+	glDeleteVertexArrays(1, &m_map.va);
 	bLoaded = false;
 }
 
@@ -134,14 +171,14 @@ Params:	none
 
 Result:	They get something :)
 
-/*---------------------------------------------*/
+---------------------------------------------*/
 
-int CMultiLayeredHeightmap::GetNumHeightmapRows()
+int Heightmap::GetNumHeightmapRows()
 {
 	return iRows;
 }
 
-int CMultiLayeredHeightmap::GetNumHeightmapCols()
+int Heightmap::GetNumHeightmapCols()
 {
 	return iCols;
 }
@@ -156,9 +193,9 @@ image containing heightmap data.
 Result: Loads a heightmap and builds up all OpenGL
 structures for rendering.
 
-/*---------------------------------------------*/
+---------------------------------------------*/
 
-bool CMultiLayeredHeightmap::LoadHeightMapFromImage(std::string sImagePath)
+bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 {
 	if (bLoaded)
 	{
@@ -284,8 +321,8 @@ bool CMultiLayeredHeightmap::LoadHeightMapFromImage(std::string sImagePath)
 				{
 					vb_pos.push_back(vVertexData[i][j]); // Add vertex
 					vb_tex.push_back(vCoordsData[i][j]); // Add tex. coord
-					vb_tex.push_back(vFinalNormals[i][j]);// Add normal
-					vb_tex.push_back(glm::vec3(1.0, 0.07, 0.57)); // Add Bright Pink
+					vb_norm.push_back(vFinalNormals[i][j]);// Add normal
+					vb_col.push_back(glm::vec3(1.0, 0.07, 0.57)); // Add Bright Pink
 				}
 			}
 
@@ -351,5 +388,88 @@ bool CMultiLayeredHeightmap::LoadHeightMapFromImage(std::string sImagePath)
 			bLoaded = true; // If get here, we succeeded with generating heightmap
 			return true;
 		}
+	}
+	return false;
+}
+
+void Heightmap::setupTextures(std::string base_dir)
+{
+	for (size_t m = 0; m < materials->size(); m++) {
+		tinyobj::material_t* mp = &materials->at(m);
+					                                
+		if (mp->ambient_texname.length() > 0)
+			loadTexture(base_dir, mp->ambient_texname);
+		if (mp->diffuse_texname.length() > 0)
+		        loadTexture(base_dir, mp->diffuse_texname);
+		if (mp->specular_texname.length() > 0)
+		        loadTexture(base_dir, mp->specular_texname);
+		if (mp->specular_highlight_texname.length() > 0)
+			loadTexture(base_dir, mp->specular_highlight_texname);
+		if (mp->bump_texname.length() > 0)
+		        loadTexture(base_dir, mp->bump_texname);
+		if (mp->displacement_texname.length() > 0)
+			loadTexture(base_dir, mp->displacement_texname);
+		if (mp->alpha_texname.length() > 0)
+			loadTexture(base_dir, mp->alpha_texname);
+		if (mp->roughness_texname.length() > 0)
+			loadTexture(base_dir, mp->roughness_texname);
+		if (mp->metallic_texname.length() > 0)
+			loadTexture(base_dir, mp->metallic_texname);
+		if (mp->sheen_texname.length() > 0)
+			loadTexture(base_dir, mp->sheen_texname);
+		if (mp->emissive_texname.length() > 0)
+			loadTexture(base_dir, mp->emissive_texname);
+		if (mp->normal_texname.length() > 0)
+			loadTexture(base_dir, mp->normal_texname);
+	}
+}
+
+void Heightmap::loadTexture(std::string base_dir, std::string texture_name)
+{
+	// Only load the texture if it is not already loaded
+	if (scene_tracker->Textures->find(texture_name) == scene_tracker->Textures->end()) {
+		GLuint texture_id;
+		int w, h;
+		int comp;
+
+		std::string texture_filename = texture_name;
+
+		if (!FileExists(texture_filename)) {
+
+			// If desired, grab the default material (from it's default location)
+			if (texture_filename == "_default.png")
+				texture_filename = "./Materials/" + texture_name;
+			else // Append base dir.
+				texture_filename = base_dir + texture_name;
+
+			if (!FileExists(texture_filename)) {
+				std::cerr << "Unable to find file: " << texture_name << std::endl;
+				exit(1);
+			}
+		}
+
+		unsigned char* image = stbi_load(texture_filename.c_str(), &w, &h, &comp, STBI_default);
+		if (!image) {
+			std::cerr << "Unable to load texture: " << texture_filename << std::endl;
+			exit(1);
+		}
+
+		glGenTextures(1, &texture_id);
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		if (comp == 3) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		}
+		else if (comp == 4) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
+		stbi_image_free(image);
+
+		scene_tracker->Textures->insert(std::make_pair(texture_name, std::make_pair(texture_id, 1)));
+	}
+	else {
+		scene_tracker->Textures->at(texture_name).second++;
 	}
 }

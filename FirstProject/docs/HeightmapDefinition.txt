@@ -5,7 +5,4 @@ Image Format:
 	B 	- Unused
 
 Height Map file # Use . for empty texnames, require 3 material lines
-ImageFile	m_scale.x m_scale.y m_scale.z	 t_scale.x t_scale.y
-texture0.mtl
-texture1.mtl
-texture2.mtl
+ImageFile	texture.mtl	m_scale.x m_scale.y m_scale.z	 t_scale.x t_scale.y

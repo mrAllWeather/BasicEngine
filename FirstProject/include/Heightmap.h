@@ -2,7 +2,7 @@
 // Original Design learnt from http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=24
 /****************************************************************************************
 
-Class:		CMultiLayeredHeightmap
+Class:		Heightmap
 
 Purpose:	Wraps FreeType heightmap loading and rendering, also allowing
 to use multiple layers of textures with transitions between them.
@@ -29,10 +29,10 @@ typedef struct {
 	GLuint idx;
 } DrawMap;
 
-class CMultiLayeredHeightmap
+class Heightmap
 {
 public:
-	CMultiLayeredHeightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker);
+	Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker);
 
 	bool LoadHeightMapFromImage(std::string sImagePath);
 
@@ -43,22 +43,26 @@ public:
 	void SetRenderSize(float fQuadSize, float fHeight);
 	void SetRenderSize(float fRenderX, float fHeight, float fRenderZ);
 
-	int GetNumHeightmapRows();
-	int GetNumHeightmapCols();
+	uint32_t GetNumHeightmapRows();
+	uint32_t GetNumHeightmapCols();
+	
+	void setupTextures(std::string);
+	void loadTexture(std::string, std::string);
 
 
 
 private:
 	std::string m_name;
 	std::string m_height_file;
+	loadedComponents* scene_tracker;
 
 	DrawMap m_map;
 
 	bool bLoaded;
 	bool bShaderProgramLoaded;
 
-	int iRows;
-	int iCols;
+	uint32_t iRows;
+	uint32_t iCols;
 
 	glm::vec3 m_mesh_scale;
 	glm::vec2 m_texture_scale;

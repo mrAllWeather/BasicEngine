@@ -25,6 +25,7 @@
 #include "../include/Camera.h"
 #include "../include/Light.h"
 #include "../include/Mesh.h"
+#include "../include/Heightmap.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run
@@ -66,7 +67,8 @@ public:
 	void setActiveCamera(std::string);
 	Camera* getActiveCamera();
 
-
+	void setHeightmap(std::string);
+	Heightmap* getHeightmap();
 	
 	
 	void setViewMode(GLuint);
@@ -88,6 +90,8 @@ private:
 	std::map<std::string, Object*>* objects;
 	std::map<std::string, Light*>* lights;
 	std::map<std::string, Camera*>* cameras;
+
+	Heightmap* heightmap;
 
 	glm::mat4 m_transform;
 
