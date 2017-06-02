@@ -302,7 +302,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			vb_pos->push_back(glm::vec3(x, y, z));
 
 			// We make texture_scale account for what % of the map should be covered by a single texture map_image. TODO Check that is right!
-			vb_tex->push_back(glm::vec2(x*m_texture_scale.x, y*m_texture_scale.y));
+			vb_tex->push_back(glm::vec2(x*m_texture_scale.x, z*m_texture_scale.y));
 
 			// Set up Normals
 			// Using very interesting code http://www.flipcode.com/archives/Calculating_Vertex_Normals_for_Height_Maps.shtml

@@ -19,6 +19,15 @@
     <Filter Include="Resource Files\Scenes">
       <UniqueIdentifier>{6bd94c41-757e-48b7-ba8c-04b547be02f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Complex Meshes">
+      <UniqueIdentifier>{2a032392-5f89-47cf-af76-6560df1c08fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Docs">
+      <UniqueIdentifier>{573fcba3-bf7f-41e8-b7ce-cb026aac7b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Heightmap">
+      <UniqueIdentifier>{3f999391-ff1b-42a5-8fed-74168153a26a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -148,5 +157,28 @@
     <None Include="Scenes\Test.scene">
       <Filter>Resource Files\Scenes</Filter>
     </None>
+    <None Include="Statics\chopper.complex">
+      <Filter>Resource Files\Complex Meshes</Filter>
+    </None>
+    <None Include="Statics\cube.complex">
+      <Filter>Resource Files\Complex Meshes</Filter>
+    </None>
+    <None Include="Statics\test.heightmap">
+      <Filter>Resource Files\Heightmap</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="docs\BonesDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
+    <Text Include="docs\ComplexDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
+    <Text Include="docs\HeightmapDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
+    <Text Include="docs\SceneDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>

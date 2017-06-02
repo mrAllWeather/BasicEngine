@@ -63,7 +63,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void Keyboard_Input(float deltaTime);
 
-bool SHOW_FPS = true;
+bool SHOW_FPS = false;
 
 int main(int argc, char* argv[])
 {

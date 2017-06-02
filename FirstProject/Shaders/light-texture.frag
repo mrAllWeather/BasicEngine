@@ -49,7 +49,7 @@ void main()
 	if(alpha < 0.1)
 		discard;
 
-	if(light.active > 0 || HM_Enabled == 0)
+	if(light.active > 0)
 	{
 
 		vec3 lightDir;

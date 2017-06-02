@@ -7,5 +7,7 @@ Lights:
 	CamLight 	1	0.0 0.0 0.0 	1.0 1.0 1.0 	1.0 1.0 1.0 	1.0 1.0 1.0		0.045 0.0075
 	RotateLight 1	0.0 0.0 0.0 	1.0 1.0 0.0 	1.0 1.0 0.0 	1.0 1.0 0.0		0.045 0.0075
 Statics:
+	Cube_0	./Statics/cube.complex	1.5 1.0 1.5		1.0 0.5 1.0		0.0 0.0 0.0
+	Cube_1	./Statics/cube.complex	1.5 1.0 1.5		-4 0.5 1.0		0.0 0.0 0.0
 Heightmap:
 	./Statics/test.heightmap

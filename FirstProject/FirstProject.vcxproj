@@ -179,6 +179,15 @@
     <None Include="Shaders\simple.vert" />
     <None Include="Shaders\text.frag" />
     <None Include="Shaders\text.vert" />
+    <None Include="Statics\chopper.complex" />
+    <None Include="Statics\cube.complex" />
+    <None Include="Statics\test.heightmap" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="docs\BonesDefinition.txt" />
+    <Text Include="docs\ComplexDefinition.txt" />
+    <Text Include="docs\HeightmapDefinition.txt" />
+    <Text Include="docs\SceneDefinition.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
