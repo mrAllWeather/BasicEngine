@@ -23,6 +23,8 @@ uniform int view_mode;
 
 void main()
 {
+	color = vec4(vertexColor, 1.0);
+	/*
 	if(view_mode == 0) // Wireframe Mode (We expect glPolygonMode to be called, so present default color)
 	{
 		color =  vec4(1.0);
@@ -40,4 +42,5 @@ void main()
 	{
 		color =  vec4(1.0);
 	}
+	*/
 };

@@ -6,9 +6,10 @@
 Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string base_dir)
 {
 	this->name = filename;
+	this->scene_tracker = scene_tracker;
+
 	this->attrib = new tinyobj::attrib_t;
 	this->objects = new std::vector<DrawObject>;
-	this->scene_tracker = scene_tracker;
 	this->materials = new std::vector<tinyobj::material_t>;
 	this->shapes = new std::vector<tinyobj::shape_t>;
 	std::string err;
@@ -38,6 +39,10 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 
 Mesh::~Mesh()
 {
+	delete materials;
+	delete shapes;
+	delete objects;
+	delete attrib;
 	// Code to free Mesh Details
 }
 

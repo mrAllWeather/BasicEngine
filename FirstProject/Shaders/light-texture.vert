@@ -10,9 +10,6 @@ uniform mat4 object;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform int heightmap_enabled;
-
-flat out int HM_Enabled;
 out vec2 TexCoord;
 out vec3 vertexColor;
 out vec3 Normal;
@@ -20,21 +17,9 @@ out vec3 FragPos;
 
 void main()
 {
-	HM_Enabled = heightmap_enabled;
-	if(heightmap_enabled == 0)
-	{
-		gl_Position = projection * view * object * component * model * vec4(position, 1);
-		vertexColor = color;
-		TexCoord = vec2(texCoord.x, texCoord.y);
-		Normal = mat3(transpose(inverse(object * component * model))) * normal;
-		FragPos = vec3(object * component * model * vec4(position, 1.0f));
-	}
-	else
-	{ // Height Map!
-		gl_Position = projection * view * vec4(position, 1);
-		vertexColor = color;
-		TexCoord = vec2(texCoord.x, texCoord.y);
-		Normal = normal;
-		FragPos = vec3(position);
-	}
+	gl_Position = projection * view * object * component * model * vec4(position, 1);
+	vertexColor = color;
+	TexCoord = vec2(texCoord.x, texCoord.y);
+	Normal = mat3(transpose(inverse(object * component * model))) * normal;
+	FragPos = vec3(object * component * model * vec4(position, 1.0f));
 };

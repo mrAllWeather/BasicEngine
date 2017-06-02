@@ -40,6 +40,11 @@ struct loadedComponents {
 	};
 	~loadedComponents()
 	{
+		for (auto mesh : *Meshes)
+		{
+			mesh.second.second = 0;
+			delete mesh.second.first;
+		}
 		delete Meshes;
 		delete Textures;
 		delete Shaders;
@@ -63,7 +68,7 @@ private:
 	std::string name;
 	glm::mat4 transform;
 	loadedComponents* scene_tracker;
-	// std::map<std::string, GLuint>* loaded_textures;
+
 	std::vector<tinyobj::material_t>* materials;
 	std::vector<tinyobj::shape_t>* shapes;
 

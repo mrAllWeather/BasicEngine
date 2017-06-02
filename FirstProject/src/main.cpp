@@ -25,7 +25,6 @@
 #include "../include/Seconds_Per_Frame_Counter.h"	// Handy way to check performance
 #include "../include/Camera.h"						// Our game camera class
 #include "../include/SceneLoader.h"
-#include "../include/RenderText.h"
 #include "../include/tiny_obj_loader.h"
 #include "../include/File_IO.h"
 
@@ -57,8 +56,6 @@ GLenum fill_mode = GL_LINE;
 const double VIEW_SWAP_DELAY = 0.5;	// Only swap view this many times per second
 double time_since_last_swap = 0; // How long since we last swapped view focus
 
-void show_ui(RenderText);
-
 // Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -66,7 +63,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void Keyboard_Input(float deltaTime);
 
-bool SHOW_FPS = false;
+bool SHOW_FPS = true;
 
 int main(int argc, char* argv[])
 {
@@ -127,10 +124,7 @@ int main(int argc, char* argv[])
 
 	// Load Scene
 	current_level = new Scene("./Scenes/Test.scene");
-
-	std::cerr << "Pre Render Text Load\n";
 	// current_level = new Scene("./Scenes/Chopper.scene");
-	RenderText ui_text(WIDTH, HEIGHT);
 
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
@@ -143,7 +137,6 @@ int main(int argc, char* argv[])
 	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
 	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 
-	;
 	// Configure our look at and circling
 	current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
 	current_level->getActiveCamera()->SetLookFocus(&origin);
@@ -187,9 +180,6 @@ int main(int argc, char* argv[])
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		// Add UI to screen (only text atm)
-		show_ui(ui_text);
-
 		// Swap Buffers
 		glfwSwapBuffers(window);
 
@@ -220,6 +210,7 @@ void Keyboard_Input(float deltaTime)
 			{
 				fill_mode = GL_LINE;
 				inspection_mode = 0;
+				std::cout << "Wire Frame\n";
 			}
 			time_since_last_swap = glfwGetTime();
 			current_level->setViewMode(inspection_mode);
@@ -239,15 +230,19 @@ void Keyboard_Input(float deltaTime)
 			{
 			case 0:
 				current_level->setActiveLight("Overhead");
+				std::cout << "Overhead\n";
 				break;
 			case 1:
 				current_level->setActiveLight("CamLight");
+				std::cout << "Cam Light\n";
 				break;
 			case 2:
 				current_level->setActiveLight("RotateLight");
+				std::cout << "Rotating Light\n";
 				break;
 			case 3:
 				current_level->setActiveLight("NULL");
+				std::cout << "Unlit\n";
 				break;
 			default:
 				break;
@@ -266,6 +261,7 @@ void Keyboard_Input(float deltaTime)
 				fill_mode = GL_FILL;
 				lighting_mode = 0;
 				current_level->setActiveLight("Overhead");
+				std::cout << "Lighting Mode\n";
 
 			}
 			else
@@ -273,6 +269,7 @@ void Keyboard_Input(float deltaTime)
 				current_level->setActiveShader("Debug");
 				inspection_mode = 0;
 				fill_mode = GL_LINE;
+				std::cout << "Debug Mode\n";
 			}
 
 			is_fully_rendered = !is_fully_rendered;
@@ -287,82 +284,6 @@ void Keyboard_Input(float deltaTime)
 			show_details = !show_details;
 			time_since_last_swap = glfwGetTime();
 		}
-	}
-}
-
-void show_ui(RenderText ui_text)
-{
-	if (student_note)
-	{
-		ui_text.DrawString("Sorry, I am generating my own normals instead of setting them to (0,0,0)", 15.0f, 30.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
-		ui_text.DrawString("Assignment makes heavy use of suggested resources OpenGlTutorials and Tiny_Obj_Loader's example viewer.cc (available with latest version of loader)", 15.0f, 15.0f, 0.25f, glm::vec3(0.5, 0.8f, 0.2f));
-	}
-	if (show_details)
-	{
-		/* TODO: Add bounds calls for Component and Object. Component will use Mesh * transform, Object will use Object.Bounds * transform (tho' consider using vector of bounds at Object for collision) */
-		ui_text.DrawString("Press ` to hide details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		// std::string bounds = "Bounds: " + current_level->getObject("Cube_00")->report_bounds();
-		// ui_text.DrawString(bounds, 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-		// ui_text.DrawString("Scale: 1:" + current_level->meshes->at("model_01")->get_scale(), 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-		std::string drawmode;
-		if (is_fully_rendered)
-		{
-			drawmode = "Fully Rendered";
-		}
-		else
-		{
-			switch (inspection_mode)
-			{
-			case 0:
-				drawmode = "Wire Frame";
-				break;
-			case 1:
-				drawmode = "Normals";
-				break;
-			case 2:
-				drawmode = "Diffuse colour";
-			default:
-				break;
-			}
-		}
-		ui_text.DrawString("Draw Mode: " + drawmode, 15.0f, HEIGHT - 60.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-		ui_text.DrawString("Camera: " + std::to_string(current_level->getActiveCamera()->Position.x) + ":" +
-			std::to_string(current_level->getActiveCamera()->Position.y) + ":" +
-			std::to_string(current_level->getActiveCamera()->Position.z),
-			15.0f, HEIGHT - 75.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-		if (is_fully_rendered)
-		{
-			if (lighting_mode < 3)
-			{
-				ui_text.DrawString("Active Light: " + current_level->getActiveLight()->get_name(), 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-				ui_text.DrawString("Light Location: " +
-				std::to_string(current_level->getActiveLight()->location->x) + ":" +
-				std::to_string(current_level->getActiveLight()->location->y) + ":" +
-				std::to_string(current_level->getActiveLight()->location->z),
-				15.0f, HEIGHT - 105.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-			}
-			else
-			{
-				ui_text.DrawString("Unlit", 15.0f, HEIGHT - 90.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-			}
-		}
-	}
-	else
-	{
-		ui_text.DrawString("Press ` for details", 15.0f, HEIGHT - 15.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		ui_text.DrawString("Press S to switch between shaders", 15.0f, HEIGHT - 30.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		if (is_fully_rendered)
-			ui_text.DrawString("Press L to switch active lights", 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		else
-			ui_text.DrawString("Press D to switch debug modes", 15.0f, HEIGHT - 45.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-
-		ui_text.DrawString("Hold Left mouse and drag to rotate model", 15.0f, HEIGHT - 60.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
-		ui_text.DrawString("Hold Right mouse and drag to zoom in and out", 15.0f, HEIGHT - 75.0f, 0.3f, glm::vec3(0.5, 0.8f, 0.2f));
 	}
 }
 

@@ -35,6 +35,7 @@ class Heightmap
 {
 public:
 	Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker);
+	~Heightmap();
 
 	bool LoadHeightMapFromImage(std::string sImagePath);
 
@@ -72,7 +73,7 @@ private:
 	uint32_t iCols;
 	uint32_t composition;
 
-	unsigned char* image;
+	unsigned char* map_image;
 
 	glm::vec3 m_mesh_scale;
 	glm::vec2 m_texture_scale;

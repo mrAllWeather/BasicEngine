@@ -27,7 +27,6 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 		ss >> m_height_file >> material_file >>
 			m_mesh_scale.x >> m_mesh_scale.y >> m_mesh_scale.z >>
 			m_texture_scale.x >> m_texture_scale.y;
-
 	}
 	else
 	{
@@ -37,44 +36,57 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 		return;
 	}
 	fb.close();
+	std::cout << "\tHeight Map Image: " << m_height_file << std::endl;
+	std::cout << "\tMaterial File: " << material_file << std::endl;
+	std::cout << "\tMesh Scale: " << m_mesh_scale.x  << ":" << m_mesh_scale.y << ":" << m_mesh_scale.z << std::endl;
+	std::cout << "\tTexture Scale: " << m_texture_scale.x << ":" << m_texture_scale.y << std::endl;
 
-	std::cerr << "\tLoading Materials: " << material_file << std::endl;
+	std::cerr << "\tLoading Materials" << std::endl;
+
 	// Load Heightmap Materials	
 	std::map<std::string, int>* material_map = new std::map<std::string, int>;
-	std::ifstream* mat_fb = new std::ifstream;
-	mat_fb->open((material_file), std::ios::in);	
-	std::string* warn = new std::string;
-	if(mat_fb->is_open()) 
+	std::ifstream mat_fb;
+	mat_fb.open((material_file), std::ios::in);	
+	std::string warn;
+	if(mat_fb.is_open()) 
 	{
-		std::cerr << "\tPreLoad: " << std::endl;
-		tinyobj::LoadMtl(material_map, materials, static_cast<std::istream*>(mat_fb), warn);
-		std::cerr << "\tPostLoad: " << std::endl;
+		tinyobj::LoadMtl(material_map, materials, static_cast<std::istream*>(&mat_fb), &warn);
 	
-		if(!warn->empty())
+		if(!warn.empty())
 		{
 			std::cout << "ERROR: Problem loading: " << LineBuf <<
-				"\n" << *warn << std::endl;
+				"\n" << warn << std::endl;
 		}
 	}
 	else
 	{
 		std::cerr << "ERROR: " << material_file << " Failed to open.\n";
 	}
+	mat_fb.close();
 
-	mat_fb->close();
+	delete material_map;
+
 	
 	// Add a default material. Set default texture
 	materials->push_back(tinyobj::material_t());
 	materials->at(materials->size() - 1).diffuse_texname = "_default.png";
 
-	std::cerr << "\tLoading Map from Image: " << m_height_file << std::endl;
+	std::cerr << "\tLoading Map from Image" << std::endl;
 	LoadHeightMapFromImage(m_height_file);
 
-	std::cerr << "\tSetting up textures: " << std::endl;
+	std::cerr << "\tSetting up textures" << std::endl;
 	setupTextures("./Materials/");
 
-	std::cerr << "\tBuilding transform: " << std::endl;
+	std::cerr << "\tBuilding transform" << std::endl;
 	build_transform();
+}
+
+Heightmap::~Heightmap()
+{
+	ReleaseHeightmap();
+
+	delete materials;
+	stbi_image_free(map_image);
 }
 
 /*-----------------------------------------------
@@ -115,12 +127,23 @@ Result: Guess what it does :)
 
 void Heightmap::draw(GLuint shader)
 {
-	glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 1);
-	glUniform1f(glGetUniformLocation(shader, "Heightmap.render_height"), m_mesh_scale.y);
-	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_u"), float(iCols)*m_texture_scale.x);
-	glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_v"), float(iRows)*m_texture_scale.y);
-	glUniform3fv(glGetUniformLocation(shader, "Heightmap.scale_matrix"), 1, glm::value_ptr(m_mesh_scale));
+	// glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 1);
+	// glUniform1f(glGetUniformLocation(shader, "Heightmap.render_height"), m_mesh_scale.y);
+	// glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_u"), float(iCols)*m_texture_scale.x);
+	// glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_v"), float(iRows)*m_texture_scale.y);
+	// glUniform3fv(glGetUniformLocation(shader, "Heightmap.scale_matrix"), 1, glm::value_ptr(m_mesh_scale));
 
+	// Mesh Uniforms
+	GLuint modelLoc = glGetUniformLocation(shader, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m_transform));
+
+	GLuint componentLoc = glGetUniformLocation(shader, "component");
+	glUniformMatrix4fv(componentLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+
+	GLuint objectLoc = glGetUniformLocation(shader, "object");
+	glUniformMatrix4fv(objectLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+
+	
 	glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
 	glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
 
@@ -159,16 +182,17 @@ void Heightmap::draw(GLuint shader)
 		GLuint shininess = glGetUniformLocation(shader, loc_str.c_str());
 		glUniform1f(shininess, materials->at(mat_idx).shininess);
 	}
+
 	// Now we're ready to render - we are drawing set of triangle strips using one call, but we g otta enable primitive restart
 	glBindVertexArray(m_map.va);
+
 	glEnable(GL_PRIMITIVE_RESTART);
 	glPrimitiveRestartIndex(iRows*iCols);
 
 	glDrawElements(GL_TRIANGLE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_PRIMITIVE_RESTART);
-
-	glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 0);
+	glBindVertexArray(0);
 }
 
 /*-----------------------------------------------
@@ -230,8 +254,8 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	}
 
 	int x, y, c;
-	image = stbi_load(sImagePath.c_str(), &x, &y, &c, STBI_default);
-	if (!image) {
+	map_image = stbi_load(sImagePath.c_str(), &x, &y, &c, STBI_default);
+	if (!map_image) {
 		std::cerr << "Unable to load texture: " << sImagePath << std::endl;
 		exit(1);
 	}
@@ -241,7 +265,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	composition = c;
 	uint32_t img_size = x * y;
 
-	std::cout << "X: " << iRows << "\tY: " << iCols << "\tC: " << composition << std::endl;
+	std::cout << "\tMap Parameters\tX: " << iCols << "\tY: " << iRows << "\tDepth: " << composition << std::endl;
 	// We also require our image to be either 24-bit (classic RGB) or 8-bit (luminance)
 	//if (image == NULL || iRows == 0 || iCols == 0 || (composition != 3 && composition != 1))
 	//	return false;
@@ -272,12 +296,12 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			float z = -1 + 2 * (float(i) / (iRows - 1));
 
 			// We work with Y being up
-			float y = -1 + 2 * (*(image + row + col) / 255.0f); // Normalise our colour, then offset
-			
+			float y = -1 + 2 * (*(map_image + row + col) / 255.0f); // Normalise our colour, then offset
+			// std::cout << "(" << x << ", " << y << ", " << z << ") ";
 			// Mesh scaling is applied via transform matrix
 			vb_pos->push_back(glm::vec3(x, y, z));
 
-			// We make texture_scale account for what % of the map should be covered by a single texture image. TODO Check that is right!
+			// We make texture_scale account for what % of the map should be covered by a single texture map_image. TODO Check that is right!
 			vb_tex->push_back(glm::vec2(x*m_texture_scale.x, y*m_texture_scale.y));
 
 			// Set up Normals
@@ -288,7 +312,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			col_next *= ptr_inc;
 			col_last *= ptr_inc;
 
-			float sx = *(image + row + col_next) - *(image + row + col_last);
+			float sx = *(map_image + row + col_next) - *(map_image + row + col_last);
 			if (j == 0 || j == iCols - 1)
 				sx *= 2;
 
@@ -298,7 +322,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			row_next *= row_step;
 			row_last *= row_step;
 
-			float sy = *(image + row_next + col) - *(image + row_last + col);
+			float sy = *(map_image + row_next + col) - *(map_image + row_last + col);
 			if (i == 0 || i == iRows - 1)
 				sy *= 2;
 
@@ -307,27 +331,33 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			// Set up Base Colour (gonna default to bright pink)
 			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
 		}
+		// std::cout << std::endl;
 	}
 
 	std::cout << vb_pos->size() << " points generated\n" << std::endl;
 
 	std::cout << "Generate Heightmap indices\n" << std::endl;
 	// Now create a VBO with heightmap indices
-	std::vector<unsigned int>* indices = new std::vector<unsigned int>;
+	std::vector<GLuint>* indices = new std::vector<GLuint>;
 	int iPrimitiveRestartIndex = iRows*iCols;
 	for (unsigned int i = 0; i < iRows-1; i++)
 	{
 		for (unsigned int j = 0; j < iCols; j++)
 		{
 			unsigned int tris[2] = { 
-				(i*iCols + j*iRows),		// Current Point
-				(i*iCols + (j+1)*iRows)		// Point on line below
+				(j + i* iCols),			// Current Point
+				(j + (i+1)*iCols)		// Point on line below
 			};
 			indices->insert(indices->end(), tris, std::end(tris));
-
+			// std::cout << tris[0] << " " << tris[1] << " ";
 		}
 		// Restart triangle strips
-		indices->push_back(iPrimitiveRestartIndex);
+		if (i < iRows - 2)
+		{
+			indices->push_back(iPrimitiveRestartIndex);
+			// std::cout << iPrimitiveRestartIndex;
+		}
+		// std::cout << std::endl;
 	}
 
 	indices_count = indices->size();
@@ -371,11 +401,13 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	// Here don't forget to bind another type of VBO - the element array buffer, or simplier indices to vertices
 	glGenBuffers(1, &m_map.idx);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_map.idx);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices->size() * sizeof(int), indices->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices->size() * sizeof(GLuint), indices->data(), GL_STATIC_DRAW);
 
 	// Unbind Buffers
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 
 	bLoaded = true; // If get here, we succeeded with generating heightmap
 
@@ -493,7 +525,7 @@ char Heightmap::get_image_value(uint32_t x, uint32_t y, uint8_t channel)
 	if(x >= iRows || y >= iCols || channel >= composition)
 		return 0;
 
-	return *(image + channel + x*(iCols * composition) + y * composition);
+	return *(map_image + channel + x*(iCols * composition) + y * composition);
 }
 
 void Heightmap::build_transform()

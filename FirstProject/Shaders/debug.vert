@@ -17,7 +17,10 @@ out vec3 FragPos;
 
 void main()
 {
-	gl_Position = projection * view * object * component * model * vec4(position, 1);
+	
+	// gl_Position = projection * view * object * component * model * vec4(position, 1);
+	gl_Position = projection * view * model * vec4(position, 1);
+
 	vertexColor = color;
 
 	TexCoord = vec2(texCoord.x, 1-texCoord.y);
