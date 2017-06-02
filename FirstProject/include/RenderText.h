@@ -34,6 +34,7 @@ private:
 	GLuint VAO;
 	GLuint VBO;
 	GLuint program;
+	ShaderLoader sLoader;
 	glm::mat4 projection_transform;
 
 };

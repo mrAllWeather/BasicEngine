@@ -16,11 +16,16 @@ Scene::Scene(std::string scene_file)
 	
 	SceneLoader load_scene(scene_file, this);
 
+	std::cerr << "Scene Loader Finished\n";
 	// Default to first light
 	active_light = this->lights->begin()->second;
 	active_camera = this->cameras->begin()->second;
 
+	std::cerr << "Active Components Set\n";
+	
 	update_projection();
+	
+	std::cerr << "Projection Updated\n";
 
 }
 

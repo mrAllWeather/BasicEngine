@@ -129,6 +129,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 		std::cout << "Scene Failed to load!" << std::endl;
 		exit(-1);
 	}
+	fb.close();
 }
 
 bool SceneLoader::BuildActors(std::ifstream* fb, std::string* LineBuf)

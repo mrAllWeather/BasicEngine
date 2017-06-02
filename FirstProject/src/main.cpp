@@ -127,6 +127,8 @@ int main(int argc, char* argv[])
 
 	// Load Scene
 	current_level = new Scene("./Scenes/Test.scene");
+
+	std::cerr << "Pre Render Text Load\n";
 	// current_level = new Scene("./Scenes/Chopper.scene");
 	RenderText ui_text(WIDTH, HEIGHT);
 

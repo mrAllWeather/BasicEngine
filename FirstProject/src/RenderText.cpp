@@ -2,13 +2,13 @@
 
 RenderText::RenderText(int screen_width, int screen_height)
 {
+	std::cerr << "START RENDER TEXT" << std::endl;
 	// COmpile and set up shader
-	ShaderLoader sLoader;
 	this->program = sLoader.build_program(std::make_pair("./Shaders/text.frag", "./Shaders/text.vert"));
 	this->projection_transform = glm::ortho(0.0f, static_cast<GLfloat>(screen_width), 0.0f, static_cast<GLfloat>(screen_height));
 	glUseProgram(this->program);
 	glUniformMatrix4fv(glGetUniformLocation(this->program, "projection"), 1, GL_FALSE, glm::value_ptr(this->projection_transform));
-
+	glUseProgram(0);
 	// FreeType
 	FT_Library ft;
 	// All functions return a value different than 0 whenever an error occurred
@@ -129,4 +129,6 @@ void RenderText::DrawString(std::string text, GLfloat x, GLfloat y, GLfloat scal
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUseProgram(0);
 }

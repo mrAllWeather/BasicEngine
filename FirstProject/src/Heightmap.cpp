@@ -40,21 +40,20 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 
 	std::cerr << "\tLoading Materials: " << material_file << std::endl;
 	// Load Heightmap Materials	
-	std::map<std::string, int> material_map;
-	std::ifstream mat_fb;
-	mat_fb.open((material_file), std::ios::in);	
-	std::string warn;
-	if(mat_fb.is_open()) 
+	std::map<std::string, int>* material_map = new std::map<std::string, int>;
+	std::ifstream* mat_fb = new std::ifstream;
+	mat_fb->open((material_file), std::ios::in);	
+	std::string* warn = new std::string;
+	if(mat_fb->is_open()) 
 	{
-
 		std::cerr << "\tPreLoad: " << std::endl;
-		tinyobj::LoadMtl(&material_map, materials, static_cast<std::istream*>(&mat_fb), &warn);
+		tinyobj::LoadMtl(material_map, materials, static_cast<std::istream*>(mat_fb), warn);
 		std::cerr << "\tPostLoad: " << std::endl;
 	
-		if(!warn.empty())
+		if(!warn->empty())
 		{
 			std::cout << "ERROR: Problem loading: " << LineBuf <<
-				"\n" << warn << std::endl;
+				"\n" << *warn << std::endl;
 		}
 	}
 	else
@@ -62,7 +61,7 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 		std::cerr << "ERROR: " << material_file << " Failed to open.\n";
 	}
 
-	mat_fb.close();
+	mat_fb->close();
 	
 	// Add a default material. Set default texture
 	materials->push_back(tinyobj::material_t());
