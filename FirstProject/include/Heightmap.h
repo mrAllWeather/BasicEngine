@@ -51,11 +51,16 @@ public:
 	void setupTextures(std::string);
 	void loadTexture(std::string, std::string);
 
-
+	char get_image_value(uint32_t, uint32_t, uint8_t);
 
 private:
+	void build_transform();
 	std::string m_name;
 	std::string m_height_file;
+
+	glm::mat4 m_transform;
+	int indices_count;
+
 	loadedComponents* scene_tracker;
 
 	DrawMap m_map;

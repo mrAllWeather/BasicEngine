@@ -8,5 +8,4 @@ Lights:
 	RotateLight 1	0.0 0.0 0.0 	1.0 1.0 0.0 	1.0 1.0 0.0 	1.0 1.0 0.0		0.045 0.0075
 Statics:
 Heightmap:
-	./Statics/test.heightmap 
-
+	./Statics/test.heightmap

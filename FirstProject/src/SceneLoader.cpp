@@ -56,11 +56,13 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Heightmap:")
 			{
-				std::cout << LineBuf << std::endl;
 				std::streampos last_line = fb.tellg();
 
 				if (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
 				{
+					// Clean Up leading spaces
+					LineBuf = std::regex_replace(LineBuf, std::regex("^[ \t]+"), "");
+					std::cout << LineBuf << std::endl;
 					scene->setHeightmap(LineBuf);
 
 					last_line = fb.tellg();

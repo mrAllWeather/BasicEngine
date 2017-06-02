@@ -4,6 +4,8 @@ Scene::Scene(std::string scene_file)
 {
 	// Everything object in our scene
 	
+	heightmap = nullptr;
+
 	scene_tracker = new loadedComponents;
 
 	objects = new std::map<std::string, Object*>;
@@ -245,7 +247,7 @@ void Scene::update_projection()
 
 void Scene::setHeightmap(std::string heightmap_file)
 {
-	if(heightmap)
+	if(heightmap == nullptr)
 		delete heightmap;
 
 	heightmap = new Heightmap("ground", heightmap_file, scene_tracker);

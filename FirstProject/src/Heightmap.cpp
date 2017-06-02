@@ -6,17 +6,17 @@
 
 Heightmap::Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker)
 {
-	m_name = name;
-	if (height_map_file[0] == '\t')
-		height_map_file = height_map_file.substr(1, height_map_file.size() - 1);
+	std::cerr << "\tName: " << name;
+	std::cerr << " (" << height_map_file << ")\n";
 
-	std::cout << "Loading: " << height_map_file << std::endl;
 	this->scene_tracker = scene_tracker;
+	m_name = name;
 
 	materials = new std::vector<tinyobj::material_t>;
 
+	
 	std::ifstream fb; // FileBuffer
-	fb.open(height_map_file, std::ios::in);
+	fb.open(height_map_file.c_str(), std::ios::in);
 	std::string LineBuf, material_file;
 	std::stringstream ss;
 
@@ -32,10 +32,13 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 	else
 	{
 		std::cerr << "ERROR: " << height_map_file << " Failed to open.\n";
-		std::cerr << "Error: " << strerror(errno);
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		fb.close();
+		return;
 	}
 	fb.close();
 
+	std::cerr << "\tLoading Materials: " << material_file << std::endl;
 	// Load Heightmap Materials	
 	std::map<std::string, int> material_map;
 	std::ifstream mat_fb;
@@ -43,7 +46,10 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 	std::string warn;
 	if(mat_fb.is_open()) 
 	{
+
+		std::cerr << "\tPreLoad: " << std::endl;
 		tinyobj::LoadMtl(&material_map, materials, static_cast<std::istream*>(&mat_fb), &warn);
+		std::cerr << "\tPostLoad: " << std::endl;
 	
 		if(!warn.empty())
 		{
@@ -62,8 +68,14 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 	materials->push_back(tinyobj::material_t());
 	materials->at(materials->size() - 1).diffuse_texname = "_default.png";
 
+	std::cerr << "\tLoading Map from Image: " << m_height_file << std::endl;
 	LoadHeightMapFromImage(m_height_file);
+
+	std::cerr << "\tSetting up textures: " << std::endl;
 	setupTextures("./Materials/");
+
+	std::cerr << "\tBuilding transform: " << std::endl;
+	build_transform();
 }
 
 /*-----------------------------------------------
@@ -153,8 +165,9 @@ void Heightmap::draw(GLuint shader)
 	glEnable(GL_PRIMITIVE_RESTART);
 	glPrimitiveRestartIndex(iRows*iCols);
 
-	int iNumIndices = (iRows - 1)*iCols * 2 + iRows - 1;
-	glDrawElements(GL_TRIANGLE_STRIP, iNumIndices, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
+
+	glDisable(GL_PRIMITIVE_RESTART);
 
 	glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 0);
 }
@@ -227,6 +240,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	iRows = x;
 	iCols = y;
 	composition = c;
+	uint32_t img_size = x * y;
 
 	std::cout << "X: " << iRows << "\tY: " << iCols << "\tC: " << composition << std::endl;
 	// We also require our image to be either 24-bit (classic RGB) or 8-bit (luminance)
@@ -245,7 +259,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 
 	std::vector< glm::vec2>* vb_tex = new std::vector< glm::vec2>;
 
-	std::cout << "**Heightmap Vertices**" << std::endl;
+	std::cerr << "\tBuild Heightmap Vertices" << std::endl;
 
 	for (unsigned int i = 0; i < iRows; i++)
 	{
@@ -296,23 +310,32 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 		}
 	}
 
+	std::cout << vb_pos->size() << " points generated\n" << std::endl;
+
+	std::cout << "Generate Heightmap indices\n" << std::endl;
 	// Now create a VBO with heightmap indices
-	std::vector<int>* indices = new std::vector<int>;
+	std::vector<unsigned int>* indices = new std::vector<unsigned int>;
 	int iPrimitiveRestartIndex = iRows*iCols;
-	for (unsigned int i = 0; i < iRows; i++)
+	for (unsigned int i = 0; i < iRows-1; i++)
 	{
 		for (unsigned int j = 0; j < iCols; j++)
 		{
-			for (unsigned int k = 0; k < 2; i++)
-			{
-				int iRow = i + (1 - k);
-				int iIndex = iRow*iCols + j;
-				indices->push_back(iIndex);
-			}
+			unsigned int tris[2] = { 
+				(i*iCols + j*iRows),		// Current Point
+				(i*iCols + (j+1)*iRows)		// Point on line below
+			};
+			indices->insert(indices->end(), tris, std::end(tris));
+
 		}
 		// Restart triangle strips
 		indices->push_back(iPrimitiveRestartIndex);
 	}
+
+	indices_count = indices->size();
+
+	std::cout << indices->size() << " indices generated\n" << std::endl;
+
+	std::cout << "Bind Array Objects\n" << std::endl;
 
 	// Gen and Bind our VAO
 	glGenVertexArrays(1, &m_map.va);
@@ -400,6 +423,7 @@ void Heightmap::setupTextures(std::string base_dir)
 
 void Heightmap::loadTexture(std::string base_dir, std::string texture_name)
 {
+	std::cerr << "\tLoading Texture: " << texture_name << std::endl;
 	// Only load the texture if it is not already loaded
 	if (scene_tracker->Textures->find(texture_name) == scene_tracker->Textures->end()) {
 		GLuint texture_id;
@@ -463,4 +487,18 @@ glm::vec3 calculate_surface_normal(glm::vec3 const vertex_1, glm::vec3 const ver
 	normal.z = cross.z;
 
 	return normal;
+}
+
+char Heightmap::get_image_value(uint32_t x, uint32_t y, uint8_t channel)
+{
+	if(x >= iRows || y >= iCols || channel >= composition)
+		return 0;
+
+	return *(image + channel + x*(iCols * composition) + y * composition);
+}
+
+void Heightmap::build_transform()
+{
+	m_transform = glm::mat4();
+	m_transform = glm::scale(m_transform, m_mesh_scale);
 }
