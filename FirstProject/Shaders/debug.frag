@@ -16,15 +16,13 @@ out vec4 color;
 
 uniform float time;
 
-uniform Material material;
+uniform Material material[4];
 
 // View Mode
 uniform int view_mode;
 
 void main()
 {
-	color = vec4(vertexColor, 1.0);
-
 	if(view_mode == 0) // Wireframe Mode (We expect glPolygonMode to be called, so present default color)
 	{
 		color =  vec4(1.0);
@@ -36,7 +34,7 @@ void main()
 	}
 	else if(view_mode == 2) // Diffuse Color Mode
 	{
-		color = vec4(material.diffuse_color, 1.0);
+		color = vec4(material[0].diffuse_color, 1.0);
 	}
 	else // Default to white model
 	{
