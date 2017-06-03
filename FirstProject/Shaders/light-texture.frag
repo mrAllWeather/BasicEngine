@@ -85,11 +85,11 @@ void main()
 			vec4 height_details = texture(heightmap, scaleCoords); // If no lights, just show texture
 
 			float tier_0_scale = height_details.g;
-			if(tier_0_scale < 0.6)
+			if(tier_0_scale < 0.55)
 				tier_0_scale = 0;
 
 			float tier_2_scale = 1 - height_details.g;
-			if(tier_2_scale < 0.6)
+			if(tier_2_scale < 0.55)
 				tier_2_scale = 0;
 
 			float tier_1_scale = 1 - tier_0_scale - tier_2_scale;
