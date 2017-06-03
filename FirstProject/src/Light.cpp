@@ -26,6 +26,10 @@ Light::Light( std::string light_details )
 			ambient->x >> ambient->y >> ambient->z >>
 			diffuse->x >> diffuse->y >> diffuse->z >>
 			specular->x >> specular->y >> specular->z;
+			linear = 0;
+			quadratic = 0;
+			cut_off = 0;
+			outer_cut_off = 0;
 		break;
 	case lPOINT:
 		this->type = lPOINT;
@@ -34,6 +38,8 @@ Light::Light( std::string light_details )
 			diffuse->x >> diffuse->y >> diffuse->z >>
 			specular->x >> specular->y >> specular->z >>
 			linear >> quadratic;
+			cut_off = 0;
+			outer_cut_off = 0;
 		break;
 	case lSPOT:
 		this->type = lSPOT;

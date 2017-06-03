@@ -1,0 +1,8 @@
+Image Format:
+#Channels
+	R	- Height
+	G	- Texture
+	B 	- Unused
+
+Height Map file # Use . for empty texnames, require 3 material lines
+ImageFile	texture.mtl	m_scale.x m_scale.y m_scale.z	 t_scale.x t_scale.y

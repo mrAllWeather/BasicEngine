@@ -14,7 +14,6 @@ ShaderLoader::~ShaderLoader()
 	{
 		glDeleteShader(it->second);
 	}
-
 	delete built_shaders;
 }
 
@@ -47,8 +46,6 @@ GLuint ShaderLoader::build_program(std::pair<std::string, std::string> shaders)
 // on loaded data. Adds the resulting shader to our map
 void ShaderLoader::load_shader(std::string filename)
 {
-	std::ifstream fb; // FileBuffer
-
 	std::cout << "Loading: " << filename << std::endl;
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
 
@@ -84,10 +81,9 @@ void ShaderLoader::load_shader(std::string filename)
 	}
 	else {
 		std::cout << "ERROR: only " << in.gcount() << " could be read of " << filename << " : SKIPPING" << std::endl;
-		in.close();
 	}
 
-	fb.close();
+	in.close();
 }
 
 // Builds a shader of the specified type from the provided source

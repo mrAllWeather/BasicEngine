@@ -6,9 +6,10 @@
 Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string base_dir)
 {
 	this->name = filename;
+	this->scene_tracker = scene_tracker;
+
 	this->attrib = new tinyobj::attrib_t;
 	this->objects = new std::vector<DrawObject>;
-	this->scene_tracker = scene_tracker;
 	this->materials = new std::vector<tinyobj::material_t>;
 	this->shapes = new std::vector<tinyobj::shape_t>;
 	std::string err;
@@ -38,30 +39,34 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 
 Mesh::~Mesh()
 {
+	delete materials;
+	delete shapes;
+	delete objects;
+	delete attrib;
 	// Code to free Mesh Details
 }
 
 void Mesh::draw(GLuint shader)
 {
 	// std::cout << "Mesh::Draw\n";
-	// Will be true for every object in mesh, so set up now to save calls
-	glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
-	glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
 
 	for (const auto object : *objects)
 	{
 		if ((object.material_id < materials->size())) {
 			// -- Texture Uniforms --
+			std::string loc_str = "material[0]";
 			
 			// Load diffuse texture
 			glActiveTexture(GL_TEXTURE0);
 			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
 			if (scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
 				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
+				glUniform1i(glGetUniformLocation(shader, (loc_str + ".diffuse").c_str()), 0);
 			}
 			else
 			{
 				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+				glUniform1i(glGetUniformLocation(shader, (loc_str + ".diffuse").c_str()), 0);
 			}
 
 			// Load specular texture
@@ -69,19 +74,24 @@ void Mesh::draw(GLuint shader)
 			std::string specular_texname = materials->at(object.material_id).specular_texname;
 			if (scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
 				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
+				glUniform1i(glGetUniformLocation(shader, (loc_str + ".specular").c_str()), 1);
 			}
 			else
 			{
 				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+				glUniform1i(glGetUniformLocation(shader, (loc_str + ".specular").c_str()), 1);
 			}
 
 			// -- Material Uniforms -- 
 
-			GLuint diffuseColor = glGetUniformLocation(shader, "material.diffuse_color");
+			GLuint diffuseColor = glGetUniformLocation(shader, "material[0].diffuse_color");
 			glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
 
-			GLuint shininess = glGetUniformLocation(shader, "material.shininess");
+			GLuint shininess = glGetUniformLocation(shader, "material[0].shininess");
 			glUniform1f(shininess, materials->at(object.material_id).shininess);
+
+			GLuint loaded = glGetUniformLocation(shader, "material[0].loaded");
+			glUniform1f(loaded, true);
 		}
 
 
@@ -91,8 +101,12 @@ void Mesh::draw(GLuint shader)
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);
+		
+		// Clean up
+		GLuint loaded = glGetUniformLocation(shader, "material[0].loaded");
+		glUniform1f(loaded, false);
 		glBindVertexArray(0);
-
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 }

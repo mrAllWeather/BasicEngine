@@ -13,6 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{2f42506b-28ea-41ff-90d8-a5c23ff39844}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Scenes">
+      <UniqueIdentifier>{6bd94c41-757e-48b7-ba8c-04b547be02f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Complex Meshes">
+      <UniqueIdentifier>{2a032392-5f89-47cf-af76-6560df1c08fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Docs">
+      <UniqueIdentifier>{573fcba3-bf7f-41e8-b7ce-cb026aac7b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Heightmap">
+      <UniqueIdentifier>{3f999391-ff1b-42a5-8fed-74168153a26a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -25,9 +40,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ObjLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RenderText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Scene.h">
@@ -60,6 +72,9 @@
     <ClInclude Include="include\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Heightmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
@@ -77,9 +92,6 @@
     <ClCompile Include="src\ObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\RenderText.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,9 +107,6 @@
     <ClCompile Include="src\TextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\tiny_obj_loader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -107,5 +116,69 @@
     <ClCompile Include="src\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Heightmap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiny_obj_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\debug.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\debug.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\light-texture.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\light-texture.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\simple.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\simple.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\text.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\text.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Scenes\Blank.scene">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="Scenes\Chopper.scene">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="Scenes\Test.scene">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="Statics\chopper.complex">
+      <Filter>Resource Files\Complex Meshes</Filter>
+    </None>
+    <None Include="Statics\cube.complex">
+      <Filter>Resource Files\Complex Meshes</Filter>
+    </None>
+    <None Include="Statics\test.heightmap">
+      <Filter>Resource Files\Heightmap</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="docs\BonesDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
+    <Text Include="docs\ComplexDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
+    <Text Include="docs\HeightmapDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
+    <Text Include="docs\SceneDefinition.txt">
+      <Filter>Resource Files\Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>

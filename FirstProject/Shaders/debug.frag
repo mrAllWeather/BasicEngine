@@ -16,7 +16,7 @@ out vec4 color;
 
 uniform float time;
 
-uniform Material material;
+uniform Material material[4];
 
 // View Mode
 uniform int view_mode;
@@ -34,10 +34,11 @@ void main()
 	}
 	else if(view_mode == 2) // Diffuse Color Mode
 	{
-		color = vec4(material.diffuse_color, 1.0);
+		color = vec4(material[0].diffuse_color, 1.0);
 	}
 	else // Default to white model
 	{
 		color =  vec4(1.0);
 	}
+
 };

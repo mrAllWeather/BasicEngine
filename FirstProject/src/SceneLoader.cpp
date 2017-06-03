@@ -28,8 +28,6 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			}
 			else if (LineBuf == "Camera:")
 			{
-				// TODO We name cameras but only support one for now; so toss the provided name and only load first
-				// Though changes to how views work might mean new cameras become easy to attach
 				std::cout << LineBuf << std::endl;
 				std::streampos last_line = fb.tellg();
 				
@@ -55,6 +53,23 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				}
 				fb.seekg(last_line);
 
+			}
+			else if (LineBuf == "Heightmap:")
+			{
+				std::streampos last_line = fb.tellg();
+
+				if (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
+				{
+					// Clean Up leading spaces
+					LineBuf = std::regex_replace(LineBuf, std::regex("^[ \t]+"), "");
+					std::cout << LineBuf << std::endl;
+					scene->setHeightmap(LineBuf);
+
+					last_line = fb.tellg();
+				}
+
+				fb.seekg(last_line);
+				
 			}
 			else if (LineBuf == "Lights:")
 			{
@@ -114,6 +129,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 		std::cout << "Scene Failed to load!" << std::endl;
 		exit(-1);
 	}
+	fb.close();
 }
 
 bool SceneLoader::BuildActors(std::ifstream* fb, std::string* LineBuf)

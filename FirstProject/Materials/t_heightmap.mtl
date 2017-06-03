@@ -1,0 +1,45 @@
+# Blender MTL File: 'None'
+# Material Count: 3
+
+newmtl Grass
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump GrassTextures_n.png
+map_Kd GrassTextures_d.png
+
+newmtl Dirt
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+disp dirt_h.png
+map_Bump dirt_n.png
+map_Ka dirt_o.png
+map_Kd dirt_d.png
+map_Ks dirt_s.png
+map_Ns dirt_r.png
+
+newmtl Stone_Path
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+disp Stone_Path_h.png
+map_Bump Stone_Path_n.png
+map_Ka Stone_Path_o.png
+map_Kd Stone_Path_d.png
+map_Ks Stone_Path_s.png

@@ -28,7 +28,16 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 
 	this->m_mesh_name = mesh_file_name;
 
-	this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
+	if (scene_tracker->Meshes->find("mesh_file_name") == scene_tracker->Meshes->end())
+	{
+		this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
+	}
+	else
+	{
+		this->m_Mesh = scene_tracker->Meshes->at(mesh_file_name).first;
+		scene_tracker->Meshes->at(mesh_file_name).first++;
+	}
+
 
 	build_component_transform();
 	compute_bounds();
@@ -49,7 +58,15 @@ Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm
 Component::~Component()
 {
 	m_Mesh->remove_instance();
-	// TODO Clean Up our memory but DO NOT delete Mesh
+	if (scene_tracker->Meshes->at(m_mesh_name).first == 0)
+	{
+		delete m_Mesh;
+	}
+
+	delete m_location;
+	delete m_scale;
+	delete m_rotation;
+
 }
 
 void Component::draw(GLuint shader)

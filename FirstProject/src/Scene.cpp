@@ -4,6 +4,8 @@ Scene::Scene(std::string scene_file)
 {
 	// Everything object in our scene
 	
+	heightmap = nullptr;
+
 	scene_tracker = new loadedComponents;
 
 	objects = new std::map<std::string, Object*>;
@@ -14,11 +16,16 @@ Scene::Scene(std::string scene_file)
 	
 	SceneLoader load_scene(scene_file, this);
 
+	std::cerr << "Scene Loader Finished\n";
 	// Default to first light
 	active_light = this->lights->begin()->second;
 	active_camera = this->cameras->begin()->second;
 
+	std::cerr << "Active Components Set\n";
+	
 	update_projection();
+	
+	std::cerr << "Projection Updated\n";
 
 }
 
@@ -132,23 +139,13 @@ void Scene::draw()
 	{
 		object.second->draw(active_shader);
 	}
+
+	if(heightmap)
+		heightmap->draw(active_shader);
 }
 
 void Scene::tick(GLfloat delta)
 {
-	// TODO Transform Light position and orientation within scene (for spinning light)
-	/*
-	for (auto mesh : *scene_tick_list)
-	{
-		// Build Complex Transform (actor moving around world) (Ball Moving on table)
-		mesh->build_static_transform();
-		for (auto component : (*mesh->components))
-		{
-			// Build Component Transform (component moving around actor) (Ball Rolling)
-			component.second->build_component_transform();
-		}
-	}
-	*/
 
 	active_camera->tick();
 	if(active_light)
@@ -251,4 +248,17 @@ Object * Scene::getObject(std::string scene_object_name)
 void Scene::update_projection()
 {
 	m_transform = glm::perspective(active_camera->Zoom, (float)s_WIDTH / (float)s_HEIGHT, 0.1f, 1000.0f);
+}
+
+void Scene::setHeightmap(std::string heightmap_file)
+{
+	if(heightmap == nullptr)
+		delete heightmap;
+
+	heightmap = new Heightmap("ground", heightmap_file, scene_tracker);
+}
+
+Heightmap* Scene::getHeightmap()
+{
+	return heightmap;
 }

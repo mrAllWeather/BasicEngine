@@ -135,12 +135,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Heightmap.h" />
     <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\File_IO.h" />
     <ClInclude Include="include\Light.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\ObjLoader.h" />
-    <ClInclude Include="include\RenderText.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\SceneLoader.h" />
     <ClInclude Include="include\Seconds_Per_Frame_Counter.h" />
@@ -152,20 +152,42 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Heightmap.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\File_IO.cpp" />
     <ClCompile Include="src\Light.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ObjLoader.cpp" />
-    <ClCompile Include="src\RenderText.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\SceneLoader.cpp" />
     <ClCompile Include="src\Seconds_Per_Frame_Counter.cpp" />
     <ClCompile Include="src\ShaderLoader.cpp" />
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\TextureLoader.cpp" />
-    <ClCompile Include="src\tiny_obj_loader.cc" />
+    <ClCompile Include="src\tiny_obj_loader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scenes\Blank.scene" />
+    <None Include="Scenes\Chopper.scene" />
+    <None Include="Scenes\Test.scene" />
+    <None Include="Shaders\debug.frag" />
+    <None Include="Shaders\debug.vert" />
+    <None Include="Shaders\light-texture.frag" />
+    <None Include="Shaders\light-texture.vert" />
+    <None Include="Shaders\simple.frag" />
+    <None Include="Shaders\simple.vert" />
+    <None Include="Shaders\text.frag" />
+    <None Include="Shaders\text.vert" />
+    <None Include="Statics\chopper.complex" />
+    <None Include="Statics\cube.complex" />
+    <None Include="Statics\test.heightmap" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="docs\BonesDefinition.txt" />
+    <Text Include="docs\ComplexDefinition.txt" />
+    <Text Include="docs\HeightmapDefinition.txt" />
+    <Text Include="docs\SceneDefinition.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
