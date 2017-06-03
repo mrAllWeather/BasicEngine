@@ -79,6 +79,9 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 
 	std::cerr << "\tBuilding transform" << std::endl;
 	build_transform();
+
+	std::cerr << "\tLoad Interpolation texture" << std::endl;
+	loadTexture("./Materials/", m_height_file);
 }
 
 Heightmap::~Heightmap()
@@ -127,11 +130,7 @@ Result: Guess what it does :)
 
 void Heightmap::draw(GLuint shader)
 {
-	// glUniform1i(glGetUniformLocation(shader, "heightmap_enabled"), 1);
-	// glUniform1f(glGetUniformLocation(shader, "Heightmap.render_height"), m_mesh_scale.y);
-	// glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_u"), float(iCols)*m_texture_scale.x);
-	// glUniform1f(glGetUniformLocation(shader, "Heightmap.max_texture_v"), float(iRows)*m_texture_scale.y);
-	// glUniform3fv(glGetUniformLocation(shader, "Heightmap.scale_matrix"), 1, glm::value_ptr(m_mesh_scale));
+	glUniform1i(glGetUniformLocation(shader, "is_heightmap"), 1);
 
 	// Mesh Uniforms
 	GLuint modelLoc = glGetUniformLocation(shader, "model");
@@ -143,44 +142,69 @@ void Heightmap::draw(GLuint shader)
 	GLuint objectLoc = glGetUniformLocation(shader, "object");
 	glUniformMatrix4fv(objectLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
 
-	
-	glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
-	glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(m_height_file).first);
+	glUniform1i(glGetUniformLocation(shader, "heightmap"), 0);
+
+	glm::vec2 shifted_scale = glm::vec2(m_mesh_scale.x, m_mesh_scale.z);
+	glUniform2fv(glGetUniformLocation(shader, "heightmap_scale"), 1, glm::value_ptr(shifted_scale));
 
 	for(uint32_t mat_idx = 0; mat_idx < materials->size(); mat_idx++)
 	{
 		// -- Texture Uniforms --
-	
+		std::string loc_str = "material[" + std::to_string(mat_idx) + "]";
+
+		// std::cout << "Loading " << loc_str << " : " << materials->at(mat_idx).name << std::endl;
 		// Load diffuse texture
-		glActiveTexture(GL_TEXTURE0+mat_idx);
+		glActiveTexture(GL_TEXTURE0+(mat_idx*2)+1);
+
 		std::string diffuse_texname = materials->at(mat_idx).diffuse_texname;
-		if (scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
+		
+		// std::cout << "\tDiffuse: " << (diffuse_texname.length() > 0 ? diffuse_texname : "_default.png") << std::endl;
+
+		if (materials->at(mat_idx).diffuse_texname.length() > 0 && scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
+			GLuint dif = glGetUniformLocation(shader, (loc_str + ".diffuse").c_str());
+
+			glUniform1i(dif, (mat_idx * 2)+1);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+			GLuint dif = glGetUniformLocation(shader, (loc_str + ".diffuse").c_str());
+
+			glUniform1i(dif, (mat_idx * 2)+1);
 		}
 
 		// Load specular texture
-		glActiveTexture(GL_TEXTURE1+mat_idx);
+		glActiveTexture(GL_TEXTURE0+ (mat_idx * 2+1)+1);
 		std::string specular_texname = materials->at(mat_idx).specular_texname;
-		if (scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
+
+		// std::cout << "\tSpecular: " << (specular_texname.length() > 0 ? specular_texname : "_default.png") << std::endl;
+		if (materials->at(mat_idx).specular_texname.length() > 0 && scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
+			GLuint spec = glGetUniformLocation(shader, (loc_str + ".specular").c_str());
+
+			glUniform1i(spec,  (mat_idx * 2 + 1)+1);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+			GLuint spec = glGetUniformLocation(shader, (loc_str + ".specular").c_str());
+
+			glUniform1i(spec, (mat_idx * 2 + 1));
 		}
 
 		// -- Material Uniforms -- 
-		std::string loc_str = "material["+ std::to_string(mat_idx) +"].diffuse_color";
-		GLuint diffuseColor = glGetUniformLocation(shader, loc_str.c_str());
+		;
+		GLuint diffuseColor = glGetUniformLocation(shader, (loc_str+ ".diffuse_color").c_str());
 		glUniform3fv(diffuseColor, 1, materials->at(mat_idx).diffuse);
 
-		loc_str = "material["+ std::to_string(mat_idx) + "].shininess";
-		GLuint shininess = glGetUniformLocation(shader, loc_str.c_str());
+		GLuint shininess = glGetUniformLocation(shader, (loc_str + ".shininess").c_str());
 		glUniform1f(shininess, materials->at(mat_idx).shininess);
+
+		GLuint loaded = glGetUniformLocation(shader, (loc_str + ".loaded").c_str());
+		glUniform1f(loaded, true);
 	}
 
 	// Now we're ready to render - we are drawing set of triangle strips using one call, but we g otta enable primitive restart
@@ -191,8 +215,21 @@ void Heightmap::draw(GLuint shader)
 
 	glDrawElements(GL_TRIANGLE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
 
+
 	glDisable(GL_PRIMITIVE_RESTART);
+	// Unload our textures;
+	for (uint32_t mat_idx = 0; mat_idx < materials->size(); mat_idx++)
+	{
+		std::string loc_str = "material[" + std::to_string(mat_idx) + "]";
+		GLuint loaded = glGetUniformLocation(shader, (loc_str + ".loaded").c_str());
+		glUniform1f(loaded, false);
+
+	}
+
+	glUniform1i(glGetUniformLocation(shader, "is_heightmap"), 0);
 	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /*-----------------------------------------------
@@ -302,7 +339,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			vb_pos->push_back(glm::vec3(x, y, z));
 
 			// We make texture_scale account for what % of the map should be covered by a single texture map_image. TODO Check that is right!
-			vb_tex->push_back(glm::vec2(x*m_texture_scale.x, z*m_texture_scale.y));
+			vb_tex->push_back(glm::vec2((x+1)/2*m_texture_scale.x, (z+1)/2*m_texture_scale.y));
 
 			// Set up Normals
 			// Using very interesting code http://www.flipcode.com/archives/Calculating_Vertex_Normals_for_Height_Maps.shtml
@@ -427,26 +464,37 @@ void Heightmap::setupTextures(std::string base_dir)
 					                                
 		if (mp->ambient_texname.length() > 0)
 			loadTexture(base_dir, mp->ambient_texname);
+
 		if (mp->diffuse_texname.length() > 0)
-		        loadTexture(base_dir, mp->diffuse_texname);
+			loadTexture(base_dir, mp->diffuse_texname);
+
 		if (mp->specular_texname.length() > 0)
-		        loadTexture(base_dir, mp->specular_texname);
+			loadTexture(base_dir, mp->specular_texname);
+
 		if (mp->specular_highlight_texname.length() > 0)
 			loadTexture(base_dir, mp->specular_highlight_texname);
+
 		if (mp->bump_texname.length() > 0)
-		        loadTexture(base_dir, mp->bump_texname);
+			loadTexture(base_dir, mp->bump_texname);
+
 		if (mp->displacement_texname.length() > 0)
 			loadTexture(base_dir, mp->displacement_texname);
+
 		if (mp->alpha_texname.length() > 0)
 			loadTexture(base_dir, mp->alpha_texname);
+
 		if (mp->roughness_texname.length() > 0)
 			loadTexture(base_dir, mp->roughness_texname);
+
 		if (mp->metallic_texname.length() > 0)
 			loadTexture(base_dir, mp->metallic_texname);
+
 		if (mp->sheen_texname.length() > 0)
 			loadTexture(base_dir, mp->sheen_texname);
+
 		if (mp->emissive_texname.length() > 0)
 			loadTexture(base_dir, mp->emissive_texname);
+
 		if (mp->normal_texname.length() > 0)
 			loadTexture(base_dir, mp->normal_texname);
 	}
@@ -493,6 +541,8 @@ void Heightmap::loadTexture(std::string base_dir, std::string texture_name)
 		else if (comp == 4) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		}
+
+		// Unbind
 		glBindTexture(GL_TEXTURE_2D, 0);
 		stbi_image_free(image);
 
