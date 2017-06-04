@@ -44,8 +44,6 @@ Scene* current_level;
 
 // View Mode
 glm::vec3 origin(0.0f);
-bool show_details = false;
-bool student_note = true;
 
 int inspection_mode = 0;
 int lighting_mode = 0;
