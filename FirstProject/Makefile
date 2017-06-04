@@ -2,7 +2,7 @@
 OS		:= $(shell uname)
 
 CC		:= g++
-CFLAGS 	:= -Wall -Wextra -std=c++11 -O2 -fsanitize=address -fno-omit-frame-pointer
+CFLAGS 	:= -Wall -Wextra -std=c++11 -O2 
 LDFLAGS	:=`pkg-config --cflags glfw3 freetype2`
 CLIBS	:=`pkg-config --static --libs glfw3 freetype2` -lGLEW
 
