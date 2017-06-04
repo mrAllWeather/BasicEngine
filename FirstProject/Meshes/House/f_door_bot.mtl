@@ -1,0 +1,23 @@
+# Blender MTL File: 'House_00_01_00.blend'
+# Material Count: 2
+
+newmtl Cladding_Stucco_White
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni -1.000000
+d 1.000000
+illum 2
+map_Kd D:\\BlenderModels\\DAE\\BigHouse_Body\\Cladding_Stucco_White.jpg
+
+newmtl material
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni -1.000000
+d 1.000000
+illum 2
