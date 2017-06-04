@@ -69,12 +69,11 @@ private:
 	glm::mat4 transform;
 	loadedComponents* scene_tracker;
 
-	std::vector<tinyobj::material_t>* materials;
-	std::vector<tinyobj::shape_t>* shapes;
-
-	std::vector<DrawObject>* objects;
+	std::vector<tinyobj::material_t> materials;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<DrawObject> objects;
 	
-	tinyobj::attrib_t* attrib;
+	tinyobj::attrib_t attrib;
 
 	void setupMesh();
 	void setupTextures(std::string base_dir);

@@ -28,15 +28,7 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 
 	this->m_mesh_name = mesh_file_name;
 
-	if (scene_tracker->Meshes->find("mesh_file_name") == scene_tracker->Meshes->end())
-	{
-		this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
-	}
-	else
-	{
-		this->m_Mesh = scene_tracker->Meshes->at(mesh_file_name).first;
-		scene_tracker->Meshes->at(mesh_file_name).first++;
-	}
+	this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
 
 
 	build_component_transform();
