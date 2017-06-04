@@ -28,7 +28,18 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 
 	this->m_mesh_name = mesh_file_name;
 
-	this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
+	// this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
+	if (scene_tracker->Meshes->find(mesh_file_name) == scene_tracker->Meshes->end())
+	{
+		this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
+		scene_tracker->Meshes->insert(std::make_pair(mesh_file_name, std::make_pair(m_Mesh, 1)));
+	}
+	else
+	{
+		std::cout << "Loaded cached mesh.\n";
+		this->m_Mesh = scene_tracker->Meshes->at(mesh_file_name).first;
+		scene_tracker->Meshes->at(mesh_file_name).second++;
+	}
 
 
 	build_component_transform();
