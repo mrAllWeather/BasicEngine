@@ -7,19 +7,7 @@ std::vector<std::string> DirectoryContents(std::string dir)
 	linux replaces '\\' with '/' */
 
 	std::vector<std::string> FileList;
-#ifdef __linux__
-	DIR *dp;
-	struct dirent *dirp;
-	if ((dp = opendir(dir.c_str())) == NULL) {
-		std::cout << "Error (" << errno << ") opening " << dir << std::endl;
-		return FileList;
-	}
-
-	while ((dirp = readdir(dp)) != NULL) {
-		FileList.push_back(std::string(dirp->d_name));
-	}
-	closedir(dp);
-#elif _WIN32 || _WIN64
+#if _WIN32 || _WIN64
 	std::string searchPath = dir + "*";
 
 	WIN32_FIND_DATA fd;
@@ -37,6 +25,18 @@ std::vector<std::string> DirectoryContents(std::string dir)
 		std::cout << "INVALID_HANDLE_VALUE: " << GetLastError() << std::endl;
 		std::cout << "See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx" << std::endl;
 	}
+#else // Assume other OS are UNIX based.
+    DIR *dp;
+    struct dirent *dirp;
+    if ((dp = opendir(dir.c_str())) == NULL) {
+        std::cout << "Error (" << errno << ") opening " << dir << std::endl;
+        return FileList;
+    }
+
+    while ((dirp = readdir(dp)) != NULL) {
+        FileList.push_back(std::string(dirp->d_name));
+    }
+    closedir(dp);
 #endif
 
 	return FileList;

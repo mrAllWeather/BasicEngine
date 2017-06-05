@@ -55,7 +55,7 @@ void Mesh::draw(GLuint shader)
 		if ((object.material_id < materials->size())) {
 			// -- Texture Uniforms --
 			std::string loc_str = "material[0]";
-			
+
 			// Load diffuse texture
 			glActiveTexture(GL_TEXTURE0);
 			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
@@ -82,7 +82,7 @@ void Mesh::draw(GLuint shader)
 				glUniform1i(glGetUniformLocation(shader, (loc_str + ".specular").c_str()), 1);
 			}
 
-			// -- Material Uniforms -- 
+			// -- Material Uniforms --
 
 			GLuint diffuseColor = glGetUniformLocation(shader, "material[0].diffuse_color");
 			glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
@@ -101,7 +101,7 @@ void Mesh::draw(GLuint shader)
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);
-		
+
 		// Clean up
 		GLuint loaded = glGetUniformLocation(shader, "material[0].loaded");
 		glUniform1f(loaded, false);
@@ -170,7 +170,7 @@ void Mesh::remove_instance()
 
 void Mesh::setupMesh()
 {
-	
+
 	for (size_t s = 0; s < shapes->size(); s++) {
 		DrawObject o;
 		std::vector<glm::vec3> vb_pos;  // Buffer for Position
@@ -196,9 +196,9 @@ void Mesh::setupMesh()
 			}
 			float tc[3][2];
 			if (attrib->texcoords.size() > 0) {
-				assert(attrib->texcoords.size() > 2 * idx0.texcoord_index + 1);
-				assert(attrib->texcoords.size() > 2 * idx1.texcoord_index + 1);
-				assert(attrib->texcoords.size() > 2 * idx2.texcoord_index + 1);
+				assert(attrib->texcoords.size() > static_cast<size_t>(2 * idx0.texcoord_index + 1));
+				assert(attrib->texcoords.size() > static_cast<size_t>(2 * idx1.texcoord_index + 1));
+				assert(attrib->texcoords.size() > static_cast<size_t>(2 * idx2.texcoord_index + 1));
 				tc[0][0] = attrib->texcoords[2 * idx0.texcoord_index];
 				tc[0][1] = 1.0f - attrib->texcoords[2 * idx0.texcoord_index + 1];
 				tc[1][0] = attrib->texcoords[2 * idx1.texcoord_index];
@@ -286,7 +286,7 @@ void Mesh::setupMesh()
 		// Report on Position Date
 		std::cout << "Vertices: " << vb_pos.size() << std::endl;
 
-		o.va, o.vb[0], o.vb[1], o.vb[2], o.vb[3] = 0;
+		o.vb[3] = 0;
 		o.numTriangles = 0;
 
 		// OpenGL viewer does not support texturing with per-face material.
@@ -336,7 +336,7 @@ void Mesh::setupMesh()
 		o.numTriangles = vb_pos.size() / 3;
 		printf("shape[%d] # of triangles = %d\n", static_cast<int>(s),
 				o.numTriangles);
-		
+
 		objects->push_back(o);
 	}
 
