@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include "../include/stb_image.h"
 
 Heightmap::Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker)
@@ -92,22 +93,6 @@ Heightmap::~Heightmap()
 	stbi_image_free(map_image);
 }
 
-/*-----------------------------------------------
-
-Name:	SetRenderSize
-
-Params:	fRenderX, fHeight, fRenderZ - enter all 3
-dimensions separately
-
-OR
-
-fQuadSize, fHeight - how big should be one quad
-of heightmap and height is just height :)
-
-Result: Sets rendering size (scaling) of heightmap.
-
----------------------------------------------*/
-
 void Heightmap::SetRenderSize(float fRenderX, float fHeight, float fRenderZ)
 {
 	m_mesh_scale = glm::vec3(fRenderX, fHeight, fRenderZ);
@@ -118,15 +103,19 @@ void Heightmap::SetRenderSize(float fQuadSize, float fHeight)
 	m_mesh_scale = glm::vec3(float(iCols)*fQuadSize, fHeight, float(iRows)*fQuadSize);
 }
 
-/*-----------------------------------------------
+float Heightmap::GetFloor(glm::vec3 location)
+{
+	/* I've reverse engineered the x and y coords (I think!)
+	 * Currently we just go to the nearest point and use that values y
+	 * this will probably lead to very choppy movement over low rez terrain
+	*/
+	int x = (int) roundf(((location.x / m_mesh_scale.x) + 1) / 2 * (iCols - 1));
+	int z = (int) roundf(((location.z / m_mesh_scale.z) + 1) / 2 * (iRows - 1));
 
-Name:	RenderHeightmap
+	float base_height = get_image_value(x, z, 1);
 
-Params:	none
-
-Result: Guess what it does :)
-
----------------------------------------------*/
+	return (-1 + 2 * base_height / 255) * m_mesh_scale.y;
+}
 
 void Heightmap::draw(GLuint shader)
 {
@@ -232,16 +221,6 @@ void Heightmap::draw(GLuint shader)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-/*-----------------------------------------------
-
-Name:	ReleaseHeightmap
-
-Params:	none
-
-Result: Releases all data of one heightmap instance.
-
----------------------------------------------*/
-
 void Heightmap::ReleaseHeightmap()
 {
 	if (!bLoaded)
@@ -249,16 +228,6 @@ void Heightmap::ReleaseHeightmap()
 	glDeleteVertexArrays(1, &m_map.va);
 	bLoaded = false;
 }
-
-/*-----------------------------------------------
-
-Name:	Getters
-
-Params:	none
-
-Result:	They get something :)
-
----------------------------------------------*/
 
 uint32_t Heightmap::GetNumHeightmapRows()
 {

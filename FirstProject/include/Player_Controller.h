@@ -18,7 +18,7 @@
 #include "../include/Object.h"
 #include "../include/Heightmap.h"
 
-#define EPSILON 1.0
+#define EPSILON 0.01
 #define RESISTANCE	1.0
 #define ACCELERATION 2.3
 #define LIMIT_X 12.5	// Average run speed

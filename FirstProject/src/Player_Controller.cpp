@@ -156,23 +156,22 @@ void Player_Controller::tick(GLfloat delta)
 	m_velocity -= m_velocity * m_resistance * delta;
 
 	// Do not show tiny movement, just stop
-	/*
-	if (m_velocity.x < EPSILON)
+	if (abs(m_velocity.x) < EPSILON)
 	{
 		m_velocity.x = 0;
 	}
-	if (m_velocity.y < EPSILON)
+	if (abs(m_velocity.y) < EPSILON)
 	{
 		m_velocity.y = 0;
 	}
-	if (m_velocity.z < EPSILON)
+	if (abs(m_velocity.z) < EPSILON)
 	{
 		m_velocity.z = 0;
 	}
-	*/
 
 	m_location += m_velocity * delta;
-
+	// std::cout << m_location.y << " vs. " << heightmap->GetFloor(m_location) << std::endl;
+	m_location.y = heightmap->GetFloor(m_location);
 	// Update our draw location
 	build_static_transform();
 	// if(m_location.y > heightmap->get_image_value(m_location.x, m_location.z, 0))

@@ -37,25 +37,42 @@ public:
 	Heightmap(std::string name, std::string height_map_file, loadedComponents* scene_tracker);
 	~Heightmap();
 
-	bool LoadHeightMapFromImage(std::string sImagePath);
-
 	void ReleaseHeightmap();
 
 	void draw(GLuint shader);
 
+	/*-----------------------------------------------
+
+	Name:	SetRenderSize
+
+	Params:	fRenderX, fHeight, fRenderZ - enter all 3
+	dimensions separately
+
+	OR
+
+	fQuadSize, fHeight - how big should be one quad
+	of heightmap and height is just height :)
+
+	Result: Sets rendering size (scaling) of heightmap.
+
+	---------------------------------------------*/
 	void SetRenderSize(float fQuadSize, float fHeight);
 	void SetRenderSize(float fRenderX, float fHeight, float fRenderZ);
+
+	float GetFloor(glm::vec3);
 
 	uint32_t GetNumHeightmapRows();
 	uint32_t GetNumHeightmapCols();
 	
-	void setupTextures(std::string);
-	void loadTexture(std::string, std::string);
-
 	char get_image_value(uint32_t, uint32_t, uint8_t);
 
 private:
 	void build_transform();
+
+	void setupTextures(std::string);
+	void loadTexture(std::string, std::string);
+	bool LoadHeightMapFromImage(std::string sImagePath);
+
 	std::string m_name;
 	std::string m_height_file;
 
