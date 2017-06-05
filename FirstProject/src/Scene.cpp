@@ -142,6 +142,9 @@ void Scene::draw()
 
 	if(heightmap)
 		heightmap->draw(active_shader);
+
+	if (player)
+		player->draw(active_shader);
 }
 
 void Scene::tick(GLfloat delta)
@@ -244,22 +247,37 @@ Object * Scene::getObject(std::string scene_object_name)
 		return objects->at(scene_object_name);
 }
 
-void Scene::attachPlayer(Component * object_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation)
+void Scene::attachPlayer(Component * object_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 {
 	removePlayer();
-	player = new Player_Controller(object_pointer, keyboard_input, mouse_buttons, position, rotation, scene_tracker);
+	player = new Player_Controller(object_pointer, keyboard_input, mouse_buttons, position, rotation, scale, scene_tracker, objects, heightmap);
 }
 
-void Scene::attachPlayer(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation)
+void Scene::attachPlayer(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 {
 	removePlayer();
-	player = new Player_Controller(component_file_name, keyboard_input, mouse_buttons, position, rotation, scene_tracker);
+	player = new Player_Controller(component_file_name, keyboard_input, mouse_buttons, position, rotation, scale, scene_tracker, objects, heightmap);
 }
 
 void Scene::removePlayer()
 {
 	if (player)
 		delete player;
+}
+
+bool Scene::hasPlayer()
+{
+	// TODO: I know we could just return the pointer, but is that safe?
+	if (player)
+	{
+		return true;
+	}
+	return false;
+}
+
+Player_Controller * Scene::getPlayer()
+{
+	return player;
 }
 
 void Scene::update_projection()

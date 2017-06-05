@@ -15,20 +15,22 @@
 #include <math.h>
 
 #include "../include/Component.h"
+#include "../include/Object.h"
+#include "../include/Heightmap.h"
 
-enum Character_Movement {
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
-};
+#define EPSILON 0.1
+#define RESISTANCE	0.5
+#define ACCELERATION 2.3
+#define LIMIT_X 12.5	// Average run speed
+#define LIMIT_Y 55.0	// Terminal Velocity
+#define LIMIT_Z 12.5	// Average run speed
 
 class Player_Controller
 {
 public:
 	// Constructor
-	Player_Controller(Component* component_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, loadedComponents* scene_tracker);
-	Player_Controller(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, loadedComponents* scene_tracker);
+	Player_Controller(Component* component_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents* scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap);
+	Player_Controller(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents* scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap);
 
 	// Appearance
 	void set_model(Component* object_pointer);
@@ -41,11 +43,24 @@ public:
 		// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch);
 		// Actions over time
-	void tick(double delta);
+	void tick(GLfloat delta);
+
+	// Collision
+	glm::vec3 get_lower_bounds();
+	glm::vec3 get_upper_bounds();
+
+	glm::vec3* get_location();
 
 private:
+	// Build internal values
 	void build_static_transform();
 	void computer_bounds();
+
+	// Movement
+	const GLfloat m_resistance = RESISTANCE;
+	const GLfloat m_acceleration = ACCELERATION;
+	glm::vec3 m_velocity;
+	glm::vec3 m_limits;
 
 	// Appearance
 	Component* player_model;
@@ -56,11 +71,11 @@ private:
 	glm::vec3 m_lower_bounds;
 	glm::vec3 m_upper_bounds;
 
-	// Movement
+	// Location
 	glm::vec3 m_location;
 	glm::vec3 m_up;
 	glm::vec3 m_right;
-	glm::vec3 m_front;
+	glm::vec3 m_forward;
 	
 	// Rotation Vectors
 	glm::quat m_rotation;
@@ -74,5 +89,8 @@ private:
 	GLfloat MovementSpeed;
 	GLfloat MouseSensitivity;
 
+	// Scene Components
 	loadedComponents* scene_tracker;
+	std::map<std::string, Object*>* objects;
+	Heightmap* heightmap;
 };

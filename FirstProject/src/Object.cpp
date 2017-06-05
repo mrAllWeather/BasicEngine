@@ -151,7 +151,6 @@ void Object::build_static_transform()
 
 	m_transform = glm::scale(m_transform, *m_scale);
 
-
 }
 
 void Object::computer_bounds()

@@ -130,14 +130,23 @@ int main(int argc, char* argv[])
 	// Default to First Shader?
 	current_level->setActiveShader("Debug");
 
-
-	// We can attach lights to locations and set up circling.
+	// Lighting
 	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
 	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 
-	// Configure our look at and circling
-	current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
-	current_level->getActiveCamera()->SetLookFocus(&origin);
+	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.5, 0.5, 0.5));
+
+		// We can attach lights to locations and set up circling.
+	if (current_level->hasPlayer())
+	{
+		current_level->getActiveCamera()->SetCircleFocus(current_level->getPlayer()->get_location(), 2, glm::vec3(0,1,0));
+		current_level->getActiveCamera()->SetLookFocus(current_level->getPlayer()->get_location());
+	}
+	else
+	{
+		current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
+		current_level->getActiveCamera()->SetLookFocus(&origin);
+	}
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -164,7 +173,9 @@ int main(int argc, char* argv[])
 		glfwPollEvents();
 
 		// Player Input
-		Keyboard_Input(delta);
+		// Keyboard_Input(delta);
+		if (current_level->hasPlayer())
+			current_level->getPlayer()->tick(delta);
 
 		// Update Level
 		current_level->tick(delta);

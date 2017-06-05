@@ -77,10 +77,12 @@ public:
 	bool hasObject(std::string);
 	Object* getObject(std::string);
 
-	void attachPlayer(Component* object_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation);
-	void attachPlayer(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation);
+	void attachPlayer(Component* object_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
+	void attachPlayer(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 	void removePlayer();
 	
+	bool hasPlayer();
+	Player_Controller* getPlayer();
 	// TODO
 	// bool attachActor();
 	// uint64_t attachLight();
