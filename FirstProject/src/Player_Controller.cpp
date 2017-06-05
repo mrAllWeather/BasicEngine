@@ -8,16 +8,27 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	this->heightmap = heightmap;
 	this->scene_tracker = scene_tracker;
 
+	// User input
+	this->keyboard_input = keyboard_input;
+	this->mouse_buttons = mouse_buttons;
+
+	// Built in values
 	this->m_limits.x = LIMIT_X;
 	this->m_limits.y = LIMIT_Y;
 	this->m_limits.z = LIMIT_Z;
 
+	this->m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+	this->m_forward = glm::vec3(0.0f, 0.0f, -1.0f);
+	this->m_right = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	// Provided values
 	this->m_location = position;
 	this->m_scale = scale;
 	this->m_rotation = glm::quat(rotation);
 
 	set_model(component_pointer);
 
+	// Build values
 	build_static_transform();
 	computer_bounds();
 }
@@ -29,16 +40,27 @@ Player_Controller::Player_Controller(std::string component_file_name, bool * key
 	this->heightmap = heightmap;
 	this->scene_tracker = scene_tracker;
 
+	// User input
+	this->keyboard_input = keyboard_input;
+	this->mouse_buttons = mouse_buttons;
+
+	// Built in values
 	this->m_limits.x = LIMIT_X;
 	this->m_limits.y = LIMIT_Y;
 	this->m_limits.z = LIMIT_Z;
 
+	this->m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+	this->m_forward = glm::vec3(-1.0f, 0.0f, 0.0f);
+	this->m_right = glm::vec3(0.0f, 0.0f, -1.0f);
+
+	// Provided values
 	this->m_scale = scale;
 	this->m_location = position;
 	this->m_rotation = glm::quat(rotation);
 
 	set_create_model(component_file_name);
 	
+	// Build values
 	build_static_transform();
 	computer_bounds();
 }
@@ -127,8 +149,32 @@ void Player_Controller::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, G
 
 void Player_Controller::tick(GLfloat delta)
 {
+
+	ProcessKeyboard(delta);
+	
+	// Our speed degrades every second
+	m_velocity -= m_velocity * m_resistance * delta;
+
+	// Do not show tiny movement, just stop
+	/*
+	if (m_velocity.x < EPSILON)
+	{
+		m_velocity.x = 0;
+	}
+	if (m_velocity.y < EPSILON)
+	{
+		m_velocity.y = 0;
+	}
+	if (m_velocity.z < EPSILON)
+	{
+		m_velocity.z = 0;
+	}
+	*/
+
 	m_location += m_velocity * delta;
 
+	// Update our draw location
+	build_static_transform();
 	// if(m_location.y > heightmap->get_image_value(m_location.x, m_location.z, 0))
 }
 

@@ -83,11 +83,8 @@ public:
 	
 	bool hasPlayer();
 	Player_Controller* getPlayer();
+
 	// TODO
-	// bool attachActor();
-	// uint64_t attachLight();
-	// void removeActor(Actor*);
-	// void removeLight();
 	// void setSkybox(void); // Pass texture?
 
 private:
@@ -117,23 +114,13 @@ private:
 	
 	ShaderLoader* shader_loader;
 
-
-
-
-
-
-
-
 	// TODO with Actors we will have a tick list
 	// std::vector< Actor*>* scene_tick_list;
 	
-
-
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting
 	// Lights Vector
-	// std::vector<ComplexMesh> Static;
 	// std::vector<Actor> Actors;
 	// Actors Vector
 		// Complex shapes with Update()
@@ -142,5 +129,4 @@ private:
 		// Interpolate between initial rotation and final rotation
 		// Determine change per tick
 		// Allow animation layering?
-	// Height map()?
 };
