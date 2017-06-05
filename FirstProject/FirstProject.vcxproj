@@ -160,6 +160,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ObjLoader.cpp" />
+    <ClCompile Include="src\Player_Controller.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\SceneLoader.cpp" />
     <ClCompile Include="src\Seconds_Per_Frame_Counter.cpp" />

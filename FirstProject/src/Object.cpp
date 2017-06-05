@@ -121,6 +121,27 @@ std::string Object::report_bounds()
 	return report;
 }
 
+bool Object::is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound)
+{
+	// TODO: On Collision make seperate calls to each component to determine true collision
+	// This current logic turns complex objects into a single rectangular prism
+
+	bool x_collision = (lower_bound.x >= m_lower_bounds.x && upper_bound.x <= m_upper_bounds.x) || // Within Bounds
+		(lower_bound.x <= m_lower_bounds.x && upper_bound.x >= m_lower_bounds.x) || // Within Lower
+		(lower_bound.x <= m_upper_bounds.x && upper_bound.x >= m_upper_bounds.x); // Within Hight
+
+	bool y_collision = (lower_bound.y >= m_lower_bounds.y && upper_bound.y <= m_upper_bounds.y) || // Within Bounds
+		(lower_bound.y <= m_lower_bounds.y && upper_bound.y >= m_lower_bounds.y) || // Within Lower
+		(lower_bound.y <= m_upper_bounds.y && upper_bound.y >= m_upper_bounds.y); // Within Hight
+
+	bool z_collision = (lower_bound.z >= m_lower_bounds.z && upper_bound.z <= m_upper_bounds.z) || // Within Bounds
+		(lower_bound.z <= m_lower_bounds.z && upper_bound.z >= m_lower_bounds.z) || // Within Lower
+		(lower_bound.z <= m_upper_bounds.z && upper_bound.z >= m_upper_bounds.z); // Within Hight
+
+	return x_collision & y_collision & z_collision; 
+
+}
+
 void Object::build_static_transform()
 {
 	m_transform = glm::mat4();

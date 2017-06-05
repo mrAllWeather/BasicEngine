@@ -26,6 +26,7 @@
 #include "../include/Light.h"
 #include "../include/Mesh.h"
 #include "../include/Heightmap.h"
+#include "../include/Player_Controller.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run
@@ -76,6 +77,10 @@ public:
 	bool hasObject(std::string);
 	Object* getObject(std::string);
 
+	void attachPlayer(Component* object_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation);
+	void attachPlayer(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation);
+	void removePlayer();
+	
 	// TODO
 	// bool attachActor();
 	// uint64_t attachLight();
@@ -92,6 +97,7 @@ private:
 	std::map<std::string, Camera*>* cameras;
 
 	Heightmap* heightmap;
+	Player_Controller* player;
 
 	glm::mat4 m_transform;
 

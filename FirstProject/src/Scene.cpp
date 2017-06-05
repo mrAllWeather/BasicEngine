@@ -244,6 +244,23 @@ Object * Scene::getObject(std::string scene_object_name)
 		return objects->at(scene_object_name);
 }
 
+void Scene::attachPlayer(Component * object_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation)
+{
+	removePlayer();
+	player = new Player_Controller(object_pointer, keyboard_input, mouse_buttons, position, rotation, scene_tracker);
+}
+
+void Scene::attachPlayer(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation)
+{
+	removePlayer();
+	player = new Player_Controller(component_file_name, keyboard_input, mouse_buttons, position, rotation, scene_tracker);
+}
+
+void Scene::removePlayer()
+{
+	if (player)
+		delete player;
+}
 
 void Scene::update_projection()
 {

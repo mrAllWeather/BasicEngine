@@ -45,6 +45,8 @@ public:
 	glm::vec3 get_upper_bounds();
 	std::string report_bounds();
 
+	bool is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound);
+
 private:
 	void build_static_transform();
 	void computer_bounds();

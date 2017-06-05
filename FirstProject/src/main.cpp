@@ -160,11 +160,11 @@ int main(int argc, char* argv[])
 		// FPS Report
 		spf_report->tick();
 
-		// Player Input
-		Keyboard_Input(delta);
-
 		// Check and call events
 		glfwPollEvents();
+
+		// Player Input
+		Keyboard_Input(delta);
 
 		// Update Level
 		current_level->tick(delta);
@@ -181,9 +181,6 @@ int main(int argc, char* argv[])
 		// Swap Buffers
 		glfwSwapBuffers(window);
 
-		// Hide notes for assessor after 30 seconds (they get in the way)
-		if (currentFrame - start_time > 30)
-			student_note = false;
 	}
 
 	glfwTerminate();
@@ -275,16 +272,9 @@ void Keyboard_Input(float deltaTime)
 			time_since_last_swap = glfwGetTime();
 		}
 	}
-	if (keys[GLFW_KEY_GRAVE_ACCENT])
-	{
-		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
-		{
-			show_details = !show_details;
-			time_since_last_swap = glfwGetTime();
-		}
-	}
 }
 
+// Capture Input via Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	// When user presses the escape key, we set the windowShouldClose property to true,
