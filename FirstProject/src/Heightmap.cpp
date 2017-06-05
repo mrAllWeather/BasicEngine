@@ -109,10 +109,16 @@ float Heightmap::GetFloor(glm::vec3 location)
 	 * Currently we just go to the nearest point and use that values y
 	 * this will probably lead to very choppy movement over low rez terrain
 	*/
-	int x = (int) roundf(((location.x / m_mesh_scale.x) + 1) / 2 * (iCols - 1));
-	int z = (int) roundf(((location.z / m_mesh_scale.z) + 1) / 2 * (iRows - 1));
+	int x = (int) roundf((((location.x / m_mesh_scale.x) + 1) / 2) * (iCols - 1));
+	int z = (int) roundf((((location.z / m_mesh_scale.z) + 1) / 2) * (iRows - 1));
 
-	float base_height = get_image_value(x, z, 1);
+	std::cout << x << ":" << z << std::endl;
+	if (x < 0 || x > iCols || z < 0 || z > iRows)
+	{
+		return 0;
+	}
+
+	float base_height = get_image_value(z, x, 1);
 
 	return (-1 + 2 * base_height / 255) * m_mesh_scale.y;
 }
