@@ -2,7 +2,7 @@
 OS		:= $(shell uname)
 
 CC		:= g++
-CFLAGS 	:= -Wall -Wextra -std=c++11 -O2 
+CFLAGS 	:= -Wall -Wextra -std=c++11 -O2
 LDFLAGS	:=`pkg-config --cflags glfw3 freetype2`
 CLIBS	:=`pkg-config --static --libs glfw3 freetype2` -lGLEW
 
@@ -16,7 +16,7 @@ INCLUDES := $(wildcard $(INCDIR)/*.h)
 OBJECTS := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 
-TARGET = assign3_part1
+TARGET = assign3
 
 # For those who dare compile with Cygwin
 ifeq ($(OS),GYGWIN)
@@ -35,15 +35,10 @@ endif
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJECTS) $(CLIBS)
-	@echo "Compiled "$<" successfully!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CC) -c $< -o $@ $(CFLAGS) $(LDFLAGS)
-	@echo "Compiled "$<" successfully!"
 
 clean:
-	$(RM) $(OBJDIR)/*.o
-
-remove: clean
-	$(RM) $(BINDIR)/$(TARGET)
+	$(RM) $(OBJECTS) $(BINDIR)/$(TARGET)

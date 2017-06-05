@@ -3,17 +3,17 @@
 Scene::Scene(std::string scene_file)
 {
 	// Everything object in our scene
-	
+
 	heightmap = nullptr;
 
 	scene_tracker = new loadedComponents;
 
 	objects = new std::map<std::string, Object*>;
 	cameras = new std::map<std::string, Camera*>;
-	
+
 	lights = new std::map<std::string, Light*>;
 	shader_loader = new ShaderLoader();
-	
+
 	SceneLoader load_scene(scene_file, this);
 
 	std::cerr << "Scene Loader Finished\n";
@@ -22,9 +22,9 @@ Scene::Scene(std::string scene_file)
 	active_camera = this->cameras->begin()->second;
 
 	std::cerr << "Active Components Set\n";
-	
+
 	update_projection();
-	
+
 	std::cerr << "Projection Updated\n";
 
 }
@@ -76,7 +76,7 @@ void Scene::draw()
 
 	glUseProgram(active_shader);
 
-	// -- Light Uniforms -- 
+	// -- Light Uniforms --
 	if (active_light)
 	{
 		GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
@@ -95,7 +95,7 @@ void Scene::draw()
 		glUniform1f(cut_off, active_light->cut_off);
 
 		GLuint outer_cut_off = glGetUniformLocation(active_shader, "light.outer_cut_off");
-		glUniform1f(cut_off, active_light->outer_cut_off);
+		glUniform1f(outer_cut_off, active_light->outer_cut_off);
 
 		GLuint constant = glGetUniformLocation(active_shader, "light.constant");
 		glUniform1f(constant, active_light->constant);
@@ -222,7 +222,7 @@ Light * Scene::getLight(std::string scene_light_name)
 {
 	if (lights->find(scene_light_name) != lights->end())
 		return lights->find(scene_light_name)->second;
-	
+
 	std::cerr << "Light not found: " << scene_light_name << std::endl;
 
 	return nullptr;
@@ -241,7 +241,10 @@ bool Scene::hasObject(std::string scene_object_name)
 Object * Scene::getObject(std::string scene_object_name)
 {
 	if (hasObject(scene_object_name))
+    {
 		return objects->at(scene_object_name);
+    }
+    return nullptr;
 }
 
 
