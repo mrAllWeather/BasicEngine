@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd D:\\BlenderModels\\DAE\\BigHouse_Body\\Cladding_Stucco_White.jpg
+map_Kd Cladding_Stucco_White.jpg
 
 newmtl Polished_Concrete_Old
 Ns 96.078431
@@ -21,7 +21,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd D:\\BlenderModels\\DAE\\BigHouse_Body\\Polished_Concrete_Old.jpg
+map_Kd Polished_Concrete_Old.jpg
 
 newmtl Quartz_Light_Grey
 Ns 96.078431
@@ -32,7 +32,7 @@ Ke 0.000000 0.000000 0.000000
 Ni -1.000000
 d 1.000000
 illum 2
-map_Kd D:\\BlenderModels\\DAE\\BigHouse_Body\\Quartz_Light_Grey.jpg
+map_Kd Quartz_Light_Grey.jpg
 
 newmtl material
 Ns 96.078431
