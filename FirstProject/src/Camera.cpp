@@ -1,21 +1,23 @@
 #include "../include/Camera.h"
 
-Camera::Camera(glm::vec3 position , glm::vec3 up , GLfloat yaw, GLfloat pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+Camera::Camera(glm::vec3 position , glm::vec3 up , GLfloat yaw, GLfloat pitch) : Zoom(ZOOM), Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
 {
 		this->Position = position;
 		this->WorldUp = up;
 		this->Yaw = yaw;
 		this->Pitch = pitch;
 		this->updateCameraVectors();
+        	this->LookAtFocus = nullptr;
 }
 
-Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : Zoom(ZOOM), Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
 {
 	this->Position = glm::vec3(posX, posY, posZ);
 	this->WorldUp = glm::vec3(upX, upY, upZ);
 	this->Yaw = yaw;
 	this->Pitch = pitch;
 	this->updateCameraVectors();
+   	this->LookAtFocus = nullptr;
 }
 
 glm::mat4 Camera::GetViewMatrix()

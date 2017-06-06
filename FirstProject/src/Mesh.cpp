@@ -8,13 +8,9 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	this->name = filename;
 	this->scene_tracker = scene_tracker;
 
-	this->attrib = new tinyobj::attrib_t;
-	this->objects = new std::vector<DrawObject>;
-	this->materials = new std::vector<tinyobj::material_t>;
-	this->shapes = new std::vector<tinyobj::shape_t>;
 	std::string err;
 
-	tinyobj::LoadObj(attrib, shapes, materials, &err, filename.c_str(), base_dir.c_str());
+	tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename.c_str(), base_dir.c_str());
 
 	if (!err.empty())
 	{
@@ -28,8 +24,8 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	bounding_minimum = glm::vec3(std::numeric_limits<float>::max());
 
 	// Add a default material. Set default texture
-	materials->push_back(tinyobj::material_t());
-	materials->at(materials->size() - 1).diffuse_texname = "_default.png";
+	materials.push_back(tinyobj::material_t());
+	materials.at(materials.size() - 1).diffuse_texname = "_default.png";
 
 	setupMesh();
 	setupTextures(base_dir);
@@ -40,26 +36,21 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 
 Mesh::~Mesh()
 {
-	delete materials;
-	delete shapes;
-	delete objects;
-	delete attrib;
-	// Code to free Mesh Details
 }
 
 void Mesh::draw(GLuint shader)
 {
 	// std::cout << "Mesh::Draw\n";
 
-	for (const auto object : *objects)
+	for (const auto object : objects)
 	{
-		if ((object.material_id < materials->size())) {
+		if ((object.material_id < materials.size())) {
 			// -- Texture Uniforms --
 			std::string loc_str = "material[0]";
-			
+
 			// Load diffuse texture
 			glActiveTexture(GL_TEXTURE0);
-			std::string diffuse_texname = materials->at(object.material_id).diffuse_texname;
+			std::string diffuse_texname = materials.at(object.material_id).diffuse_texname;
 			if (scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
 				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
 				glUniform1i(glGetUniformLocation(shader, (loc_str + ".diffuse").c_str()), 0);
@@ -72,7 +63,7 @@ void Mesh::draw(GLuint shader)
 
 			// Load specular texture
 			glActiveTexture(GL_TEXTURE1);
-			std::string specular_texname = materials->at(object.material_id).specular_texname;
+			std::string specular_texname = materials.at(object.material_id).specular_texname;
 			if (scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
 				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
 				glUniform1i(glGetUniformLocation(shader, (loc_str + ".specular").c_str()), 1);
@@ -83,13 +74,13 @@ void Mesh::draw(GLuint shader)
 				glUniform1i(glGetUniformLocation(shader, (loc_str + ".specular").c_str()), 1);
 			}
 
-			// -- Material Uniforms -- 
+			// -- Material Uniforms --
 
 			GLuint diffuseColor = glGetUniformLocation(shader, "material[0].diffuse_color");
-			glUniform3fv(diffuseColor, 1, materials->at(object.material_id).diffuse);
+			glUniform3fv(diffuseColor, 1, materials.at(object.material_id).diffuse);
 
 			GLuint shininess = glGetUniformLocation(shader, "material[0].shininess");
-			glUniform1f(shininess, materials->at(object.material_id).shininess);
+			glUniform1f(shininess, materials.at(object.material_id).shininess);
 
 			GLuint loaded = glGetUniformLocation(shader, "material[0].loaded");
 			glUniform1f(loaded, true);
@@ -102,7 +93,7 @@ void Mesh::draw(GLuint shader)
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);
-		
+
 		// Clean up
 		GLuint loaded = glGetUniformLocation(shader, "material[0].loaded");
 		glUniform1f(loaded, false);
@@ -129,8 +120,8 @@ std::string Mesh::get_scale()
 
 void Mesh::remove_instance()
 {
-	for (size_t m = 0; m < materials->size(); m++) {
-		tinyobj::material_t* mp = &materials->at(m);
+	for (size_t m = 0; m < materials.size(); m++) {
+		tinyobj::material_t* mp = &materials.at(m);
 
 		if (mp->ambient_texname.length() > 0)
 			scene_tracker->Textures->at(mp->ambient_texname).second--;
@@ -171,41 +162,40 @@ void Mesh::remove_instance()
 
 void Mesh::setupMesh()
 {
-	
-	for (size_t s = 0; s < shapes->size(); s++) {
+	for (size_t s = 0; s < shapes.size(); s++) {
 		DrawObject o;
 		std::vector<glm::vec3> vb_pos;  // Buffer for Position
 		std::vector<glm::vec3> vb_norm;  // Buffer for Normal
 		std::vector<glm::vec3> vb_col;  // Buffer for Color
 		std::vector<glm::vec2> vb_tex;	// Buffer for Texture Coords
 
-		for (size_t f = 0; f < shapes->at(s).mesh.indices.size() / 3; f++) {
-			tinyobj::index_t idx0 = shapes->at(s).mesh.indices[3 * f + 0];
-			tinyobj::index_t idx1 = shapes->at(s).mesh.indices[3 * f + 1];
-			tinyobj::index_t idx2 = shapes->at(s).mesh.indices[3 * f + 2];
+		for (size_t f = 0; f < shapes.at(s).mesh.indices.size() / 3; f++) {
+			tinyobj::index_t idx0 = shapes.at(s).mesh.indices[3 * f + 0];
+			tinyobj::index_t idx1 = shapes.at(s).mesh.indices[3 * f + 1];
+			tinyobj::index_t idx2 = shapes.at(s).mesh.indices[3 * f + 2];
 
-			int current_material_id = shapes->at(s).mesh.material_ids[f];
+			int current_material_id = shapes.at(s).mesh.material_ids[f];
 
-			if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials->size()))) {
+			if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {
 				// Invaid material ID. Use default material.
-				current_material_id = materials->size() - 1; // Default material is added to the last item in `materials`.
+				current_material_id = materials.size() - 1; // Default material is added to the last item in `materials`.
 			}
 
 			float diffuse[3];
 			for (size_t i = 0; i < 3; i++) {
-				diffuse[i] = materials->at(current_material_id).diffuse[i];
+				diffuse[i] = materials.at(current_material_id).diffuse[i];
 			}
 			float tc[3][2];
-			if (attrib->texcoords.size() > 0) {
-				assert(attrib->texcoords.size() > 2 * idx0.texcoord_index + 1);
-				assert(attrib->texcoords.size() > 2 * idx1.texcoord_index + 1);
-				assert(attrib->texcoords.size() > 2 * idx2.texcoord_index + 1);
-				tc[0][0] = attrib->texcoords[2 * idx0.texcoord_index];
-				tc[0][1] = 1.0f - attrib->texcoords[2 * idx0.texcoord_index + 1];
-				tc[1][0] = attrib->texcoords[2 * idx1.texcoord_index];
-				tc[1][1] = 1.0f - attrib->texcoords[2 * idx1.texcoord_index + 1];
-				tc[2][0] = attrib->texcoords[2 * idx2.texcoord_index];
-				tc[2][1] = 1.0f - attrib->texcoords[2 * idx2.texcoord_index + 1];
+			if (attrib.texcoords.size() > 0) {
+				assert(attrib.texcoords.size() > static_cast<size_t>(2 * idx0.texcoord_index + 1));
+				assert(attrib.texcoords.size() > static_cast<size_t>(2 * idx1.texcoord_index + 1));
+				assert(attrib.texcoords.size() > static_cast<size_t>(2 * idx2.texcoord_index + 1));
+				tc[0][0] = attrib.texcoords[2 * idx0.texcoord_index];
+				tc[0][1] = 1.0f - attrib.texcoords[2 * idx0.texcoord_index + 1];
+				tc[1][0] = attrib.texcoords[2 * idx1.texcoord_index];
+				tc[1][1] = 1.0f - attrib.texcoords[2 * idx1.texcoord_index + 1];
+				tc[2][0] = attrib.texcoords[2 * idx2.texcoord_index];
+				tc[2][1] = 1.0f - attrib.texcoords[2 * idx2.texcoord_index + 1];
 			}
 			else {
 				tc[0][0] = 0.0f;
@@ -225,9 +215,9 @@ void Mesh::setupMesh()
 				assert(f1 >= 0);
 				assert(f2 >= 0);
 
-				v[0][k] = attrib->vertices[3 * f0 + k];
-				v[1][k] = attrib->vertices[3 * f1 + k];
-				v[2][k] = attrib->vertices[3 * f2 + k];
+				v[0][k] = attrib.vertices[3 * f0 + k];
+				v[1][k] = attrib.vertices[3 * f1 + k];
+				v[2][k] = attrib.vertices[3 * f2 + k];
 				bounding_minimum[k] = std::min(v[0][k], bounding_minimum[k]);
 				bounding_minimum[k] = std::min(v[1][k], bounding_minimum[k]);
 				bounding_minimum[k] = std::min(v[2][k], bounding_minimum[k]);
@@ -237,7 +227,7 @@ void Mesh::setupMesh()
 			}
 
 			float n[3][3];
-			if (attrib->normals.size() > 0) {
+			if (attrib.normals.size() > 0) {
 				int f0 = idx0.normal_index;
 				int f1 = idx1.normal_index;
 				int f2 = idx2.normal_index;
@@ -245,9 +235,9 @@ void Mesh::setupMesh()
 				assert(f1 >= 0);
 				assert(f2 >= 0);
 				for (int k = 0; k < 3; k++) {
-					n[0][k] = attrib->normals[3 * f0 + k];
-					n[1][k] = attrib->normals[3 * f1 + k];
-					n[2][k] = attrib->normals[3 * f2 + k];
+					n[0][k] = attrib.normals[3 * f0 + k];
+					n[1][k] = attrib.normals[3 * f1 + k];
+					n[2][k] = attrib.normals[3 * f2 + k];
 				}
 			}
 			else {
@@ -287,16 +277,16 @@ void Mesh::setupMesh()
 		// Report on Position Date
 		std::cout << "Vertices: " << vb_pos.size() << std::endl;
 
-		o.va, o.vb[0], o.vb[1], o.vb[2], o.vb[3] = 0;
+		o.vb[3] = 0;
 		o.numTriangles = 0;
 
 		// OpenGL viewer does not support texturing with per-face material.
-		if (shapes->at(s).mesh.material_ids.size() > 0 && shapes->at(s).mesh.material_ids.size() > s) {
+		if (shapes.at(s).mesh.material_ids.size() > 0 && shapes.at(s).mesh.material_ids.size() > s) {
 			// Base case
-			o.material_id = shapes->at(s).mesh.material_ids[s];
+			o.material_id = shapes.at(s).mesh.material_ids[s];
 		}
 		else {
-			o.material_id = materials->size() - 1; // = ID for default material.
+			o.material_id = materials.size() - 1; // = ID for default material.
 		}
 
 		// Generate and Bind our VAO
@@ -337,8 +327,7 @@ void Mesh::setupMesh()
 		o.numTriangles = vb_pos.size() / 3;
 		printf("shape[%d] # of triangles = %d\n", static_cast<int>(s),
 				o.numTriangles);
-		
-		objects->push_back(o);
+		objects.push_back(o);
 	}
 
 	for (unsigned int axis = 0; axis < 3; axis++)
@@ -355,15 +344,12 @@ void Mesh::setupMesh()
 		(bounding_maximum.y + bounding_minimum.y) / 2,
 		(bounding_maximum.z + bounding_minimum.z) / 2
 	);
-
-	// Add to our scene tracker
-	scene_tracker->Meshes->insert(std::make_pair(this->name, std::make_pair(this, 1)));
 }
 
 void Mesh::setupTextures(std::string base_dir)
 {
-	for (size_t m = 0; m < materials->size(); m++) {
-		tinyobj::material_t* mp = &materials->at(m);
+	for (size_t m = 0; m < materials.size(); m++) {
+		tinyobj::material_t* mp = &materials.at(m);
 
 		if (mp->ambient_texname.length() > 0)
 			loadTexture(base_dir, mp->ambient_texname);

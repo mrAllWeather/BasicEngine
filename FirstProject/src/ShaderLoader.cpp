@@ -30,10 +30,10 @@ void ShaderLoader::add_shaders(std::vector<std::string> filenames)
 GLuint ShaderLoader::build_program(std::pair<std::string, std::string> shaders)
 {
 	if(!is_program_built(shaders))
-	{	
+	{
 		if(!is_shader_built(shaders.first))
 			load_shader(shaders.first);
-	
+
 		if(!is_shader_built(shaders.second))
 			load_shader(shaders.second);
 
@@ -52,7 +52,7 @@ void ShaderLoader::load_shader(std::string filename)
 	if (in) {
 		in.seekg(0, std::ios::end);
 
-		uint64_t length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle. 
+		uint64_t length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle.
 		GLchar * ShaderSourceCode = new GLchar[length + 1]; // We are reading a c_string so make room for the \0
 
 		in.seekg(0, std::ios::beg);
@@ -76,8 +76,8 @@ void ShaderLoader::load_shader(std::string filename)
 		{
 			printf("ERROR: %s is not .frag nor .vert", filename.c_str());
 		}
-		
-		delete ShaderSourceCode;
+
+		delete[] ShaderSourceCode;
 	}
 	else {
 		std::cout << "ERROR: only " << in.gcount() << " could be read of " << filename << " : SKIPPING" << std::endl;
@@ -131,7 +131,7 @@ void ShaderLoader::build_shader_program(std::pair<std::string, std::string> shad
 
 	std::cout << "Built Shader\n";
 
-	built_programs->emplace(std::make_pair(shaders, ShaderProgram));	
+	built_programs->emplace(std::make_pair(shaders, ShaderProgram));
 }
 
 bool ShaderLoader::is_shader_built(std::string filename)

@@ -46,7 +46,7 @@ uniform vec2 heightmap_scale;
 
 void main()
 {
-	float alpha = (texture(material[0].diffuse, TexCoord)).a; 
+	float alpha = (texture(material[0].diffuse, TexCoord)).a;
 
 	if(alpha < 0.1)
 		discard;
@@ -64,9 +64,9 @@ void main()
 		{
 			lightDir = normalize(light.position - FragPos);
 		}
-		
-		vec3 norm = normalize(Normal);	
-		
+
+		vec3 norm = normalize(Normal);
+
 		vec3 viewDir = normalize(viewPos - FragPos);
 
 		vec3 halfwayDir = normalize(lightDir + viewDir);
@@ -80,7 +80,7 @@ void main()
 		int i = 0;
 		if(is_heightmap)
 		{
-			
+
 			vec2 scaleCoords = vec2((TexCoord.x)/(heightmap_scale.x), (TexCoord.y)/(heightmap_scale.y));
 			vec4 height_details = texture(heightmap, scaleCoords); // If no lights, just show texture
 
@@ -109,7 +109,7 @@ void main()
 
 			// Ambient Calculation
 			ambient = light.ambient * map_diff;
-				
+
 			// Diffuse Calculations
 			diffuse = diff * light.diffuse * map_diff;
 
@@ -121,7 +121,7 @@ void main()
 		{
 			// Ambient Calculation
 			ambient = light.ambient * vec3(texture(material[0].diffuse, TexCoord));
-				
+
 			// Diffuse Calculations
 			diffuse = diff * light.diffuse * vec3(texture(material[0].diffuse, TexCoord));
 
@@ -132,21 +132,21 @@ void main()
 
 		if(light.type == 2) // If Spotlight, soften our edges
 		{
-			float theta = dot(lightDir, normalize(-light.direction)); 
+			float theta = dot(lightDir, normalize(-light.direction));
 			float epsilon = (light.cut_off - light.outer_cut_off);
 			float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
 			diffuse  *= intensity;
 			specular *= intensity;
 		}
-		
+
 		if(light.type == 1 || light.type == 2) // If Point or Spotlight, Apply attenuation
 		{
 			float distance    = length(light.position - FragPos);
-			float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+			float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
-			ambient  *= attenuation;  
+			ambient  *= attenuation;
 			diffuse  *= attenuation;
-			specular *= attenuation;   
+			specular *= attenuation;
 		}
 
 		color =  vec4(ambient + diffuse + specular, alpha);
@@ -156,4 +156,4 @@ void main()
 		color = texture(material[0].diffuse, TexCoord); // If no lights, just show texture
 	}
 
-};
+}

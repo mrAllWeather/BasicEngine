@@ -28,6 +28,9 @@
     <Filter Include="Resource Files\Heightmap">
       <UniqueIdentifier>{3f999391-ff1b-42a5-8fed-74168153a26a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Materials">
+      <UniqueIdentifier>{553f4c43-b67c-4a86-9dc5-d43d5c4fd84f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -171,6 +174,99 @@
     </None>
     <None Include="Statics\test.heightmap">
       <Filter>Resource Files\Heightmap</Filter>
+    </None>
+    <None Include="Materials\Barrel02.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\Beta.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\car-n.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\Craft2.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\cube-simple.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\cube-tex.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\dirt.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\dodec-sub.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_door_bot.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_door_left.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_door_right.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_door_top.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_wall_back_01.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_wall_back_02.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_wall_no_window.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_wall_window.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\f_wall_window_02.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\Grass.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\House2.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\l_wall_house.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\missile2.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\PineTransp.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\PineTree03.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\r_wall_house.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\RedwoodCart2.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\Stone_path.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\t_heightmap.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\tetra.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\TreeStump03.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\uh60.mtl">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="Materials\Wavecraft2.mtl">
+      <Filter>Resource Files\Materials</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

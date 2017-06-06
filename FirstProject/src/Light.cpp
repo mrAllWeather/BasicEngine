@@ -1,6 +1,6 @@
 #include "../include/Light.h"
 
-Light::Light( std::string light_details ) 
+Light::Light( std::string light_details )
 {
 	// Set up local pointers
 	this->location = new glm::vec3;
@@ -16,7 +16,7 @@ Light::Light( std::string light_details )
 	int l_type;
 
 	iss >> name >> l_type;
-	
+
 
 	switch ((light_types)l_type)
 	{
@@ -78,8 +78,6 @@ void Light::tick(GLfloat delta)
 	{
 		// We wish to circle the focused object at a set distance
 		// https://www.opengl.org/discussion_boards/showthread.php/176504-Orbit-around-object
-
-		this->circle_theta = this->circle_theta; // vertical movement
 		this->circle_phi = this->circle_phi + delta; // horizontal movement
 
 		// We take a world offset to allow us control over where the camera is in relation to the object before circling
@@ -130,7 +128,7 @@ void Light::attach_light(glm::vec3 * attach_location, glm::vec3 * attach_directi
 
 	old_location = this->location;
 	old_direction = this->direction;
-	
+
 	this->location = attach_location;
 	this->direction = attach_direction;
 

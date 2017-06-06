@@ -36,7 +36,7 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	std::string LineBuf, component_name;
 	std::stringstream ss;
 
-	
+
 	if (fb.is_open()) {
 		while (std::getline(fb, LineBuf))
 		{
@@ -170,9 +170,9 @@ void Object::computer_bounds()
 		// Upper Bounds
 		glm::vec3 component_upper = component.second->get_upper_bounds();
 
-		m_upper_bounds.x = std::max(component_low.x, m_upper_bounds.x);
-		m_upper_bounds.y = std::max(component_low.y, m_upper_bounds.y);
-		m_upper_bounds.z = std::max(component_low.z, m_upper_bounds.z);
+		m_upper_bounds.x = std::max(component_upper.x, m_upper_bounds.x);
+		m_upper_bounds.y = std::max(component_upper.y, m_upper_bounds.y);
+		m_upper_bounds.z = std::max(component_upper.z, m_upper_bounds.z);
 	}
 
 	// Lower
