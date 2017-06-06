@@ -7,7 +7,7 @@ Camera::Camera(glm::vec3 position , glm::vec3 up , GLfloat yaw, GLfloat pitch) :
 		this->Yaw = yaw;
 		this->Pitch = pitch;
 		this->updateCameraVectors();
-        this->LookAtFocus = nullptr;
+        	this->LookAtFocus = nullptr;
 }
 
 Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : Zoom(ZOOM), Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
@@ -17,7 +17,7 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat up
 	this->Yaw = yaw;
 	this->Pitch = pitch;
 	this->updateCameraVectors();
-    this->LookAtFocus = nullptr;
+   	this->LookAtFocus = nullptr;
 }
 
 glm::mat4 Camera::GetViewMatrix()
