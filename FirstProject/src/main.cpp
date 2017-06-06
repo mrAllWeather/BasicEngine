@@ -322,22 +322,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
-	{
-		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
+	// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
 
-		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
-		current_level->getActiveCamera()->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
-	}
+	// Camera is locked to an actor: lets circle him with mouse
+	current_level->getActiveCamera()->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
 
 	if (mouse_button[GLFW_MOUSE_BUTTON_RIGHT])
 	{
-		// TIL that Zoom works the opposite to the way I thought, high numbers is zoomed out, low numbers zoomed in
-		current_level->getActiveCamera()->Zoom += xoffset * MOUSE_SPEED;
-		if (current_level->getActiveCamera()->Zoom > 3)
-			current_level->getActiveCamera()->Zoom = 3;
-		if (current_level->getActiveCamera()->Zoom < 0.1)
-			current_level->getActiveCamera()->Zoom = 0.1;
+		// On right click update front vector (direction)
+		current_level->getPlayer()->setForwardVector(current_level->getActiveCamera()->Front);
 	}
 
 }

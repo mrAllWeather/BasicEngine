@@ -76,7 +76,7 @@ private:
 
 	// Location
 	glm::vec3 m_location;
-	glm::vec3 m_up;
+	const glm::vec3 m_up = glm::vec3(0,1,0);
 	glm::vec3 m_right;
 	glm::vec3 m_forward;
 	

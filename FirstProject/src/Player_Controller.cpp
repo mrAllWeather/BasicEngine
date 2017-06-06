@@ -17,7 +17,6 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	this->m_limits.y = LIMIT_Y;
 	this->m_limits.z = LIMIT_Z;
 
-	this->m_up = glm::vec3(0.0f, 1.0f, 0.0f);
 	this->m_forward = glm::vec3(0.0f, 0.0f, -1.0f);
 	this->m_right = glm::vec3(1.0f, 0.0f, 0.0f);
 
@@ -54,7 +53,6 @@ Player_Controller::Player_Controller(std::string component_file_name, bool * key
 	this->m_limits.y = LIMIT_Y;
 	this->m_limits.z = LIMIT_Z;
 
-	this->m_up = glm::vec3(0.0f, 1.0f, 0.0f);
 	this->m_forward = glm::vec3(-1.0f, 0.0f, 0.0f);
 	this->m_right = glm::vec3(0.0f, 0.0f, -1.0f);
 
@@ -132,6 +130,8 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 		m_velocity += m_right*m_acceleration*deltaTime;
 	}
 
+	// TODO Add Jump (Required a 'in_air' boolean, code to determine drop by height, 'in_air' being set false on landing)
+
 	if (m_velocity.x > m_limits.x || m_velocity.x < -m_limits.x)
 	{
 		m_velocity.x = glm::min(m_limits.x, m_velocity.x);
@@ -151,7 +151,7 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 
 void Player_Controller::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
 {
-	// TODO: If Mouse_2 held, rotate forward vector
+	// TODO:
 
 }
 
@@ -187,7 +187,17 @@ void Player_Controller::tick(GLfloat delta)
 
 void Player_Controller::setForwardVector(glm::vec3 forward)
 {
-	m_forward = forward;
+	// If we remove the Y compontent, our character won't arbitrarily look up
+	forward = glm::normalize(glm::vec3(forward.x, 0, forward.z));
+	// Apply new rotation
+	glm::quat newRot = glm::rotation(this->m_forward, forward);
+	m_rotation = m_rotation * newRot;
+
+	// Update forward vector
+	this->m_forward = forward;
+	// Compute new right vector
+	m_right = glm::cross(m_forward, m_up);
+
 }
 
 glm::vec3 Player_Controller::get_lower_bounds()
