@@ -168,6 +168,37 @@
     <ClCompile Include="src\tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Materials\Barrel02.mtl" />
+    <None Include="Materials\Beta.mtl" />
+    <None Include="Materials\car-n.mtl" />
+    <None Include="Materials\Craft2.mtl" />
+    <None Include="Materials\cube-simple.mtl" />
+    <None Include="Materials\cube-tex.mtl" />
+    <None Include="Materials\dirt.mtl" />
+    <None Include="Materials\dodec-sub.mtl" />
+    <None Include="Materials\f_door_bot.mtl" />
+    <None Include="Materials\f_door_left.mtl" />
+    <None Include="Materials\f_door_right.mtl" />
+    <None Include="Materials\f_door_top.mtl" />
+    <None Include="Materials\f_wall_back_01.mtl" />
+    <None Include="Materials\f_wall_back_02.mtl" />
+    <None Include="Materials\f_wall_no_window.mtl" />
+    <None Include="Materials\f_wall_window.mtl" />
+    <None Include="Materials\f_wall_window_02.mtl" />
+    <None Include="Materials\Grass.mtl" />
+    <None Include="Materials\House2.mtl" />
+    <None Include="Materials\l_wall_house.mtl" />
+    <None Include="Materials\missile2.mtl" />
+    <None Include="Materials\PineTransp.mtl" />
+    <None Include="Materials\PineTree03.mtl" />
+    <None Include="Materials\RedwoodCart2.mtl" />
+    <None Include="Materials\r_wall_house.mtl" />
+    <None Include="Materials\Stone_path.mtl" />
+    <None Include="Materials\tetra.mtl" />
+    <None Include="Materials\TreeStump03.mtl" />
+    <None Include="Materials\t_heightmap.mtl" />
+    <None Include="Materials\uh60.mtl" />
+    <None Include="Materials\Wavecraft2.mtl" />
     <None Include="Scenes\Blank.scene" />
     <None Include="Scenes\Chopper.scene" />
     <None Include="Scenes\Test.scene" />
