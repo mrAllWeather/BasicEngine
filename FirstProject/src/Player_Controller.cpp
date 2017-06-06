@@ -151,7 +151,7 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 
 void Player_Controller::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
 {
-	// TODO:
+	// PASS - We currently only consider mouse input from the Camera's perspective.
 
 }
 
@@ -179,7 +179,7 @@ void Player_Controller::tick(GLfloat delta)
 
 	m_location += m_velocity * delta;
 
-	m_location.y = heightmap->GetFloor(m_location) + m_height;
+	m_location.y = heightmap->GetFloor(m_location) + 0.1;
 
 	// Update our draw location
 	build_static_transform();

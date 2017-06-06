@@ -134,9 +134,9 @@ int main()
 	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
 	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 
-	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.5, 0.5, 0.5));
+	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.2, 0.2, 0.2));
 
-		// We can attach lights to locations and set up circling.
+	// If a character is present, attach camera there. Otherwise circle origin
 	if (current_level->hasPlayer())
 	{
 		current_level->getActiveCamera()->SetCircleFocus(current_level->getPlayer()->get_location(), 2, glm::vec3(0,1,0));
@@ -173,7 +173,9 @@ int main()
 		glfwPollEvents();
 
 		// Player Input
-		// Keyboard_Input(delta);
+		// System Controls
+		Keyboard_Input(delta);
+		// Character Controls
 		if (current_level->hasPlayer())
 			current_level->getPlayer()->tick(delta);
 
@@ -204,7 +206,7 @@ void Keyboard_Input(float deltaTime)
     // Keeping this input there as we may use it later.
     (void)deltaTime;
 	// Inspection Mode
-	if (keys[GLFW_KEY_D])
+	if (keys[GLFW_KEY_2])
 	{
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && !is_fully_rendered)
 		{
@@ -225,7 +227,7 @@ void Keyboard_Input(float deltaTime)
 		}
 	}
 	// Lighting Mode
-	if (keys[GLFW_KEY_L])
+	if (keys[GLFW_KEY_3])
 	{
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && is_fully_rendered)
 		{
@@ -259,7 +261,7 @@ void Keyboard_Input(float deltaTime)
 		}
 	}
 	// Switch between Lighting / Inspection Mode
-	if(keys[GLFW_KEY_S])
+	if(keys[GLFW_KEY_1])
 	{
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
 		{
