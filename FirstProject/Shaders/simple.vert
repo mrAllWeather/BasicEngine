@@ -24,4 +24,4 @@ void main()
 	Normal = mat3(transpose(inverse(model))) * normal;
 
 	FragPos = position;
-};
+}

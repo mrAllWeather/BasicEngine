@@ -30,7 +30,7 @@ void main()
 	else if(view_mode == 1) // Vertex Normal Mode
 	{
 		vec3 norm = normalize(Normal);
-		color =  vec4(norm, 1.0);	
+		color =  vec4(norm, 1.0);
 	}
 	else if(view_mode == 2) // Diffuse Color Mode
 	{
@@ -41,4 +41,4 @@ void main()
 		color =  vec4(1.0);
 	}
 
-};
+}

@@ -8,10 +8,6 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	this->name = filename;
 	this->scene_tracker = scene_tracker;
 
-	// this->attrib = new tinyobj::attrib_t;
-	// this->objects = new std::vector<DrawObject>;
-	// this->materials = new std::vector<tinyobj::material_t>;
-	// this->shapes = new std::vector<tinyobj::shape_t>;
 	std::string err;
 
 	tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename.c_str(), base_dir.c_str());
@@ -189,16 +185,16 @@ void Mesh::setupMesh()
 				diffuse[i] = materials.at(current_material_id).diffuse[i];
 			}
 			float tc[3][2];
-			if (attrib->texcoords.size() > 0) {
-				assert(attrib->texcoords.size() > static_cast<size_t>(2 * idx0.texcoord_index + 1));
-				assert(attrib->texcoords.size() > static_cast<size_t>(2 * idx1.texcoord_index + 1));
-				assert(attrib->texcoords.size() > static_cast<size_t>(2 * idx2.texcoord_index + 1));
-				tc[0][0] = attrib->texcoords[2 * idx0.texcoord_index];
-				tc[0][1] = 1.0f - attrib->texcoords[2 * idx0.texcoord_index + 1];
-				tc[1][0] = attrib->texcoords[2 * idx1.texcoord_index];
-				tc[1][1] = 1.0f - attrib->texcoords[2 * idx1.texcoord_index + 1];
-				tc[2][0] = attrib->texcoords[2 * idx2.texcoord_index];
-				tc[2][1] = 1.0f - attrib->texcoords[2 * idx2.texcoord_index + 1];
+			if (attrib.texcoords.size() > 0) {
+				assert(attrib.texcoords.size() > static_cast<size_t>(2 * idx0.texcoord_index + 1));
+				assert(attrib.texcoords.size() > static_cast<size_t>(2 * idx1.texcoord_index + 1));
+				assert(attrib.texcoords.size() > static_cast<size_t>(2 * idx2.texcoord_index + 1));
+				tc[0][0] = attrib.texcoords[2 * idx0.texcoord_index];
+				tc[0][1] = 1.0f - attrib.texcoords[2 * idx0.texcoord_index + 1];
+				tc[1][0] = attrib.texcoords[2 * idx1.texcoord_index];
+				tc[1][1] = 1.0f - attrib.texcoords[2 * idx1.texcoord_index + 1];
+				tc[2][0] = attrib.texcoords[2 * idx2.texcoord_index];
+				tc[2][1] = 1.0f - attrib.texcoords[2 * idx2.texcoord_index + 1];
 			}
 			else {
 				tc[0][0] = 0.0f;
