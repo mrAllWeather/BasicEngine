@@ -41,6 +41,8 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 
 	build_component_transform();
 	compute_bounds();
+
+	std::cerr << "Component Bounds (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
 }
 
 Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker)

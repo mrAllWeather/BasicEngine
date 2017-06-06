@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 		glfwPollEvents();
 
 		// Player Input
-		Keyboard_Input(delta);
+		// Keyboard_Input(delta);
 		if (current_level->hasPlayer())
 			current_level->getPlayer()->tick(delta);
 

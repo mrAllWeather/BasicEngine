@@ -45,6 +45,8 @@ public:
 		// Actions over time
 	void tick(GLfloat delta);
 
+	void setForwardVector(glm::vec3);
+
 	// Collision
 	glm::vec3 get_lower_bounds();
 	glm::vec3 get_upper_bounds();
@@ -66,6 +68,7 @@ private:
 	Component* player_model;
 	glm::vec3 m_scale;
 	glm::mat4 m_transform;
+	float m_height;
 	
 	// Collision
 	glm::vec3 m_lower_bounds;

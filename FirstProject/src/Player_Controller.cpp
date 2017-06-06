@@ -31,6 +31,11 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	// Build values
 	build_static_transform();
 	computer_bounds();
+
+	// m_height = ((m_upper_bounds.y - m_lower_bounds.y) / 2.0);
+	// std::cerr << "Player Controller (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
+
+	m_height = 0.5;
 }
 
 Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap)
@@ -63,6 +68,9 @@ Player_Controller::Player_Controller(std::string component_file_name, bool * key
 	// Build values
 	build_static_transform();
 	computer_bounds();
+
+	m_height = ((m_upper_bounds.y - m_lower_bounds.y) / 2.0);
+	std::cerr << "Player Controller (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
 }
 
 void Player_Controller::set_model(Component * component_pointer)
@@ -170,11 +178,16 @@ void Player_Controller::tick(GLfloat delta)
 	}
 
 	m_location += m_velocity * delta;
-	// std::cout << m_location.y << " vs. " << heightmap->GetFloor(m_location) << std::endl;
-	m_location.y = heightmap->GetFloor(m_location);
+
+	m_location.y = heightmap->GetFloor(m_location) + m_height;
+
 	// Update our draw location
 	build_static_transform();
-	// if(m_location.y > heightmap->get_image_value(m_location.x, m_location.z, 0))
+}
+
+void Player_Controller::setForwardVector(glm::vec3 forward)
+{
+	m_forward = forward;
 }
 
 glm::vec3 Player_Controller::get_lower_bounds()

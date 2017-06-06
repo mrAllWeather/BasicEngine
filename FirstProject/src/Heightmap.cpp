@@ -108,19 +108,12 @@ float Heightmap::GetFloor(glm::vec3 location)
 	/* I've reverse engineered the x and y coords (I think!)
 	 * Currently we just go to the nearest point and use that values y
 	 * this will probably lead to very choppy movement over low rez terrain
+	 * ALSO for some reason our x and z values are reversed :S
 	*/
-	int x = (int) roundf((((location.x / m_mesh_scale.x) + 1) / 2) * (iCols - 1));
-	int z = (int) roundf((((location.z / m_mesh_scale.z) + 1) / 2) * (iRows - 1));
 
-	std::cout << x << ":" << z << std::endl;
-	if (x < 0 || x > iCols || z < 0 || z > iRows)
-	{
-		return 0;
-	}
+	uint32_t base_height = get_image_value(location.z, location.x, 0);
 
-	float base_height = get_image_value(z, x, 1);
-
-	return (-1 + 2 * base_height / 255) * m_mesh_scale.y;
+	return (-1 + 2 * (base_height / 255.0)) * m_mesh_scale.y;
 }
 
 void Heightmap::draw(GLuint shader)
@@ -265,17 +258,17 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 		ReleaseHeightmap();
 	}
 
-	int x, y, c;
-	map_image = stbi_load(sImagePath.c_str(), &x, &y, &c, STBI_default);
+	int ix, iz, ic;
+	map_image = stbi_load(sImagePath.c_str(), &ix, &iz, &ic, STBI_default);
 	if (!map_image) {
 		std::cerr << "Unable to load texture: " << sImagePath << std::endl;
 		exit(1);
 	}
 
-	iRows = x;
-	iCols = y;
-	composition = c;
-	uint32_t img_size = x * y;
+	iCols = ix;
+	iRows = iz;
+	composition = ic;
+	uint32_t img_size = ix * iz;
 
 	std::cout << "\tMap Parameters\tX: " << iCols << "\tY: " << iRows << "\tDepth: " << composition << std::endl;
 	// We also require our image to be either 24-bit (classic RGB) or 8-bit (luminance)
@@ -296,16 +289,16 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 
 	std::cerr << "\tBuild Heightmap Vertices" << std::endl;
 
-	for (unsigned int i = 0; i < iRows; i++)
+	for (unsigned int row_idx = 0; row_idx < iRows; row_idx++)
 	{
-		for (unsigned int j = 0; j < iCols; j++)
+		for (unsigned int col_idx = 0; col_idx < iCols; col_idx++)
 		{	
-			uint32_t row = row_step * i;
-			uint32_t col = ptr_inc * j;
+			uint32_t row = row_step * row_idx;
+			uint32_t col = ptr_inc * col_idx;
 
 			// all points will be between -1 and 1, we will then rescale based on m_mesh_scale
-			float x = -1 + 2*(float(j) / (iCols-1));
-			float z = -1 + 2 * (float(i) / (iRows - 1));
+			float x = -1 + 2*  (float(col_idx) / (iCols-1));
+			float z = -1 + 2 * (float(row_idx) / (iRows - 1));
 
 			// We work with Y being up
 			float y = -1 + 2 * (*(map_image + row + col) / 255.0f); // Normalise our colour, then offset
@@ -318,24 +311,24 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 
 			// Set up Normals
 			// Using very interesting code http://www.flipcode.com/archives/Calculating_Vertex_Normals_for_Height_Maps.shtml
-			uint32_t col_next = j < iCols - 1 ? j + 1 : j;
-			uint32_t col_last = j > 0 ? j - 1 : j;
+			uint32_t col_next = col_idx < iCols - 1 ? col_idx + 1 : col_idx;
+			uint32_t col_last = col_idx > 0 ? col_idx - 1 : col_idx;
 
 			col_next *= ptr_inc;
 			col_last *= ptr_inc;
 
 			float sx = *(map_image + row + col_next) - *(map_image + row + col_last);
-			if (j == 0 || j == iCols - 1)
+			if (col_idx == 0 || col_idx == iCols - 1)
 				sx *= 2;
 
-			uint32_t row_next = i < iRows - 1 ? i + 1 : i;
-			uint32_t row_last = i > 0 ? i - 1 : i;
+			uint32_t row_next = row_idx < iRows - 1 ? row_idx + 1 : row_idx;
+			uint32_t row_last = row_idx > 0 ? row_idx - 1 : row_idx;
 
 			row_next *= row_step;
 			row_last *= row_step;
 
 			float sy = *(map_image + row_next + col) - *(map_image + row_last + col);
-			if (i == 0 || i == iRows - 1)
+			if (row_idx == 0 || row_idx == iRows - 1)
 				sy *= 2;
 
 			vb_norm->push_back(glm::normalize(glm::vec3(-sx*m_mesh_scale.y, 2*m_mesh_scale.x, sy*m_mesh_scale.x*m_mesh_scale.y/m_mesh_scale.z)));
@@ -352,19 +345,19 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	// Now create a VBO with heightmap indices
 	std::vector<GLuint>* indices = new std::vector<GLuint>;
 	int iPrimitiveRestartIndex = iRows*iCols;
-	for (unsigned int i = 0; i < iRows-1; i++)
+	for (unsigned int row_idx = 0; row_idx < iRows-1; row_idx++)
 	{
-		for (unsigned int j = 0; j < iCols; j++)
+		for (unsigned int col_idx = 0; col_idx < iCols; col_idx++)
 		{
 			unsigned int tris[2] = { 
-				(j + i* iCols),			// Current Point
-				(j + (i+1)*iCols)		// Point on line below
+				(col_idx + row_idx* iCols),			// Current Point
+				(col_idx + (row_idx+1)*iCols)		// Point on line below
 			};
 			indices->insert(indices->end(), tris, std::end(tris));
 			// std::cout << tris[0] << " " << tris[1] << " ";
 		}
 		// Restart triangle strips
-		if (i < iRows - 2)
+		if (row_idx < iRows - 2)
 		{
 			indices->push_back(iPrimitiveRestartIndex);
 			// std::cout << iPrimitiveRestartIndex;
@@ -545,12 +538,21 @@ glm::vec3 calculate_surface_normal(glm::vec3 const vertex_1, glm::vec3 const ver
 	return normal;
 }
 
-char Heightmap::get_image_value(uint32_t x, uint32_t y, uint8_t channel)
+unsigned char Heightmap::get_image_value(GLfloat x, GLfloat z, uint8_t channel)
 {
-	if(x >= iRows || y >= iCols || channel >= composition)
-		return 0;
+	int local_x = (int) roundf((((x / m_mesh_scale.x) + 1) / 2) * (iCols - 1));
 
-	return *(map_image + channel + x*(iCols * composition) + y * composition);
+	int local_z = (int) roundf((((z / m_mesh_scale.z) + 1) / 2) * (iRows - 1));
+
+	if ((local_x < iRows && local_x >= 0) && (local_z < iCols && local_z >= 0) && (channel < composition && channel >= 0))
+	{	
+		// Value = *(MP + ROW: r_idx * comp * cols + COL: c_idx * comp + channel)
+		int value = *(map_image + (local_x * iCols * composition) + (local_z * composition) + channel);
+		// std::cout << "(" << local_x << ", " << local_z << ") = " << value << std::endl;
+		return value;
+	}
+	
+	return 0;
 }
 
 void Heightmap::build_transform()
