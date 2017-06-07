@@ -1,7 +1,7 @@
 #pragma once
 /* Author: Ben Weatherall (a1617712)
  * Description: Low level component class
- * Contains component VAO, VBO, Shader program and textures. 
+ * Contains component VAO, VBO, Shader program and textures.
  * Handles local transformations of the component within it's parent object.
 */
 
@@ -23,6 +23,7 @@
 
 class Component {
 public:
+    Component();
 	Component(std::string name, std::string static_details, loadedComponents* scene_tracker);
 	Component(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker);
 	~Component();
@@ -40,7 +41,7 @@ private:
 	std::string m_name;
 	std::string m_mesh_name;
 	Mesh* m_Mesh;
-	
+
 	glm::quat* m_rotation;
 	glm::vec3* m_location;
 	glm::vec3* m_scale;

@@ -1,6 +1,14 @@
 #include "../include/Component.h"
 
-Component::Component(std::string name, std::string static_details, loadedComponents* scene_tracker)
+Component::Component() {
+    m_Mesh        = nullptr;
+    m_rotation    = nullptr;
+	m_location    = nullptr;
+	m_scale       = nullptr;
+    scene_tracker = nullptr;
+}
+
+Component::Component(std::string name, std::string static_details, loadedComponents* scene_tracker) : Component()
 {
 	glm::vec3 rotation;
 	this->m_location = new glm::vec3;
@@ -48,7 +56,7 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 	std::cerr << "Component Bounds (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
 }
 
-Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker)
+Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker) : Component()
 {
 	this->m_name = name;
 	this->m_mesh_name = mesh_name;
@@ -71,7 +79,6 @@ Component::~Component()
 	delete m_location;
 	delete m_scale;
 	delete m_rotation;
-
 }
 
 void Component::draw(GLuint shader)

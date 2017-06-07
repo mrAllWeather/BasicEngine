@@ -30,6 +30,7 @@ class Player_Controller
 {
 public:
 	// Constructor
+	Player_Controller();
 	Player_Controller(Component* component_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents* scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap);
 	Player_Controller(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents* scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap);
 

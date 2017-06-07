@@ -5,6 +5,7 @@ Scene::Scene(std::string scene_file)
 	// Everything object in our scene
 
 	heightmap = nullptr;
+    player    = nullptr;
 
 	scene_tracker = new loadedComponents;
 

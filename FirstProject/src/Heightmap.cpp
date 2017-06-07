@@ -15,7 +15,7 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 
 	materials = new std::vector<tinyobj::material_t>;
 
-	
+
 	std::ifstream fb; // FileBuffer
 	fb.open(height_map_file.c_str(), std::ios::in);
 	std::string LineBuf, material_file;
@@ -44,15 +44,15 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 
 	std::cerr << "\tLoading Materials" << std::endl;
 
-	// Load Heightmap Materials	
+	// Load Heightmap Materials
 	std::map<std::string, int>* material_map = new std::map<std::string, int>;
 	std::ifstream mat_fb;
-	mat_fb.open((material_file), std::ios::in);	
+	mat_fb.open((material_file), std::ios::in);
 	std::string warn;
-	if(mat_fb.is_open()) 
+	if(mat_fb.is_open())
 	{
 		tinyobj::LoadMtl(material_map, materials, static_cast<std::istream*>(&mat_fb), &warn);
-	
+
 		if(!warn.empty())
 		{
 			std::cout << "ERROR: Problem loading: " << LineBuf <<
@@ -67,7 +67,7 @@ Heightmap::Heightmap(std::string name, std::string height_map_file, loadedCompon
 
 	delete material_map;
 
-	
+
 	// Add a default material. Set default texture
 	materials->push_back(tinyobj::material_t());
 	materials->at(materials->size() - 1).diffuse_texname = "_default.png";
@@ -147,7 +147,7 @@ void Heightmap::draw(GLuint shader)
 		glActiveTexture(GL_TEXTURE0+(mat_idx*2)+1);
 
 		std::string diffuse_texname = materials->at(mat_idx).diffuse_texname;
-		
+
 		// std::cout << "\tDiffuse: " << (diffuse_texname.length() > 0 ? diffuse_texname : "_default.png") << std::endl;
 
 		if (materials->at(mat_idx).diffuse_texname.length() > 0 && scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
@@ -183,7 +183,7 @@ void Heightmap::draw(GLuint shader)
 			glUniform1i(spec, (mat_idx * 2 + 1));
 		}
 
-		// -- Material Uniforms -- 
+		// -- Material Uniforms --
 		;
 		GLuint diffuseColor = glGetUniformLocation(shader, (loc_str+ ".diffuse_color").c_str());
 		glUniform3fv(diffuseColor, 1, materials->at(mat_idx).diffuse);
@@ -292,7 +292,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	for (unsigned int row_idx = 0; row_idx < iRows; row_idx++)
 	{
 		for (unsigned int col_idx = 0; col_idx < iCols; col_idx++)
-		{	
+		{
 			uint32_t row = row_step * row_idx;
 			uint32_t col = ptr_inc * col_idx;
 
@@ -349,7 +349,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	{
 		for (unsigned int col_idx = 0; col_idx < iCols; col_idx++)
 		{
-			unsigned int tris[2] = { 
+			unsigned int tris[2] = {
 				(col_idx + row_idx* iCols),			// Current Point
 				(col_idx + (row_idx+1)*iCols)		// Point on line below
 			};
@@ -420,7 +420,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	delete vb_col;
 	delete vb_norm;
 	delete vb_tex;
-	
+
 	return true;
 
 }
@@ -429,7 +429,7 @@ void Heightmap::setupTextures(std::string base_dir)
 {
 	for (size_t m = 0; m < materials->size(); m++) {
 		tinyobj::material_t* mp = &materials->at(m);
-					                                
+
 		if (mp->ambient_texname.length() > 0)
 			loadTexture(base_dir, mp->ambient_texname);
 
@@ -544,14 +544,16 @@ unsigned char Heightmap::get_image_value(GLfloat x, GLfloat z, uint8_t channel)
 
 	int local_z = (int) roundf((((z / m_mesh_scale.z) + 1) / 2) * (iRows - 1));
 
-	if ((local_x < iRows && local_x >= 0) && (local_z < iCols && local_z >= 0) && (channel < composition && channel >= 0))
-	{	
+	if ((local_x < static_cast<int>(iRows) && local_x >= 0)
+        && (local_z < static_cast<int>(iCols) && local_z >= 0)
+        && (channel < composition && channel >= 0))
+	{
 		// Value = *(MP + ROW: r_idx * comp * cols + COL: c_idx * comp + channel)
 		int value = *(map_image + (local_x * iCols * composition) + (local_z * composition) + channel);
 		// std::cout << "(" << local_x << ", " << local_z << ") = " << value << std::endl;
 		return value;
 	}
-	
+
 	return 0;
 }
 

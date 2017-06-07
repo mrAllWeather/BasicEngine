@@ -1,7 +1,14 @@
 #include "../include/Player_Controller.h"
 
 #include <fstream>
-Player_Controller::Player_Controller(Component * component_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap)
+
+Player_Controller::Player_Controller() {
+    player_model  = nullptr;
+    scene_tracker = nullptr;
+    heightmap     = nullptr;
+}
+
+Player_Controller::Player_Controller(Component * component_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
 	// Scene Details
 	this->objects = objects;
@@ -37,7 +44,7 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	m_height = 0.5;
 }
 
-Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap)
+Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
 	// Scene Details
 	this->objects = objects;
@@ -164,15 +171,15 @@ void Player_Controller::tick(GLfloat delta)
 	m_velocity -= m_velocity * m_resistance * delta;
 
 	// Do not show tiny movement, just stop
-	if (abs(m_velocity.x) < EPSILON)
+	if (std::abs(m_velocity.x) < EPSILON)
 	{
 		m_velocity.x = 0;
 	}
-	if (abs(m_velocity.y) < EPSILON)
+	if (std::abs(m_velocity.y) < EPSILON)
 	{
 		m_velocity.y = 0;
 	}
-	if (abs(m_velocity.z) < EPSILON)
+	if (std::abs(m_velocity.z) < EPSILON)
 	{
 		m_velocity.z = 0;
 	}
