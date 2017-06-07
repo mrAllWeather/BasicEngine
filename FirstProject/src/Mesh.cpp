@@ -31,6 +31,7 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	setupTextures(base_dir);
 	generateTransform();
 	std::cerr << "Mesh Loaded: " << filename << "\n" << std::endl;
+	std::cerr << "Mesh Bounds (Y): " << bounding_minimum.y << " - " << bounding_maximum.y << "\n" << std::endl;
 }
 
 Mesh::~Mesh()

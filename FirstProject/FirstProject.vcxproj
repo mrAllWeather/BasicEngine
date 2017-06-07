@@ -141,6 +141,7 @@
     <ClInclude Include="include\Light.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\ObjLoader.h" />
+    <ClInclude Include="include\Player_Controller.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\SceneLoader.h" />
     <ClInclude Include="include\Seconds_Per_Frame_Counter.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ObjLoader.cpp" />
+    <ClCompile Include="src\Player_Controller.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\SceneLoader.cpp" />
     <ClCompile Include="src\Seconds_Per_Frame_Counter.cpp" />
