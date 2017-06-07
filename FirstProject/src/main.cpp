@@ -65,7 +65,7 @@ void Keyboard_Input(float deltaTime);
 
 bool SHOW_FPS = false;
 
-int main(int argc, char* argv[])
+int main()
 {
 	double start_time = glfwGetTime();
 
@@ -195,6 +195,8 @@ int main(int argc, char* argv[])
 // Moves/alters the camera positions based on user input
 void Keyboard_Input(float deltaTime)
 {
+    // Keeping this input there as we may use it later.
+    (void)deltaTime;
 	// Inspection Mode
 	if (keys[GLFW_KEY_D])
 	{
@@ -289,6 +291,9 @@ void Keyboard_Input(float deltaTime)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
+    // Silencing warnings for unused vars but needed for OpenGL
+    (void)scancode;
+    (void)mode;
 	// When user presses the escape key, we set the windowShouldClose property to true,
 	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -304,6 +309,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    // Silencing warnings for unused vars but needed for OpenGL
+    (void)window;
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -338,6 +345,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    // Silencing warnings for unused vars but needed for OpenGL
+    (void)window;
+    (void)mods;
 	if (button >= 0 && button <= 8)
 	{
 		if (action == GLFW_PRESS)

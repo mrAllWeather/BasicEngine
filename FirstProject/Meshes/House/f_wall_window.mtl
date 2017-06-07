@@ -1,0 +1,67 @@
+# Blender MTL File: 'None'
+# Material Count: 6
+
+newmtl Cladding_Stucco_White
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd D:\BlenderModels\DAE\BigHouse_Body\Cladding_Stucco_White.jpg
+
+newmtl Granite_Light_Gray
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd D:\BlenderModels\DAE\BigHouse_Body\Granite_Light_Gray.jpg
+
+newmtl Polished_Concrete_Old
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd D:\BlenderModels\DAE\BigHouse_Body\Polished_Concrete_Old.jpg
+
+newmtl Quartz_Light_Grey
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd D:\BlenderModels\DAE\BigHouse_Body\Quartz_Light_Grey.jpg
+
+newmtl Stone_Coursed_Rough
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd D:\BlenderModels\DAE\BigHouse_Body\Stone_Coursed_Rough.jpg
+
+newmtl material
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2

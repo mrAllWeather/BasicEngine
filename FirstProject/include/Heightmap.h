@@ -48,7 +48,7 @@ public:
 
 	uint32_t GetNumHeightmapRows();
 	uint32_t GetNumHeightmapCols();
-	
+
 	void setupTextures(std::string);
 	void loadTexture(std::string, std::string);
 
@@ -67,7 +67,6 @@ private:
 	DrawMap m_map;
 
 	bool bLoaded;
-	bool bShaderProgramLoaded;
 
 	uint32_t iRows;
 	uint32_t iCols;
