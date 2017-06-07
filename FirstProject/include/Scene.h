@@ -26,6 +26,7 @@
 #include "../include/Light.h"
 #include "../include/Mesh.h"
 #include "../include/Heightmap.h"
+#include "../include/Player_Controller.h"
 
 //TODO going to add height and width values for window. This is a poor choice! 
 // Intend to fix in long run
@@ -76,11 +77,14 @@ public:
 	bool hasObject(std::string);
 	Object* getObject(std::string);
 
+	void attachPlayer(Component* object_pointer, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
+	void attachPlayer(std::string component_file_name, bool* keyboard_input, bool* mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
+	void removePlayer();
+	
+	bool hasPlayer();
+	Player_Controller* getPlayer();
+
 	// TODO
-	// bool attachActor();
-	// uint64_t attachLight();
-	// void removeActor(Actor*);
-	// void removeLight();
 	// void setSkybox(void); // Pass texture?
 
 private:
@@ -92,6 +96,7 @@ private:
 	std::map<std::string, Camera*>* cameras;
 
 	Heightmap* heightmap;
+	Player_Controller* player;
 
 	glm::mat4 m_transform;
 
@@ -109,23 +114,13 @@ private:
 	
 	ShaderLoader* shader_loader;
 
-
-
-
-
-
-
-
 	// TODO with Actors we will have a tick list
 	// std::vector< Actor*>* scene_tick_list;
 	
-
-
 	// TODO: Create the following
 	// SkyBox
 	// Ambient Lighting
 	// Lights Vector
-	// std::vector<ComplexMesh> Static;
 	// std::vector<Actor> Actors;
 	// Actors Vector
 		// Complex shapes with Update()
@@ -134,5 +129,4 @@ private:
 		// Interpolate between initial rotation and final rotation
 		// Determine change per tick
 		// Allow animation layering?
-	// Height map()?
 };

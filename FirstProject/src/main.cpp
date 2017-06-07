@@ -44,8 +44,6 @@ Scene* current_level;
 
 // View Mode
 glm::vec3 origin(0.0f);
-bool show_details = false;
-bool student_note = true;
 
 int inspection_mode = 0;
 int lighting_mode = 0;
@@ -132,14 +130,23 @@ int main()
 	// Default to First Shader?
 	current_level->setActiveShader("Debug");
 
-
-	// We can attach lights to locations and set up circling.
+	// Lighting
 	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
 	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
 
-	// Configure our look at and circling
-	current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
-	current_level->getActiveCamera()->SetLookFocus(&origin);
+	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.2, 0.2, 0.2));
+
+	// If a character is present, attach camera there. Otherwise circle origin
+	if (current_level->hasPlayer())
+	{
+		current_level->getActiveCamera()->SetCircleFocus(current_level->getPlayer()->get_location(), 2, glm::vec3(0,1,0));
+		current_level->getActiveCamera()->SetLookFocus(current_level->getPlayer()->get_location());
+	}
+	else
+	{
+		current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
+		current_level->getActiveCamera()->SetLookFocus(&origin);
+	}
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -162,11 +169,15 @@ int main()
 		// FPS Report
 		spf_report->tick();
 
-		// Player Input
-		Keyboard_Input(delta);
-
 		// Check and call events
 		glfwPollEvents();
+
+		// Player Input
+		// System Controls
+		Keyboard_Input(delta);
+		// Character Controls
+		if (current_level->hasPlayer())
+			current_level->getPlayer()->tick(delta);
 
 		// Update Level
 		current_level->tick(delta);
@@ -183,9 +194,6 @@ int main()
 		// Swap Buffers
 		glfwSwapBuffers(window);
 
-		// Hide notes for assessor after 30 seconds (they get in the way)
-		if (currentFrame - start_time > 30)
-			student_note = false;
 	}
 
 	glfwTerminate();
@@ -198,7 +206,7 @@ void Keyboard_Input(float deltaTime)
     // Keeping this input there as we may use it later.
     (void)deltaTime;
 	// Inspection Mode
-	if (keys[GLFW_KEY_D])
+	if (keys[GLFW_KEY_2])
 	{
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && !is_fully_rendered)
 		{
@@ -219,7 +227,7 @@ void Keyboard_Input(float deltaTime)
 		}
 	}
 	// Lighting Mode
-	if (keys[GLFW_KEY_L])
+	if (keys[GLFW_KEY_3])
 	{
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && is_fully_rendered)
 		{
@@ -253,7 +261,7 @@ void Keyboard_Input(float deltaTime)
 		}
 	}
 	// Switch between Lighting / Inspection Mode
-	if(keys[GLFW_KEY_S])
+	if(keys[GLFW_KEY_1])
 	{
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
 		{
@@ -279,16 +287,9 @@ void Keyboard_Input(float deltaTime)
 			time_since_last_swap = glfwGetTime();
 		}
 	}
-	if (keys[GLFW_KEY_GRAVE_ACCENT])
-	{
-		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
-		{
-			show_details = !show_details;
-			time_since_last_swap = glfwGetTime();
-		}
-	}
 }
 
+// Capture Input via Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     // Silencing warnings for unused vars but needed for OpenGL
@@ -323,22 +324,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	if (mouse_button[GLFW_MOUSE_BUTTON_LEFT])
-	{
-		// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
+	// std::cout << "xoffset: " << xoffset << "\tmod: " << xoffset * MOUSE_SPEED << std::endl;
 
-		// We only wish to circle left and right, Not up and down thus 0.0 for yoffset
-		current_level->getActiveCamera()->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
-	}
+	// Camera is locked to an actor: lets circle him with mouse
+	current_level->getActiveCamera()->CircleObject(xoffset * MOUSE_SPEED, yoffset * MOUSE_SPEED);
 
 	if (mouse_button[GLFW_MOUSE_BUTTON_RIGHT])
 	{
-		// TIL that Zoom works the opposite to the way I thought, high numbers is zoomed out, low numbers zoomed in
-		current_level->getActiveCamera()->Zoom += xoffset * MOUSE_SPEED;
-		if (current_level->getActiveCamera()->Zoom > 3)
-			current_level->getActiveCamera()->Zoom = 3;
-		if (current_level->getActiveCamera()->Zoom < 0.1)
-			current_level->getActiveCamera()->Zoom = 0.1;
+		// On right click update front vector (direction)
+		current_level->getPlayer()->setForwardVector(current_level->getActiveCamera()->Front);
 	}
 
 }
