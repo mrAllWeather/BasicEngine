@@ -264,18 +264,15 @@ void Scene::attachPlayer(std::string component_file_name, bool * keyboard_input,
 
 void Scene::removePlayer()
 {
-	if (player)
-		delete player;
+    if (player) {
+        delete player;
+    }
+    player = nullptr;
 }
 
 bool Scene::hasPlayer()
 {
-	// TODO: I know we could just return the pointer, but is that safe?
-	if (player)
-	{
-		return true;
-	}
-	return false;
+	return player != nullptr;
 }
 
 Player_Controller * Scene::getPlayer()

@@ -62,7 +62,7 @@ Player_Controller::Player_Controller(std::string component_file_name, bool * key
 	this->m_rotation = glm::quat(rotation);
 
 	set_create_model(component_file_name);
-	
+
 	// Build values
 	build_static_transform();
 	computer_bounds();
@@ -104,7 +104,7 @@ void Player_Controller::draw(GLuint shader)
 	{
 		player_model->draw(shader);
 	}
-	
+
 }
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
@@ -159,7 +159,7 @@ void Player_Controller::tick(GLfloat delta)
 {
 
 	ProcessKeyboard(delta);
-	
+
 	// Our speed degrades every second
 	m_velocity -= m_velocity * m_resistance * delta;
 
@@ -237,4 +237,3 @@ void Player_Controller::computer_bounds()
 	tmp_vec = m_transform * tmp_vec;
 	m_upper_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
 }
-

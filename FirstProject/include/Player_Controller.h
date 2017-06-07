@@ -21,9 +21,10 @@
 #define EPSILON 0.01
 #define RESISTANCE	1.0
 #define ACCELERATION 2.3
-#define LIMIT_X 12.5	// Average run speed
-#define LIMIT_Y 55.0	// Terminal Velocity
-#define LIMIT_Z 12.5	// Average run speed
+// Below are the Average run speed, terminal velocity and average run speed.
+#define LIMIT_X 12.5
+#define LIMIT_Y 55.0
+#define LIMIT_Z 12.5
 
 class Player_Controller
 {
@@ -69,7 +70,7 @@ private:
 	glm::vec3 m_scale;
 	glm::mat4 m_transform;
 	float m_height;
-	
+
 	// Collision
 	glm::vec3 m_lower_bounds;
 	glm::vec3 m_upper_bounds;
@@ -79,7 +80,7 @@ private:
 	const glm::vec3 m_up = glm::vec3(0,1,0);
 	glm::vec3 m_right;
 	glm::vec3 m_forward;
-	
+
 	// Rotation Vectors
 	glm::quat m_rotation;
 	float Theta = M_PI / 2;
