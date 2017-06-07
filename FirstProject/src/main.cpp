@@ -47,8 +47,8 @@ glm::vec3 origin(0.0f);
 
 int inspection_mode = 0;
 int lighting_mode = 0;
-bool is_fully_rendered; // False = Inspection Mode, True = Lighting Mode
-GLenum fill_mode = GL_LINE;
+bool is_fully_rendered = true; // False = Inspection Mode, True = Lighting Mode
+GLenum fill_mode = GL_FILL;
 
 // View / Focus Swapping
 const double VIEW_SWAP_DELAY = 0.5;	// Only swap view this many times per second
@@ -127,12 +127,13 @@ int main()
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 	current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
-	// Default to First Shader?
-	current_level->setActiveShader("Debug");
+	
+	// Defaulting to active lighting
+	current_level->setActiveShader("Light-Texture");
 
 	// Lighting
-	current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
-	current_level->getLight("RotateLight")->circle_location(&origin, 10.0, origin);
+	// current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
+	current_level->getLight("RotateLight")->circle_location(&origin, 25.0, origin);
 
 	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.2, 0.2, 0.2));
 
@@ -224,40 +225,6 @@ void Keyboard_Input(float deltaTime)
 			}
 			time_since_last_swap = glfwGetTime();
 			current_level->setViewMode(inspection_mode);
-		}
-	}
-	// Lighting Mode
-	if (keys[GLFW_KEY_3])
-	{
-		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY && is_fully_rendered)
-		{
-			lighting_mode++;
-			if (lighting_mode > 3)
-			{
-				lighting_mode = 0;
-			}
-			switch (lighting_mode)
-			{
-			case 0:
-				current_level->setActiveLight("Overhead");
-				std::cout << "Overhead\n";
-				break;
-			case 1:
-				current_level->setActiveLight("CamLight");
-				std::cout << "Cam Light\n";
-				break;
-			case 2:
-				current_level->setActiveLight("RotateLight");
-				std::cout << "Rotating Light\n";
-				break;
-			case 3:
-				current_level->setActiveLight("NULL");
-				std::cout << "Unlit\n";
-				break;
-			default:
-				break;
-			}
-			time_since_last_swap = glfwGetTime();
 		}
 	}
 	// Switch between Lighting / Inspection Mode

@@ -208,10 +208,6 @@
     <None Include="Shaders\debug.vert" />
     <None Include="Shaders\light-texture.frag" />
     <None Include="Shaders\light-texture.vert" />
-    <None Include="Shaders\simple.frag" />
-    <None Include="Shaders\simple.vert" />
-    <None Include="Shaders\text.frag" />
-    <None Include="Shaders\text.vert" />
     <None Include="Statics\chopper.complex" />
     <None Include="Statics\cube.complex" />
     <None Include="Statics\test.heightmap" />

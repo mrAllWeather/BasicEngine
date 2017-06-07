@@ -78,47 +78,62 @@ void Scene::draw()
 	glUseProgram(active_shader);
 
 	// -- Light Uniforms --
-	if (active_light)
+	if (lights->size() > 0)
 	{
-		GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
-		glUniform1i(hasLight, 1);
+		int light_idx = 0;
+		for (auto &light : *lights)
+		{
+			Light* current_light = light.second;
+			if (light_idx >= MAX_LIGHTS)
+			{
+				break;
+			}
 
-		GLuint light_type = glGetUniformLocation(active_shader, "light.type");
-		glUniform1i(light_type, active_light->type);
+			std::string shader_light = "light[" + std::to_string(light_idx) + "].";
 
-		GLuint lightPos = glGetUniformLocation(active_shader, "light.position");
-		glUniform3fv(lightPos, 1, glm::value_ptr(*active_light->location));
+			GLuint hasLight = glGetUniformLocation(active_shader, (shader_light+"enabled").c_str());
+			glUniform1i(hasLight, 1);
 
-		GLuint lightDir = glGetUniformLocation(active_shader, "light.direction");
-		glUniform3fv(lightDir, 1, glm::value_ptr(*active_light->direction));
+			GLuint light_type = glGetUniformLocation(active_shader, (shader_light + "type").c_str());
+			glUniform1i(light_type, current_light->type);
 
-		GLuint cut_off = glGetUniformLocation(active_shader, "light.cut_off");
-		glUniform1f(cut_off, active_light->cut_off);
+			GLuint lightPos = glGetUniformLocation(active_shader, (shader_light + "position").c_str());
+			glUniform3fv(lightPos, 1, glm::value_ptr(*current_light->location));
 
-		GLuint outer_cut_off = glGetUniformLocation(active_shader, "light.outer_cut_off");
-		glUniform1f(outer_cut_off, active_light->outer_cut_off);
+			GLuint lightDir = glGetUniformLocation(active_shader, (shader_light + "direction").c_str());
+			glUniform3fv(lightDir, 1, glm::value_ptr(*current_light->direction));
 
-		GLuint constant = glGetUniformLocation(active_shader, "light.constant");
-		glUniform1f(constant, active_light->constant);
+			GLuint cut_off = glGetUniformLocation(active_shader, (shader_light + "cut_off").c_str());
+			glUniform1f(cut_off, current_light->cut_off);
 
-		GLuint linear = glGetUniformLocation(active_shader, "light.linear");
-		glUniform1f(linear, active_light->linear);
+			GLuint outer_cut_off = glGetUniformLocation(active_shader, (shader_light + "cut_off").c_str());
+			glUniform1f(outer_cut_off, current_light->outer_cut_off);
 
-		GLuint quadratic = glGetUniformLocation(active_shader, "light.quadratic");
-		glUniform1f(quadratic, active_light->quadratic);
+			GLuint constant = glGetUniformLocation(active_shader, (shader_light + "constant").c_str());
+			glUniform1f(constant, current_light->constant);
 
-		GLuint ambient_color = glGetUniformLocation(active_shader, "light.ambient");
-		glUniform3fv(ambient_color, 1, glm::value_ptr(*active_light->ambient));
+			GLuint linear = glGetUniformLocation(active_shader, (shader_light + "linear").c_str());
+			glUniform1f(linear, current_light->linear);
 
-		GLuint specular_color = glGetUniformLocation(active_shader, "light.specular");
-		glUniform3fv(specular_color, 1, glm::value_ptr(*active_light->specular));
+			GLuint quadratic = glGetUniformLocation(active_shader, (shader_light + "quadratic").c_str());
+			glUniform1f(quadratic, current_light->quadratic);
 
-		GLuint diffuse_color = glGetUniformLocation(active_shader, "light.diffuse");
-		glUniform3fv(diffuse_color, 1, glm::value_ptr(*active_light->diffuse));
+			GLuint ambient_color = glGetUniformLocation(active_shader, (shader_light + "ambient").c_str());
+			glUniform3fv(ambient_color, 1, glm::value_ptr(*current_light->ambient));
+
+			GLuint specular_color = glGetUniformLocation(active_shader, (shader_light + "specular").c_str());
+			glUniform3fv(specular_color, 1, glm::value_ptr(*current_light->specular));
+
+			GLuint diffuse_color = glGetUniformLocation(active_shader, (shader_light + "diffuse").c_str());
+			glUniform3fv(diffuse_color, 1, glm::value_ptr(*current_light->diffuse));
+
+			// Increment light sources
+			++light_idx;
+		}
 	}
 	else
 	{
-		GLuint hasLight = glGetUniformLocation(active_shader, "light.active");
+		GLuint hasLight = glGetUniformLocation(active_shader, "light[0].active");
 		glUniform1i(hasLight, 0);
 	}
 
@@ -136,6 +151,7 @@ void Scene::draw()
 	GLuint viewer_mode = glGetUniformLocation(active_shader, "view_mode");
 	glUniform1i(viewer_mode, view_mode);
 
+	// -- Draw Out Scene Components --
 	for(auto object : *objects)
 	{
 		object.second->draw(active_shader);
@@ -146,14 +162,25 @@ void Scene::draw()
 
 	if (player)
 		player->draw(active_shader);
+
+	// -- Turn out Lights back off -- 
+	for (uint32_t light_idx = 0; (light_idx < lights->size() && light_idx < MAX_LIGHTS); ++light_idx)
+	{
+		std::string shader_light = "light[" + std::to_string(light_idx) + "].";
+		GLuint hasLight = glGetUniformLocation(active_shader, (shader_light + "enabled").c_str());
+		glUniform1i(hasLight, 0);
+	}
 }
 
 void Scene::tick(GLfloat delta)
 {
 
 	active_camera->tick();
-	if(active_light)
-		active_light->tick(delta);
+	
+	for (auto light : *lights)
+	{
+		light.second->tick(delta);
+	}
 }
 
 void Scene::setActiveShader(std::string shader_scene_name)
