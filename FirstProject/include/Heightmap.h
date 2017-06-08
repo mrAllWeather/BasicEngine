@@ -9,7 +9,8 @@ to use multiple layers of textures with transitions between them.
 
 ****************************************************************************************/
 
-#define NUMTERRAINSHADERS 3
+#define IMAGE_DEPTH 255.0
+#define NORMAL_UP_DEPTH 64.0
 
 #include <string>
 // GLEW

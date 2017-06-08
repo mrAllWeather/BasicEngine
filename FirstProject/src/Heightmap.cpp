@@ -113,7 +113,7 @@ float Heightmap::GetFloor(glm::vec3 location)
 
 	uint32_t base_height = get_image_value(location.z, location.x, 0);
 
-	return (-1 + 2 * (base_height / 255.0)) * m_mesh_scale.y;
+	return (-1 + 2 * (base_height / IMAGE_DEPTH)) * m_mesh_scale.y;
 }
 
 void Heightmap::draw(GLuint shader)
@@ -238,18 +238,6 @@ uint32_t Heightmap::GetNumHeightmapCols()
 	return iCols;
 }
 
-/*-----------------------------------------------
-
-Name:	LoadHeightMapFromImage
-
-Params:	sImagePath - path to the (optimally) grayscale
-image containing heightmap data.
-
-Result: Loads a heightmap and builds up all OpenGL
-structures for rendering.
-
----------------------------------------------*/
-
 bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 {
 	if (bLoaded)
@@ -284,6 +272,8 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	std::vector< glm::vec3>* vb_pos = new std::vector< glm::vec3>;
 	std::vector<glm::vec3>* vb_norm = new std::vector<glm::vec3>;
 	std::vector<glm::vec3>* vb_col = new std::vector<glm::vec3>;
+	std::vector<glm::vec3>* vb_tan = new std::vector<glm::vec3>;
+	std::vector<glm::vec3>* vb_bitan = new std::vector<glm::vec3>;
 
 	std::vector< glm::vec2>* vb_tex = new std::vector< glm::vec2>;
 
@@ -301,7 +291,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			float z = -1 + 2 * (float(row_idx) / (iRows - 1));
 
 			// We work with Y being up
-			float y = -1 + 2 * (*(map_image + row + col) / 255.0f); // Normalise our colour, then offset
+			float y = -1 + 2 * (*(map_image + row + col) / IMAGE_DEPTH); // Normalise our colour, then offset
 			// std::cout << "(" << x << ", " << y << ", " << z << ") ";
 			// Mesh scaling is applied via transform matrix
 			vb_pos->push_back(glm::vec3(x, y, z));
@@ -311,28 +301,25 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 
 			// Set up Normals
 			// Using very interesting code http://www.flipcode.com/archives/Calculating_Vertex_Normals_for_Height_Maps.shtml
-			uint32_t col_next = col_idx < iCols - 1 ? col_idx + 1 : col_idx;
-			uint32_t col_last = col_idx > 0 ? col_idx - 1 : col_idx;
+			// Explanation of process https://stackoverflow.com/a/34644939/7880704
+			uint32_t col_next = (col_idx < iCols - 1	? col_idx + 1 : col_idx) * ptr_inc;
+			uint32_t col_last = (col_idx > 0			? col_idx - 1 : col_idx) * ptr_inc;
 
-			col_next *= ptr_inc;
-			col_last *= ptr_inc;
-
-			float sx = *(map_image + row + col_next) - *(map_image + row + col_last);
+			float dxdz = (*(map_image + row + col_next) - *(map_image + row + col_last));
 			if (col_idx == 0 || col_idx == iCols - 1)
-				sx *= 2;
+				dxdz *= 2;
 
-			uint32_t row_next = row_idx < iRows - 1 ? row_idx + 1 : row_idx;
-			uint32_t row_last = row_idx > 0 ? row_idx - 1 : row_idx;
 
-			row_next *= row_step;
-			row_last *= row_step;
+			uint32_t row_next = (row_idx < iRows - 1	? row_idx + 1 : row_idx) * row_step;
+			uint32_t row_last = (row_idx > 0			? row_idx - 1 : row_idx) * row_step;
 
-			float sy = *(map_image + row_next + col) - *(map_image + row_last + col);
+			float dydz = *(map_image + row_next + col) - *(map_image + row_last + col);
 			if (row_idx == 0 || row_idx == iRows - 1)
-				sy *= 2;
-
-			vb_norm->push_back(glm::normalize(glm::vec3(-sx*m_mesh_scale.y, 2*m_mesh_scale.x, sy*m_mesh_scale.x*m_mesh_scale.y/m_mesh_scale.z)));
-
+				dydz *= 2;
+			
+			
+			vb_norm->push_back(glm::normalize(glm::vec3(-dxdz*m_mesh_scale.x, NORMAL_UP_DEPTH*m_mesh_scale.y, -dydz*m_mesh_scale.z)));
+			
 			// Set up Base Colour (gonna default to bright pink)
 			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
 		}
