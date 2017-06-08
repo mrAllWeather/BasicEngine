@@ -11,14 +11,14 @@ uniform mat4 view;
 uniform mat4 projection;
 
 out vec2 TexCoord;
-out vec3 vertexColor;
+out vec3 VertexColor;
 out vec3 Normal;
 out vec3 FragPos;
 
 void main()
 {
 	gl_Position = projection * view * object * component * model * vec4(position, 1);
-	vertexColor = color;
+	VertexColor = color;
 	TexCoord = vec2(texCoord.x, texCoord.y);
 	Normal = mat3(transpose(inverse(object * component * model))) * normal;
 	FragPos = vec3(object * component * model * vec4(position, 1.0f));

@@ -22,6 +22,7 @@
 #include <glm/glm.hpp>
 
 #define LIGHT_REGEX "\\t.*"
+#define MAX_LIGHTS 16
 
 enum light_types{
 	lDIRECTIONAL,

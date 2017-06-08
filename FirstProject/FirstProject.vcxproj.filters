@@ -145,18 +145,6 @@
     <None Include="Shaders\light-texture.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\simple.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\simple.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\text.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\text.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="Scenes\Blank.scene">
       <Filter>Resource Files\Scenes</Filter>
     </None>
