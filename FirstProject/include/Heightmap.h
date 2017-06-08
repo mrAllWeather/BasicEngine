@@ -26,7 +26,7 @@ to use multiple layers of textures with transitions between them.
 
 typedef struct {
 	GLuint va;
-	GLuint vb[4];  // vertex buffer
+	GLuint vb[6];  // vertex buffer
 	GLuint idx;
 } DrawMap;
 

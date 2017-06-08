@@ -272,8 +272,6 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	std::vector< glm::vec3>* vb_pos = new std::vector< glm::vec3>;
 	std::vector<glm::vec3>* vb_norm = new std::vector<glm::vec3>;
 	std::vector<glm::vec3>* vb_col = new std::vector<glm::vec3>;
-	std::vector<glm::vec3>* vb_tan = new std::vector<glm::vec3>;
-	std::vector<glm::vec3>* vb_bitan = new std::vector<glm::vec3>;
 
 	std::vector< glm::vec2>* vb_tex = new std::vector< glm::vec2>;
 
@@ -296,6 +294,9 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			// Mesh scaling is applied via transform matrix
 			vb_pos->push_back(glm::vec3(x, y, z));
 
+			// Set up Base Colour (gonna default to bright pink)
+			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
+
 			// We make texture_scale account for what % of the map should be covered by a single texture map_image. TODO Check that is right!
 			vb_tex->push_back(glm::vec2((x+1)/2*m_texture_scale.x, (z+1)/2*m_texture_scale.y));
 
@@ -317,15 +318,10 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			if (row_idx == 0 || row_idx == iRows - 1)
 				dydz *= 2;
 			
-			
 			vb_norm->push_back(glm::normalize(glm::vec3(-dxdz*m_mesh_scale.x, NORMAL_UP_DEPTH*m_mesh_scale.y, -dydz*m_mesh_scale.z)));
-			
-			// Set up Base Colour (gonna default to bright pink)
-			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
 		}
 		// std::cout << std::endl;
 	}
-
 	std::cout << vb_pos->size() << " points generated\n" << std::endl;
 
 	std::cout << "Generate Heightmap indices\n" << std::endl;
@@ -356,6 +352,79 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 
 	std::cout << indices->size() << " indices generated\n" << std::endl;
 
+	std::cout << "Generate Tangents and Bitangents" << std::endl;
+
+	std::vector<glm::vec3>* vb_tan = new std::vector<glm::vec3>;
+	std::vector<glm::vec3>* vb_bitan = new std::vector<glm::vec3>;
+	vb_tan->resize(vb_pos->size());
+	vb_bitan->resize(vb_pos->size());
+
+	for (uint32_t idx = 0; idx < indices->size()-(iCols); idx += 2)
+	{
+		GLuint current = indices->at(idx);
+		GLuint below = indices->at(idx+1);
+		GLuint across = indices->at(idx+2);
+		GLuint across_below = indices->at(idx+3);
+
+		if (current == iPrimitiveRestartIndex || across == iPrimitiveRestartIndex)
+		{
+			idx += 1; // Shift back one to compensate for restart value
+			continue;
+		}
+
+		// std::cout << current << " : " << below << " : " << across << " : " << across_below << "\n";
+
+		// Prep our values
+		glm::vec3 tangent, bitangent, edge1, edge2;
+		glm::vec2 deltaUV1, deltaUV2;
+		GLfloat scalar;
+
+		// Triangle 1 (Upper)
+		edge1 = vb_pos->at(below) - vb_pos->at(current);
+		edge2 = vb_pos->at(across) - vb_pos->at(current);
+		deltaUV1 = vb_tex->at(below) - vb_tex->at(current);
+		deltaUV2 = vb_tex->at(across) - vb_tex->at(current);
+
+		scalar = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		tangent.x = scalar * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = scalar * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = scalar * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent = glm::normalize(tangent);
+
+		bitangent.x = scalar * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = scalar * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = scalar * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent = glm::normalize(bitangent);
+
+		vb_tan->at(current) = tangent;
+		vb_bitan->at(current) = bitangent;
+		vb_tan->at(below) = tangent;
+		vb_bitan->at(below) = bitangent;
+
+		// Triangle 2 (Lower)
+		edge1 = vb_pos->at(below) - vb_pos->at(across_below);
+		edge2 = vb_pos->at(across) - vb_pos->at(across_below);
+		deltaUV1 = vb_tex->at(below) - vb_tex->at(across_below);
+		deltaUV2 = vb_tex->at(across) - vb_tex->at(across_below);
+
+		scalar = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		tangent.x = scalar * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = scalar * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = scalar * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent = glm::normalize(tangent);
+
+		bitangent.x = scalar * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = scalar * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = scalar * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent = glm::normalize(bitangent);
+
+		vb_tan->at(across) = tangent;
+		vb_bitan->at(across) = bitangent;
+		vb_tan->at(across_below) = tangent;
+		vb_bitan->at(across_below) = bitangent;
+	}
+
+
 	std::cout << "Bind Array Objects\n" << std::endl;
 
 	// Gen and Bind our VAO
@@ -363,7 +432,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	glBindVertexArray(m_map.va);
 
 	// Generate our VBO's
-	glGenBuffers(4, m_map.vb);
+	glGenBuffers(6, m_map.vb);
 
 	// Bind Vertex Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[0]);
@@ -389,6 +458,18 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
+	// Bind Tangent Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[4]);
+	glBufferData(GL_ARRAY_BUFFER, vb_tan->size() * sizeof(glm::vec3), vb_tan->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Bind Bitangent Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[5]);
+	glBufferData(GL_ARRAY_BUFFER, vb_bitan->size() * sizeof(glm::vec3), vb_bitan->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
 	// And now attach index data to this VAO
 	// Here don't forget to bind another type of VBO - the element array buffer, or simplier indices to vertices
 	glGenBuffers(1, &m_map.idx);
@@ -407,6 +488,8 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	delete vb_col;
 	delete vb_norm;
 	delete vb_tex;
+	delete vb_tan;
+	delete vb_bitan;
 
 	return true;
 
