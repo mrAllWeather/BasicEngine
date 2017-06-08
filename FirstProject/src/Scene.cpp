@@ -133,7 +133,7 @@ void Scene::draw()
 	}
 	else
 	{
-		GLuint hasLight = glGetUniformLocation(active_shader, "light[0].active");
+		GLuint hasLight = glGetUniformLocation(active_shader, "light[0].enabled");
 		glUniform1i(hasLight, 0);
 	}
 
