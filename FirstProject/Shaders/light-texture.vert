@@ -10,16 +10,17 @@ uniform mat4 object;
 uniform mat4 view;
 uniform mat4 projection;
 
-out vec2 TexCoord;
-out vec3 VertexColor;
-out vec3 Normal;
-out vec3 FragPos;
+out Vert {
+	vec2 TexCoord;
+	vec3 Normal;
+	vec3 FragPos;
+} vs_out;
 
 void main()
 {
+	vs_out.TexCoord = vec2(texCoord.x, texCoord.y);
+	vs_out.Normal = mat3(transpose(inverse(object * component * model))) * normal;
+	vs_out.FragPos = vec3(object * component * model * vec4(position, 1.0f));
+
 	gl_Position = projection * view * object * component * model * vec4(position, 1);
-	VertexColor = color;
-	TexCoord = vec2(texCoord.x, texCoord.y);
-	Normal = mat3(transpose(inverse(object * component * model))) * normal;
-	FragPos = vec3(object * component * model * vec4(position, 1.0f));
 }

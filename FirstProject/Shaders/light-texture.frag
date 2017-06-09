@@ -39,10 +39,11 @@ struct MixedMaterial {
 	float shininess;
 };
 
-in vec2 TexCoord;
-in vec3 VertexColor;
-in vec3 Normal;
-in vec3 FragPos;
+in Vert {
+	vec2 TexCoord;
+	vec3 Normal;
+	vec3 FragPos;
+} vs_out;
 
 out vec4 color;
 
@@ -74,7 +75,7 @@ void main()
 	{
 		if(material[mat_idx].loaded)
 		{
-			float alpha = (texture(material[mat_idx].diffuse, TexCoord)).a;
+			float alpha = (texture(material[mat_idx].diffuse, vs_out.TexCoord)).a;
 			if(alpha >= 0.1)
 			{
 				will_discard = false;
@@ -93,8 +94,8 @@ void main()
 
 
 	// Fragment Specific Values
-	vec3 norm = normalize(Normal);
-	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 norm = normalize(vs_out.Normal);
+	vec3 viewDir = normalize(viewPos - vs_out.FragPos);
 
 	vec3 result = vec3(0);
 
@@ -103,7 +104,7 @@ void main()
 	{
 		MixedMaterial mixed_material;
 		// Determine out Material Mix
-		vec2 scaleCoords = vec2((TexCoord.x)/(heightmap_scale.x), (TexCoord.y)/(heightmap_scale.y));
+		vec2 scaleCoords = vec2((vs_out.TexCoord.x)/(heightmap_scale.x), (vs_out.TexCoord.y)/(heightmap_scale.y));
 		vec4 height_details = texture(heightmap, scaleCoords); // If no lights, just show texture
 
 		// Scale each supplied material
@@ -118,13 +119,13 @@ void main()
 		float tier_1_scale = 1 - tier_0_scale - tier_2_scale;
 
 		// Combine materials into a single mixed material
-		mixed_material.diffuse = tier_0_scale * vec3(texture(material[0].diffuse, TexCoord)) +
-				tier_1_scale * vec3(texture(material[1].diffuse, TexCoord)) +
-				tier_2_scale * vec3(texture(material[2].diffuse, TexCoord));
+		mixed_material.diffuse = tier_0_scale * vec3(texture(material[0].diffuse, vs_out.TexCoord)) +
+				tier_1_scale * vec3(texture(material[1].diffuse, vs_out.TexCoord)) +
+				tier_2_scale * vec3(texture(material[2].diffuse, vs_out.TexCoord));
 
-		mixed_material.specular = tier_0_scale * vec3(texture(material[0].specular, TexCoord)) +
-			tier_1_scale * vec3(texture(material[1].specular, TexCoord)) +
-			tier_2_scale * vec3(texture(material[2].specular, TexCoord));
+		mixed_material.specular = tier_0_scale * vec3(texture(material[0].specular, vs_out.TexCoord)) +
+			tier_1_scale * vec3(texture(material[1].specular, vs_out.TexCoord)) +
+			tier_2_scale * vec3(texture(material[2].specular, vs_out.TexCoord));
 
 		mixed_material.shininess = tier_0_scale * material[0].shininess +
 			tier_1_scale * material[1].shininess +
@@ -141,10 +142,10 @@ void main()
 					result += CalcDirLight(light[light_idx], norm, viewDir, mixed_material);
 					break;
 				case 1:
-					result += CalcPointLight(light[light_idx], norm, FragPos, viewDir, mixed_material);
+					result += CalcPointLight(light[light_idx], norm, vs_out.FragPos, viewDir, mixed_material);
 					break;
 				case 2:
-					result += CalcSpotLight(light[light_idx], norm, FragPos, viewDir, mixed_material);
+					result += CalcSpotLight(light[light_idx], norm, vs_out.FragPos, viewDir, mixed_material);
 					break;
 				default:
 					break;
@@ -164,10 +165,10 @@ void main()
 					result += CalcDirLight(light[light_idx], norm, viewDir, material[0]);
 					break;
 				case 1:
-					result += CalcPointLight(light[light_idx], norm, FragPos, viewDir, material[0]);
+					result += CalcPointLight(light[light_idx], norm, vs_out.FragPos, viewDir, material[0]);
 					break;
 				case 2:
-					result += CalcSpotLight(light[light_idx], norm, FragPos, viewDir, material[0]);
+					result += CalcSpotLight(light[light_idx], norm, vs_out.FragPos, viewDir, material[0]);
 					break;
 				default:
 					break;
@@ -189,9 +190,9 @@ vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir, Material material)
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoord));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, vs_out.TexCoord));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, vs_out.TexCoord));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, vs_out.TexCoord));
     return (ambient + diffuse + specular);
 }
 
@@ -208,9 +209,9 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, Materi
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoord));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, vs_out.TexCoord));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, vs_out.TexCoord));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, vs_out.TexCoord));
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
@@ -234,9 +235,9 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, Materia
     float epsilon = light.cut_off - light.outer_cut_off;
     float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoord));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, vs_out.TexCoord));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, vs_out.TexCoord));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, vs_out.TexCoord));
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
