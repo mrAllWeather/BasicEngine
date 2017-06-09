@@ -184,9 +184,17 @@ void Player_Controller::tick(GLfloat delta)
 		m_velocity.z = 0;
 	}
 
-	m_location += m_velocity * delta;
-
-	m_location.y = heightmap->GetFloor(m_location) + 0.1;
+	glm::vec3 next_location = m_location + m_velocity * delta;
+	if (heightmap->get_image_value(next_location.x, next_location.z, 2) == 0)
+	{
+		m_location = next_location;
+		m_location.y = heightmap->GetFloor(m_location) + 0.1;
+	}
+	else
+	{
+		// Pass (we can't move there)
+	}
+	
 
 	// Update our draw location
 	build_static_transform();
