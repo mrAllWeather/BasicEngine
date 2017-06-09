@@ -406,15 +406,17 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 		tangent.z = scalar * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 		tangent = glm::normalize(tangent);
 
+		/*
 		bitangent.x = scalar * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
 		bitangent.y = scalar * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
 		bitangent.z = scalar * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		bitangent = glm::normalize(bitangent);
+		*/
 
 		vb_tan->at(current) = tangent;
-		vb_bitan->at(current) = bitangent;
+		vb_bitan->at(current) = glm::cross(tangent, vb_norm->at(current));
 		vb_tan->at(below) = tangent;
-		vb_bitan->at(below) = bitangent;
+		vb_bitan->at(below) = glm::cross(tangent, vb_norm->at(below)); 
 
 		// Triangle 2 (Lower)
 		edge1 = vb_pos->at(below) - vb_pos->at(across_below);
@@ -428,15 +430,17 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 		tangent.z = scalar * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 		tangent = glm::normalize(tangent);
 
+		/*
 		bitangent.x = scalar * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
 		bitangent.y = scalar * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
 		bitangent.z = scalar * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		bitangent = glm::normalize(bitangent);
+		*/
 
 		vb_tan->at(across) = tangent;
-		vb_bitan->at(across) = bitangent;
+		vb_bitan->at(across) = glm::cross(tangent, vb_norm->at(across));;
 		vb_tan->at(across_below) = tangent;
-		vb_bitan->at(across_below) = bitangent;
+		vb_bitan->at(across_below) = glm::cross(tangent, vb_norm->at(across_below));;
 	}
 
 

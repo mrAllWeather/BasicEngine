@@ -7,6 +7,6 @@ Lights:
 	RotateLight 1	0.0 0.0 0.0 	1.0 1.0 0.0 	1.0 0.99 0.5 	1.0 1.0 0.0		0.045 0.0075
 Statics:
 	House_0	./Statics/house.complex	1.5 1.0 1.5		5.0 0.3 5.0		0.0 0.0 0.0
-	House_1	./Statics/house.complex	1.0 1.0 1.0		0.0 0.3 0.0		0.0 0.0 0.0
+	House_1	./Statics/old_house.complex	1.0 1.0 1.0		0.0 0.3 0.0		0.0 0.0 0.0
 Heightmap:
 	./Statics/test.heightmap

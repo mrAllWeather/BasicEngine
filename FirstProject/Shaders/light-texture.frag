@@ -113,11 +113,11 @@ void main()
 
 		// Scale each supplied material
 		float tier_0_scale = height_details.g;
-		if(tier_0_scale < 0.70)
+		if(tier_0_scale < 0.60)
 			tier_0_scale = 0;
 
 		float tier_2_scale = 1 - height_details.g;
-		if(tier_2_scale < 0.70)
+		if(tier_2_scale < 0.60)
 			tier_2_scale = 0;
 
 		float tier_1_scale = 1 - tier_0_scale - tier_2_scale;
