@@ -1,4 +1,6 @@
 #include "../include/SceneLoader.h"
+#include <algorithm>
+
 
 SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 {
@@ -61,7 +63,9 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				if (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
 				{
 					// Clean Up leading spaces
-					LineBuf = std::regex_replace(LineBuf, std::regex("^[ \t]+"), "");
+					LineBuf.erase(std::remove(LineBuf.begin(), LineBuf.end(), '\t'), LineBuf.end());
+					LineBuf.erase(std::remove(LineBuf.begin(), LineBuf.end(), ' '), LineBuf.end());
+					//LineBuf = std::regex_replace(LineBuf, std::regex("^[ \t]+"), "");
 					std::cout << LineBuf << std::endl;
 					scene->setHeightmap(LineBuf);
 

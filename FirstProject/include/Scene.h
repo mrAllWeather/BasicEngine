@@ -53,7 +53,8 @@ public:
 	void attachShader(std::string shader_scene_name, std::string vertex_file, std::string fragment_file);
 
 	void draw();
-
+	void rendSky();
+	
 	void tick(GLfloat delta); // Update All Actors
 
 	void setActiveShader(std::string);

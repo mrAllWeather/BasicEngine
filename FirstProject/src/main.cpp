@@ -27,6 +27,7 @@
 #include "../include/SceneLoader.h"
 #include "../include/tiny_obj_loader.h"
 #include "../include/File_IO.h"
+#include "../include/Skybox.h"
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -127,6 +128,7 @@ int main()
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 	current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
+	current_level->attachShader("Skybox", "./Shaders/skybox.vert", "./Shaders/skybox.frag");
 	
 	// Defaulting to active lighting
 	current_level->setActiveShader("Light-Texture");
@@ -148,6 +150,7 @@ int main()
 		current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
 		current_level->getActiveCamera()->SetLookFocus(&origin);
 	}
+	Skybox* sky = new Skybox();
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -163,6 +166,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// Frame Delta
+		current_level->setActiveShader("Light-Texture");
 		lastFrame = currentFrame;
 		currentFrame = glfwGetTime();
 		delta = currentFrame - lastFrame;
@@ -191,6 +195,18 @@ int main()
 		current_level->draw();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		
+		current_level->setActiveShader("Skybox");
+		
+		current_level->rendSky();
+			
+		glDepthFunc(GL_LEQUAL);
+		glBindVertexArray(sky->skyVaoId);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, sky->skyTexId);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
