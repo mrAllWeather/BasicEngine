@@ -43,6 +43,10 @@ in Vert {
 	vec2 TexCoord;
 	vec3 Normal;
 	vec3 FragPos;
+
+	vec3 TangentLightPos [ MAX_LIGHTS ];
+	vec3 TangentViewPos;
+	vec3 TangentFragPos;
 } vs_out;
 
 out vec4 color;
