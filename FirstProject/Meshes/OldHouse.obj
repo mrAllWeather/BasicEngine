@@ -1,7 +1,7 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
 # File Created: 18.05.2016 20:36:55
 
-OldHouse.mtl
+mtllib OldHouse.mtl
 
 #
 # object Plants_1_3Dislands_blogspot_com

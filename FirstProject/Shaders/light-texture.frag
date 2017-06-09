@@ -74,13 +74,14 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, MixedMa
 void main()
 {
 	// Check to see if any of our assigned materials actually show up (alpha over 10%), else discard the fragment
+
 	bool will_discard = true;
 	for(int mat_idx = 0; mat_idx < MAX_MATERIALS; ++mat_idx)
 	{
 		if(material[mat_idx].loaded)
 		{
 			float alpha = (texture(material[mat_idx].diffuse, vs_out.TexCoord)).a;
-			if(alpha >= 0.1)
+			if(alpha >= 0.01)
 			{
 				will_discard = false;
 			}
