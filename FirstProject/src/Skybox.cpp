@@ -1,5 +1,6 @@
 #include "../include/Skybox.h"
-
+#include <iostream>
+#include <fstream>
 #ifndef STB_IMAGE_IMPLEMENTATION
 
 #include "../include/stb_image.h"
@@ -8,12 +9,12 @@
 Skybox::Skybox(){
 	std::vector<const GLchar*> faces;
 
-	faces.push_back("materials/posx.jpg"); 
-	faces.push_back("materials/negx.jpg");	
-	faces.push_back("materials/posy.jpg");	
-	faces.push_back("materials/negy.jpg"); 		
-	faces.push_back("materials/posz.jpg"); 
-	faces.push_back("materials/negz.jpg"); 	
+	faces.push_back("Materials/posx.tga"); 
+	faces.push_back("Materials/negx.tga");	
+	faces.push_back("Materials/posy.tga");	
+	faces.push_back("Materials/negy.tga"); 		
+	faces.push_back("Materials/posz.tga"); 
+	faces.push_back("Materials/negz.tga"); 	
 	skyVaoId = CreateVao();
 	skyTexId = loadCubeTex(faces);  
 }
@@ -108,7 +109,7 @@ GLuint Skybox::loadCubeTex(std::vector<const GLchar*> faces){
       &n,
       0
       );
-
+		
       glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
             GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, data
