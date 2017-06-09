@@ -144,43 +144,58 @@ void Heightmap::draw(GLuint shader)
 
 		// std::cout << "Loading " << loc_str << " : " << materials->at(mat_idx).name << std::endl;
 		// Load diffuse texture
-		glActiveTexture(GL_TEXTURE0+(mat_idx*2)+1);
+		glActiveTexture(GL_TEXTURE0+(mat_idx * TEXTURE_MAPS)+1);
 
 		std::string diffuse_texname = materials->at(mat_idx).diffuse_texname;
-
-		// std::cout << "\tDiffuse: " << (diffuse_texname.length() > 0 ? diffuse_texname : "_default.png") << std::endl;
 
 		if (materials->at(mat_idx).diffuse_texname.length() > 0 && scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
 			GLuint dif = glGetUniformLocation(shader, (loc_str + ".diffuse").c_str());
 
-			glUniform1i(dif, (mat_idx * 2)+1);
+			glUniform1i(dif, (mat_idx * TEXTURE_MAPS)+1);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
 			GLuint dif = glGetUniformLocation(shader, (loc_str + ".diffuse").c_str());
 
-			glUniform1i(dif, (mat_idx * 2)+1);
+			glUniform1i(dif, (mat_idx * TEXTURE_MAPS)+1);
 		}
 
 		// Load specular texture
-		glActiveTexture(GL_TEXTURE0+ (mat_idx * 2+1)+1);
+		glActiveTexture(GL_TEXTURE0+ (mat_idx * TEXTURE_MAPS) + 2);
 		std::string specular_texname = materials->at(mat_idx).specular_texname;
 
-		// std::cout << "\tSpecular: " << (specular_texname.length() > 0 ? specular_texname : "_default.png") << std::endl;
 		if (materials->at(mat_idx).specular_texname.length() > 0 && scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
 			GLuint spec = glGetUniformLocation(shader, (loc_str + ".specular").c_str());
 
-			glUniform1i(spec,  (mat_idx * 2 + 1)+1);
+			glUniform1i(spec,  (mat_idx * TEXTURE_MAPS) + 2);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
 			GLuint spec = glGetUniformLocation(shader, (loc_str + ".specular").c_str());
 
-			glUniform1i(spec, (mat_idx * 2 + 1));
+			glUniform1i(spec, (mat_idx * TEXTURE_MAPS) + 2);
+		}
+
+		// Load specular texture
+		glActiveTexture(GL_TEXTURE0 + (mat_idx * TEXTURE_MAPS) + 3);
+		std::string normal_texname = materials->at(mat_idx).normal_texname;
+
+		if (materials->at(mat_idx).normal_texname.length() > 0 && scene_tracker->Textures->find(normal_texname) != scene_tracker->Textures->end()) {
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(normal_texname).first);
+			GLuint spec = glGetUniformLocation(shader, (loc_str + ".normal").c_str());
+
+			glUniform1i(spec, (mat_idx * TEXTURE_MAPS) + 3);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+			GLuint spec = glGetUniformLocation(shader, (loc_str + ".normal").c_str());
+
+			glUniform1i(spec, (mat_idx * TEXTURE_MAPS) + 3);
 		}
 
 		// -- Material Uniforms --

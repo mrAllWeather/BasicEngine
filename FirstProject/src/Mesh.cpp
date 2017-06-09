@@ -74,6 +74,19 @@ void Mesh::draw(GLuint shader)
 				glUniform1i(glGetUniformLocation(shader, (loc_str + ".specular").c_str()), 1);
 			}
 
+			// Load normal texture
+			glActiveTexture(GL_TEXTURE2);
+			std::string normal_texname = materials.at(object.material_id).normal_texname;
+			if (scene_tracker->Textures->find(normal_texname) != scene_tracker->Textures->end()) {
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(normal_texname).first);
+				glUniform1i(glGetUniformLocation(shader, (loc_str + ".normal").c_str()), 2);
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+				glUniform1i(glGetUniformLocation(shader, (loc_str + ".normal").c_str()), 2);
+			}
+
 			// -- Material Uniforms --
 
 			GLuint diffuseColor = glGetUniformLocation(shader, "material[0].diffuse_color");
