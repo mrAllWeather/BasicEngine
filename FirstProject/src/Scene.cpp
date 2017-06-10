@@ -158,12 +158,24 @@ void Scene::draw()
 	}
 
 	if(heightmap)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
 		heightmap->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
 	if (player)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
 		player->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
-	// -- Turn out Lights back off -- 
+	// -- Turn out Lights back off --
 	for (uint32_t light_idx = 0; (light_idx < lights->size() && light_idx < MAX_LIGHTS); ++light_idx)
 	{
 		std::string shader_light = "light[" + std::to_string(light_idx) + "].";
@@ -187,7 +199,7 @@ void Scene::tick(GLfloat delta)
 {
 
 	active_camera->tick();
-	
+
 	for (auto light : *lights)
 	{
 		light.second->tick(delta);
