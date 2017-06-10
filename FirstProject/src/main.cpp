@@ -133,7 +133,7 @@ int main()
 
 	// Lighting
 	// current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
-	// current_level->getLight("RotateLight")->circle_location(&origin, 25.0, origin);
+	current_level->getLight("RotateLight")->circle_location(&origin, 25.0, origin);
 
 	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.2, 0.2, 0.2));
 

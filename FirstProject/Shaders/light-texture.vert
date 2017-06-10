@@ -35,13 +35,16 @@ uniform vec3 viewPos;
 uniform Light light [ MAX_LIGHTS ];
 
 out Vert {
-	vec2 TexCoord;
 	vec3 Normal;
+
+	vec2 TexCoord;
 	vec3 FragPos;
 
 	vec3 TangentLightPos [ MAX_LIGHTS ];
 	vec3 TangentViewPos;
 	vec3 TangentFragPos;
+
+	mat3 TBN;
 } vs_out;
 
 
@@ -56,16 +59,17 @@ void main()
 	mat3 normalMatrix = transpose(inverse(mat3(object * component * model)));
     vec3 T = normalize(normalMatrix * tangent);
     vec3 N = normalize(normalMatrix * normal);
-    T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
-    
-    mat3 TBN = transpose(mat3(T, B, N));    
-    vs_out.TangentViewPos  = TBN * viewPos;
-    vs_out.TangentFragPos  = TBN * vs_out.FragPos;
+    // T = normalize(T - dot(T, N) * N);
+    // vec3 B = cross(N, T);
+    vec3 B = normalize(normalMatrix * bitangent);
+
+    vs_out.TBN = transpose(mat3(T, B, N));    
+    vs_out.TangentViewPos  = vs_out.TBN * viewPos;
+    vs_out.TangentFragPos  = vs_out.TBN * vs_out.FragPos;
 
 	for(int i = 0; i < MAX_LIGHTS; i++)
 	{
-		vs_out.TangentLightPos[i] = TBN * light[i].position;
+		vs_out.TangentLightPos[i] = vs_out.TBN * light[i].position;
 	}
 
 	gl_Position = projection * view * object * component * model * vec4(position, 1);

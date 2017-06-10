@@ -26,6 +26,8 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	// Add a default material. Set default texture
 	materials.push_back(tinyobj::material_t());
 	materials.at(materials.size() - 1).diffuse_texname = "_default.png";
+	materials.push_back(tinyobj::material_t());
+	materials.at(materials.size() - 1).diffuse_texname = "_default_black.png";
 
 	setupMesh();
 	setupTextures(base_dir);
@@ -83,7 +85,7 @@ void Mesh::draw(GLuint shader)
 			}
 			else
 			{
-				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+				glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default_black.png").first);
 				glUniform1i(glGetUniformLocation(shader, (loc_str + ".normal").c_str()), 2);
 			}
 
@@ -182,6 +184,9 @@ void Mesh::setupMesh()
 		std::vector<glm::vec3> vb_col;  // Buffer for Color
 		std::vector<glm::vec2> vb_tex;	// Buffer for Texture Coords
 
+		std::vector<glm::vec3> vb_tan;  // Buffer for Tangent
+		std::vector<glm::vec3> vb_bitan;  // Buffer for Bitangent
+
 		for (size_t f = 0; f < shapes.at(s).mesh.indices.size() / 3; f++) {
 			tinyobj::index_t idx0 = shapes.at(s).mesh.indices[3 * f + 0];
 			tinyobj::index_t idx1 = shapes.at(s).mesh.indices[3 * f + 1];
@@ -264,6 +269,23 @@ void Mesh::setupMesh()
 				n[2][2] = n[0][2];
 			}
 
+			// Calculate tangents and bitangents
+			float tan[3][3], bitan[3][3];
+			calculate_tangent_and_bitangent(tan[0], bitan[0], v[0], v[1], v[2], tc[0], tc[1], tc[2]);
+			tan[1][0] = tan[0][0];
+			tan[1][1] = tan[0][1];
+			tan[1][2] = tan[0][2];
+			tan[2][0] = tan[0][0];
+			tan[2][1] = tan[0][1];
+			tan[2][2] = tan[0][2]; 
+			
+			bitan[1][0] = bitan[0][0];
+			bitan[1][1] = bitan[0][1];
+			bitan[1][2] = bitan[0][2];
+			bitan[2][0] = bitan[0][0];
+			bitan[2][1] = bitan[0][1];
+			bitan[2][2] = bitan[0][2];
+
 			for (int k = 0; k < 3; k++) {
 				// Combine normal and diffuse to get color.
 				float normal_factor = 0.2;
@@ -284,6 +306,8 @@ void Mesh::setupMesh()
 				vb_tex.push_back(glm::vec2(tc[k][0], tc[k][1]));
 				vb_pos.push_back(glm::vec3(v[k][0], v[k][1], v[k][2]));
 				vb_norm.push_back(glm::vec3(n[k][0], n[k][1], n[k][2]));
+				vb_tan.push_back(glm::vec3(tan[k][0], tan[k][1], tan[k][2]));
+				vb_bitan.push_back(glm::vec3(bitan[k][0], bitan[k][1], bitan[k][2]));
 			}
 		}
 
@@ -307,7 +331,7 @@ void Mesh::setupMesh()
 		glBindVertexArray(o.va);
 
 		// Generate our VBOs
-		glGenBuffers(4, o.vb);
+		glGenBuffers(6, o.vb);
 
 		// Bind Vertex Buffer Object
 		glBindBuffer(GL_ARRAY_BUFFER, o.vb[0]);
@@ -332,6 +356,18 @@ void Mesh::setupMesh()
 		glBufferData(GL_ARRAY_BUFFER, vb_tex.size() * sizeof(glm::vec2), vb_tex.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		// Bind Tangent Buffer Object
+		glBindBuffer(GL_ARRAY_BUFFER, o.vb[4]);
+		glBufferData(GL_ARRAY_BUFFER, vb_tan.size() * sizeof(glm::vec3), vb_tan.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		// Bind Bitangent Buffer Object
+		glBindBuffer(GL_ARRAY_BUFFER, o.vb[5]);
+		glBufferData(GL_ARRAY_BUFFER, vb_bitan.size() * sizeof(glm::vec3), vb_bitan.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 		// Clean up
 		glBindVertexArray(0); // Unbind VAO
@@ -367,13 +403,22 @@ void Mesh::setupTextures(std::string base_dir)
 		if (mp->ambient_texname.length() > 0)
 			loadTexture(base_dir, mp->ambient_texname);
 		if (mp->diffuse_texname.length() > 0)
+		{
+			std::cout << "Loading Diffuse Map (map_Kd): " << mp->diffuse_texname << "\n";
 			loadTexture(base_dir, mp->diffuse_texname);
+		}
 		if (mp->specular_texname.length() > 0)
+		{
+			std::cout << "Loading Specular (map_Ks): " << mp->specular_texname << "\n";
 			loadTexture(base_dir, mp->specular_texname);
+		}
 		if (mp->specular_highlight_texname.length() > 0)
 			loadTexture(base_dir, mp->specular_highlight_texname);
 		if (mp->bump_texname.length() > 0)
+		{
+			std::cout << "Loading Bump Map (map_bump): " << mp->bump_texname << "\n";
 			loadTexture(base_dir, mp->bump_texname);
+		}
 		if (mp->displacement_texname.length() > 0)
 			loadTexture(base_dir, mp->displacement_texname);
 		if (mp->alpha_texname.length() > 0)
@@ -388,7 +433,10 @@ void Mesh::setupTextures(std::string base_dir)
 		if (mp->emissive_texname.length() > 0)
 			loadTexture(base_dir, mp->emissive_texname);
 		if (mp->normal_texname.length() > 0)
+		{
+			std::cout << "Loading Normal Map (norm): " << mp->normal_texname << "\n";
 			loadTexture(base_dir, mp->normal_texname);
+		}
 	}
 }
 
@@ -461,4 +509,32 @@ void calculate_surface_normal(float Normal[3], float const vertex_1[3], float co
 	Normal[0] = cross[0];
 	Normal[1] = cross[1];
 	Normal[2] = cross[2];
+}
+
+void calculate_tangent_and_bitangent(float Tangent[3], float Bitangent[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3], float uv_1[2], float uv_2[2], float uv_3[2])
+{
+	glm::vec3 tan, bitan;
+	//https://learnopengl.com/#!Advanced-Lighting/Normal-Mapping
+	glm::vec3 vector_1 = glm::vec3(vertex_2[0] - vertex_1[0], vertex_2[1] - vertex_1[1], vertex_2[2] - vertex_1[2]);
+	glm::vec3 vector_2 = glm::vec3(vertex_3[0] - vertex_1[0], vertex_3[1] - vertex_1[1], vertex_3[2] - vertex_1[2]);
+
+	glm::vec2 deltaUV1 = glm::vec2(uv_2[0] - uv_1[0], uv_2[1] - uv_1[1]);
+	glm::vec2 deltaUV2 = glm::vec2(uv_3[0] - uv_1[0], uv_3[1] - uv_1[1]);
+
+	float ratio = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+	tan = (vector_1 * deltaUV2.y - vector_2 * deltaUV1.y)*ratio;
+
+	bitan = (vector_2 * deltaUV1.x - vector_1 * deltaUV2.x)*ratio;
+
+	// tan = glm::normalize(tan);
+	// bitan = glm::normalize(bitan);
+
+	Tangent[0] = tan[0];
+	Tangent[1] = tan[1];
+	Tangent[2] = tan[2];
+
+	Bitangent[0] = bitan[0];
+	Bitangent[1] = bitan[1];
+	Bitangent[2] = bitan[2];
 }

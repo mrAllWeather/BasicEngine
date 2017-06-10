@@ -23,7 +23,7 @@ class Mesh;
 
 typedef struct {
 	GLuint va;
-	GLuint vb[4];  // vertex buffer
+	GLuint vb[6];  // vertex buffer
 	int numTriangles;
 	size_t material_id;
 } DrawObject;
@@ -52,6 +52,7 @@ struct loadedComponents {
 };
 
 void calculate_surface_normal(float Normal[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3]);
+void calculate_tangent_and_bitangent(float Tangent[3], float Bitangent[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3], float uv_1[2], float uv_2[2], float uv_3[2]);
 
 class Mesh {
 public:
