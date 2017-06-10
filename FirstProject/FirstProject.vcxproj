@@ -147,6 +147,7 @@
     <ClInclude Include="include\Seconds_Per_Frame_Counter.h" />
     <ClInclude Include="include\ShaderLoader.h" />
     <ClInclude Include="include\Component.h" />
+    <ClInclude Include="include\skybox.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\TextureLoader.h" />
     <ClInclude Include="include\tiny_obj_loader.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="src\Seconds_Per_Frame_Counter.cpp" />
     <ClCompile Include="src\ShaderLoader.cpp" />
     <ClCompile Include="src\Component.cpp" />
+    <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\TextureLoader.cpp" />
     <ClCompile Include="src\tiny_obj_loader.cpp" />
   </ItemGroup>
