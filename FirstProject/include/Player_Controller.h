@@ -54,6 +54,8 @@ public:
 	glm::vec3 get_upper_bounds();
 
 	glm::vec3* get_location();
+	
+	float timer;
 
 private:
 	// Build internal values
