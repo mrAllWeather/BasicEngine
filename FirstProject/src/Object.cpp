@@ -57,6 +57,7 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 
 	build_static_transform();
 	computer_bounds();
+	std::cerr << "Object Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
 }
 
 Object::Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
@@ -175,14 +176,15 @@ void Object::computer_bounds()
 		m_upper_bounds.z = std::max(component_upper.z, m_upper_bounds.z);
 	}
 
-	// Lower
-	glm::vec4 tmp_vec = glm::vec4(m_lower_bounds, 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_lower_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	// Shift our upper and lower bounds by transform, then reasses each vertex for the new max and min positions
+	glm::vec4 tmp_vec_L = glm::vec4(m_lower_bounds, 1.0);
+	tmp_vec_L = m_transform * tmp_vec_L;
 
-	// Upper
-	tmp_vec = glm::vec4(m_upper_bounds, 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_upper_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	glm::vec4 tmp_vec_H = glm::vec4(m_upper_bounds, 1.0);
+	tmp_vec_H = m_transform * tmp_vec_H;
+
+	m_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+
+	m_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
 
 }

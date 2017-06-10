@@ -32,8 +32,9 @@ Mesh::Mesh(std::string filename, loadedComponents* scene_tracker, std::string ba
 	setupMesh();
 	setupTextures(base_dir);
 	generateTransform();
+	compute_bounds();
 	std::cerr << "Mesh Loaded: " << filename << "\n" << std::endl;
-	std::cerr << "Mesh Bounds (Y): " << bounding_minimum.y << " - " << bounding_maximum.y << "\n" << std::endl;
+	std::cerr << "Mesh Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
 }
 
 Mesh::~Mesh()
@@ -104,7 +105,7 @@ void Mesh::draw(GLuint shader)
 
 		// Mesh Uniforms
 		GLuint modelLoc = glGetUniformLocation(shader, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m_transform));
 
 		glBindVertexArray(object.va);
 		glDrawArrays(GL_TRIANGLES, 0, object.numTriangles * 3);
@@ -120,12 +121,12 @@ void Mesh::draw(GLuint shader)
 
 glm::vec3 Mesh::get_lower_bounds()
 {
-	return bounding_minimum;
+	return m_lower_bounds;
 }
 
 glm::vec3 Mesh::get_upper_bounds()
 {
-	return bounding_maximum;
+	return m_upper_bounds;
 }
 
 std::string Mesh::get_scale()
@@ -492,10 +493,25 @@ void Mesh::loadTexture(std::string base_dir, std::string texture_name)
 
 void Mesh::generateTransform()
 {
-	transform = glm::mat4();
-	transform = glm::translate(transform, -(bounding_center * (1/scale)));
-	transform = glm::scale(transform, glm::vec3(1 / scale));
+	m_transform = glm::mat4();
+	m_transform = glm::translate(m_transform, -(bounding_center * (1/scale)));
+	m_transform = glm::scale(m_transform, glm::vec3(1 / scale));
 }
+
+void Mesh::compute_bounds()
+{
+	// Shift our upper and lower bounds by transform, then reasses each vertex for the new max and min positions
+	glm::vec4 tmp_vec_L = glm::vec4(bounding_minimum, 1.0);
+	tmp_vec_L = m_transform * tmp_vec_L;
+
+	glm::vec4 tmp_vec_H = glm::vec4(bounding_maximum, 1.0);
+	tmp_vec_H = m_transform * tmp_vec_H;
+
+	m_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+
+	m_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
+}
+
 
 void calculate_surface_normal(float Normal[3], float const vertex_1[3], float const vertex_2[3], float const vertex_3[3])
 {
