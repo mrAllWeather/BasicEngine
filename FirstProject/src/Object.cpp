@@ -59,15 +59,55 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	computer_bounds();
 }
 
-Object::Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
+Object::Object(std::string object_file_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
 {
-	this->m_name = name;
+	this->m_name = object_file_name;
 	this->m_rotation = new glm::quat(rot);
 	this->m_location = new glm::vec3(loc);
 	this->m_scale = new glm::vec3(scale);
 	this->scene_tracker = scene_tracker;
 
 	components = new std::map<std::string, Component*>;
+
+	std::ifstream fb; // FileBuffer
+	fb.open((object_file_name), std::ios::in);
+	std::string LineBuf, component_name;
+	std::stringstream ss;
+
+
+	if (fb.is_open()) {
+		while (std::getline(fb, LineBuf))
+		{
+			// Get component name
+			ss.clear();
+			ss.str(LineBuf);
+			std::getline(ss, component_name, ' ');
+
+			// Create component
+			components->operator[](component_name) = new Component(component_name, LineBuf, scene_tracker);
+		}
+	}
+	else
+	{
+		std::cerr << "ERROR: " << object_file_name << " Failed to open.\n";
+	}
+	fb.close();
+
+	build_static_transform();
+	computer_bounds();
+}
+
+Object::~Object()
+{
+	for (auto &component : *components)
+	{
+		delete component.second;
+	}
+	components->clear();
+	delete components;
+	delete m_location;
+	delete m_scale;
+	delete m_rotation;
 }
 
 void Object::addComponent(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale)

@@ -230,6 +230,11 @@ glm::vec3 * Player_Controller::get_location()
 	return &m_location;
 }
 
+glm::quat Player_Controller::get_rotation()
+{
+	return m_rotation;
+}
+
 void Player_Controller::build_static_transform()
 {
 	m_transform = glm::mat4();

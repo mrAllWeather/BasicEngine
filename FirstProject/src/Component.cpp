@@ -13,8 +13,9 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 	glm::vec3 rotation;
 	this->m_location = new glm::vec3;
 	this->m_scale = new glm::vec3;
-
+	this->scene_tracker = scene_tracker;
 	std::string mesh_file_name;
+
 
 	m_name = name;
 	// Load Component
@@ -63,6 +64,8 @@ Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm
 	this->m_rotation = new glm::quat(rot);
 	this->m_location = new glm::vec3(loc);
 	this->m_scale = new glm::vec3(scale);
+
+	this->scene_tracker = scene_tracker;
 
 	this->m_Mesh = new Mesh(m_mesh_name, scene_tracker);
 

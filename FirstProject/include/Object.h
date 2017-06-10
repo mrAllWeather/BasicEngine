@@ -35,6 +35,7 @@ class Object {
 public:
 	Object(std::string name, std::string cmesh_details, loadedComponents* scene_tracker);
 	Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker);
+	~Object();
 	void addComponent(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale);
 	void remComponent(std::string name);
 	void draw(GLuint shader);

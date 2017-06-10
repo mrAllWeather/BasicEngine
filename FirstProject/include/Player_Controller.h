@@ -54,6 +54,7 @@ public:
 	glm::vec3 get_upper_bounds();
 
 	glm::vec3* get_location();
+	glm::quat get_rotation();
 
 private:
 	// Build internal values

@@ -39,8 +39,10 @@ Scene::~Scene()
 
 void Scene::attachObject(std::string object_scene_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, std::string file_name, std::string base_dir)
 {
-	removeObject(object_scene_name);
-	objects->operator[](object_scene_name) = new Object(object_scene_name, rot, loc, scale, scene_tracker);
+	if (objects->find(object_scene_name) == objects->end())
+	{
+		objects->operator[](object_scene_name) = new Object(base_dir+file_name, rot, loc, scale, scene_tracker);
+	}
 }
 
 void Scene::attachObject(std::string object_scene_name, std::string object_details)
@@ -68,6 +70,7 @@ void Scene::removeObject(std::string object_scene_name)
 	if (objects->find(object_scene_name) != objects->end())
 	{
 		delete objects->at(object_scene_name);
+		objects->erase(objects->find(object_scene_name));
 	}
 }
 
