@@ -9,8 +9,10 @@ to use multiple layers of textures with transitions between them.
 
 ****************************************************************************************/
 
-#define NUMTERRAINSHADERS 3
+#define IMAGE_DEPTH 255.0
+#define NORMAL_UP_DEPTH 64.0
 
+#define TEXTURE_MAPS 3
 #include <string>
 // GLEW
 #define GLEW_STATIC
@@ -25,7 +27,7 @@ to use multiple layers of textures with transitions between them.
 
 typedef struct {
 	GLuint va;
-	GLuint vb[4];  // vertex buffer
+	GLuint vb[6];  // vertex buffer
 	GLuint idx;
 } DrawMap;
 

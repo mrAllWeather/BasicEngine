@@ -113,7 +113,7 @@ float Heightmap::GetFloor(glm::vec3 location)
 
 	uint32_t base_height = get_image_value(location.z, location.x, 0);
 
-	return (-1 + 2 * (base_height / 255.0)) * m_mesh_scale.y;
+	return (-1 + 2 * (base_height / IMAGE_DEPTH)) * m_mesh_scale.y;
 }
 
 void Heightmap::draw(GLuint shader)
@@ -144,43 +144,58 @@ void Heightmap::draw(GLuint shader)
 
 		// std::cout << "Loading " << loc_str << " : " << materials->at(mat_idx).name << std::endl;
 		// Load diffuse texture
-		glActiveTexture(GL_TEXTURE0+(mat_idx*2)+1);
+		glActiveTexture(GL_TEXTURE0+(mat_idx * TEXTURE_MAPS)+1);
 
 		std::string diffuse_texname = materials->at(mat_idx).diffuse_texname;
-
-		// std::cout << "\tDiffuse: " << (diffuse_texname.length() > 0 ? diffuse_texname : "_default.png") << std::endl;
 
 		if (materials->at(mat_idx).diffuse_texname.length() > 0 && scene_tracker->Textures->find(diffuse_texname) != scene_tracker->Textures->end()) {
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(diffuse_texname).first);
 			GLuint dif = glGetUniformLocation(shader, (loc_str + ".diffuse").c_str());
 
-			glUniform1i(dif, (mat_idx * 2)+1);
+			glUniform1i(dif, (mat_idx * TEXTURE_MAPS)+1);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
 			GLuint dif = glGetUniformLocation(shader, (loc_str + ".diffuse").c_str());
 
-			glUniform1i(dif, (mat_idx * 2)+1);
+			glUniform1i(dif, (mat_idx * TEXTURE_MAPS)+1);
 		}
 
 		// Load specular texture
-		glActiveTexture(GL_TEXTURE0+ (mat_idx * 2+1)+1);
+		glActiveTexture(GL_TEXTURE0+ (mat_idx * TEXTURE_MAPS) + 2);
 		std::string specular_texname = materials->at(mat_idx).specular_texname;
 
-		// std::cout << "\tSpecular: " << (specular_texname.length() > 0 ? specular_texname : "_default.png") << std::endl;
 		if (materials->at(mat_idx).specular_texname.length() > 0 && scene_tracker->Textures->find(specular_texname) != scene_tracker->Textures->end()) {
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(specular_texname).first);
 			GLuint spec = glGetUniformLocation(shader, (loc_str + ".specular").c_str());
 
-			glUniform1i(spec,  (mat_idx * 2 + 1)+1);
+			glUniform1i(spec,  (mat_idx * TEXTURE_MAPS) + 2);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
 			GLuint spec = glGetUniformLocation(shader, (loc_str + ".specular").c_str());
 
-			glUniform1i(spec, (mat_idx * 2 + 1));
+			glUniform1i(spec, (mat_idx * TEXTURE_MAPS) + 2);
+		}
+
+		// Load specular texture
+		glActiveTexture(GL_TEXTURE0 + (mat_idx * TEXTURE_MAPS) + 3);
+		std::string normal_texname = materials->at(mat_idx).normal_texname;
+
+		if (materials->at(mat_idx).normal_texname.length() > 0 && scene_tracker->Textures->find(normal_texname) != scene_tracker->Textures->end()) {
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at(normal_texname).first);
+			GLuint spec = glGetUniformLocation(shader, (loc_str + ".normal").c_str());
+
+			glUniform1i(spec, (mat_idx * TEXTURE_MAPS) + 3);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, scene_tracker->Textures->at("_default.png").first);
+			GLuint spec = glGetUniformLocation(shader, (loc_str + ".normal").c_str());
+
+			glUniform1i(spec, (mat_idx * TEXTURE_MAPS) + 3);
 		}
 
 		// -- Material Uniforms --
@@ -238,18 +253,6 @@ uint32_t Heightmap::GetNumHeightmapCols()
 	return iCols;
 }
 
-/*-----------------------------------------------
-
-Name:	LoadHeightMapFromImage
-
-Params:	sImagePath - path to the (optimally) grayscale
-image containing heightmap data.
-
-Result: Loads a heightmap and builds up all OpenGL
-structures for rendering.
-
----------------------------------------------*/
-
 bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 {
 	if (bLoaded)
@@ -301,44 +304,39 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 			float z = -1 + 2 * (float(row_idx) / (iRows - 1));
 
 			// We work with Y being up
-			float y = -1 + 2 * (*(map_image + row + col) / 255.0f); // Normalise our colour, then offset
+			float y = -1 + 2 * (*(map_image + row + col) / IMAGE_DEPTH); // Normalise our colour, then offset
 			// std::cout << "(" << x << ", " << y << ", " << z << ") ";
 			// Mesh scaling is applied via transform matrix
 			vb_pos->push_back(glm::vec3(x, y, z));
+
+			// Set up Base Colour (gonna default to bright pink)
+			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
 
 			// We make texture_scale account for what % of the map should be covered by a single texture map_image. TODO Check that is right!
 			vb_tex->push_back(glm::vec2((x+1)/2*m_texture_scale.x, (z+1)/2*m_texture_scale.y));
 
 			// Set up Normals
 			// Using very interesting code http://www.flipcode.com/archives/Calculating_Vertex_Normals_for_Height_Maps.shtml
-			uint32_t col_next = col_idx < iCols - 1 ? col_idx + 1 : col_idx;
-			uint32_t col_last = col_idx > 0 ? col_idx - 1 : col_idx;
+			// Explanation of process https://stackoverflow.com/a/34644939/7880704
+			uint32_t col_next = (col_idx < iCols - 1	? col_idx + 1 : col_idx) * ptr_inc;
+			uint32_t col_last = (col_idx > 0			? col_idx - 1 : col_idx) * ptr_inc;
 
-			col_next *= ptr_inc;
-			col_last *= ptr_inc;
-
-			float sx = *(map_image + row + col_next) - *(map_image + row + col_last);
+			float dxdz = (*(map_image + row + col_next) - *(map_image + row + col_last));
 			if (col_idx == 0 || col_idx == iCols - 1)
-				sx *= 2;
+				dxdz *= 2;
 
-			uint32_t row_next = row_idx < iRows - 1 ? row_idx + 1 : row_idx;
-			uint32_t row_last = row_idx > 0 ? row_idx - 1 : row_idx;
 
-			row_next *= row_step;
-			row_last *= row_step;
+			uint32_t row_next = (row_idx < iRows - 1	? row_idx + 1 : row_idx) * row_step;
+			uint32_t row_last = (row_idx > 0			? row_idx - 1 : row_idx) * row_step;
 
-			float sy = *(map_image + row_next + col) - *(map_image + row_last + col);
+			float dydz = *(map_image + row_next + col) - *(map_image + row_last + col);
 			if (row_idx == 0 || row_idx == iRows - 1)
-				sy *= 2;
-
-			vb_norm->push_back(glm::normalize(glm::vec3(-sx*m_mesh_scale.y, 2*m_mesh_scale.x, sy*m_mesh_scale.x*m_mesh_scale.y/m_mesh_scale.z)));
-
-			// Set up Base Colour (gonna default to bright pink)
-			vb_col->push_back(glm::vec3(1.0, 0.07, 0.57));
+				dydz *= 2;
+			
+			vb_norm->push_back(glm::normalize(glm::vec3(-dxdz*m_mesh_scale.x, NORMAL_UP_DEPTH*m_mesh_scale.y, -dydz*m_mesh_scale.z)));
 		}
 		// std::cout << std::endl;
 	}
-
 	std::cout << vb_pos->size() << " points generated\n" << std::endl;
 
 	std::cout << "Generate Heightmap indices\n" << std::endl;
@@ -369,6 +367,83 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 
 	std::cout << indices->size() << " indices generated\n" << std::endl;
 
+	std::cout << "Generate Tangents and Bitangents" << std::endl;
+
+	std::vector<glm::vec3>* vb_tan = new std::vector<glm::vec3>;
+	std::vector<glm::vec3>* vb_bitan = new std::vector<glm::vec3>;
+	vb_tan->resize(vb_pos->size());
+	vb_bitan->resize(vb_pos->size());
+
+	for (uint32_t idx = 0; idx < indices->size()-(iCols); idx += 2)
+	{
+		GLuint current = indices->at(idx);
+		GLuint below = indices->at(idx+1);
+		GLuint across = indices->at(idx+2);
+		GLuint across_below = indices->at(idx+3);
+
+		if (current == iPrimitiveRestartIndex || across == iPrimitiveRestartIndex)
+		{
+			idx += 1; // Shift back one to compensate for restart value
+			continue;
+		}
+
+		// std::cout << current << " : " << below << " : " << across << " : " << across_below << "\n";
+
+		// Prep our values
+		glm::vec3 tangent, bitangent, edge1, edge2;
+		glm::vec2 deltaUV1, deltaUV2;
+		GLfloat scalar;
+
+		// Triangle 1 (Upper)
+		edge1 = vb_pos->at(below) - vb_pos->at(current);
+		edge2 = vb_pos->at(across) - vb_pos->at(current);
+		deltaUV1 = vb_tex->at(below) - vb_tex->at(current);
+		deltaUV2 = vb_tex->at(across) - vb_tex->at(current);
+
+		scalar = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		tangent.x = scalar * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = scalar * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = scalar * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent = glm::normalize(tangent);
+
+		/*
+		bitangent.x = scalar * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = scalar * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = scalar * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent = glm::normalize(bitangent);
+		*/
+
+		vb_tan->at(current) = tangent;
+		vb_bitan->at(current) = glm::cross(tangent, vb_norm->at(current));
+		vb_tan->at(below) = tangent;
+		vb_bitan->at(below) = glm::cross(tangent, vb_norm->at(below)); 
+
+		// Triangle 2 (Lower)
+		edge1 = vb_pos->at(below) - vb_pos->at(across_below);
+		edge2 = vb_pos->at(across) - vb_pos->at(across_below);
+		deltaUV1 = vb_tex->at(below) - vb_tex->at(across_below);
+		deltaUV2 = vb_tex->at(across) - vb_tex->at(across_below);
+
+		scalar = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		tangent.x = scalar * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = scalar * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = scalar * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent = glm::normalize(tangent);
+
+		/*
+		bitangent.x = scalar * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = scalar * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = scalar * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		bitangent = glm::normalize(bitangent);
+		*/
+
+		vb_tan->at(across) = tangent;
+		vb_bitan->at(across) = glm::cross(tangent, vb_norm->at(across));;
+		vb_tan->at(across_below) = tangent;
+		vb_bitan->at(across_below) = glm::cross(tangent, vb_norm->at(across_below));;
+	}
+
+
 	std::cout << "Bind Array Objects\n" << std::endl;
 
 	// Gen and Bind our VAO
@@ -376,7 +451,7 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	glBindVertexArray(m_map.va);
 
 	// Generate our VBO's
-	glGenBuffers(4, m_map.vb);
+	glGenBuffers(6, m_map.vb);
 
 	// Bind Vertex Buffer Object
 	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[0]);
@@ -402,6 +477,18 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
+	// Bind Tangent Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[4]);
+	glBufferData(GL_ARRAY_BUFFER, vb_tan->size() * sizeof(glm::vec3), vb_tan->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Bind Bitangent Buffer Object
+	glBindBuffer(GL_ARRAY_BUFFER, m_map.vb[5]);
+	glBufferData(GL_ARRAY_BUFFER, vb_bitan->size() * sizeof(glm::vec3), vb_bitan->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
 	// And now attach index data to this VAO
 	// Here don't forget to bind another type of VBO - the element array buffer, or simplier indices to vertices
 	glGenBuffers(1, &m_map.idx);
@@ -420,6 +507,8 @@ bool Heightmap::LoadHeightMapFromImage(std::string sImagePath)
 	delete vb_col;
 	delete vb_norm;
 	delete vb_tex;
+	delete vb_tan;
+	delete vb_bitan;
 
 	return true;
 
