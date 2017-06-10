@@ -162,7 +162,7 @@ void Scene::draw()
         glEnable(GL_CULL_FACE);
         glFrontFace(GL_CCW);
         glCullFace(GL_BACK);
-		heightmap->draw(active_shader);
+        heightmap->draw(active_shader);
         glDisable(GL_CULL_FACE);
     }
 
@@ -171,7 +171,7 @@ void Scene::draw()
         glEnable(GL_CULL_FACE);
         glFrontFace(GL_CCW);
         glCullFace(GL_BACK);
-		player->draw(active_shader);
+        player->draw(active_shader);
         glDisable(GL_CULL_FACE);
     }
 
