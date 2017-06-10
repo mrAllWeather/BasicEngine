@@ -275,10 +275,10 @@ Light * Scene::getActiveLight()
 Light * Scene::getLight(std::string scene_light_name)
 {
 	if (lights->find(scene_light_name) != lights->end())
-		return lights->find(scene_light_name)->second;
-
+    {
+        return lights->find(scene_light_name)->second;
+    }
 	std::cerr << "Light not found: " << scene_light_name << std::endl;
-
 	return nullptr;
 }
 
@@ -315,7 +315,8 @@ void Scene::attachPlayer(std::string component_file_name, bool * keyboard_input,
 
 void Scene::removePlayer()
 {
-    if (player) {
+    if (player)
+    {
         delete player;
     }
     player = nullptr;
@@ -339,7 +340,9 @@ void Scene::update_projection()
 void Scene::setHeightmap(std::string heightmap_file)
 {
 	if(heightmap == nullptr)
-		delete heightmap;
+    {
+        delete heightmap;
+    }
 
 	heightmap = new Heightmap("ground", heightmap_file, scene_tracker);
 }
