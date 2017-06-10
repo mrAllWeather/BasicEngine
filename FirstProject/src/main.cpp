@@ -55,6 +55,7 @@ GLenum fill_mode = GL_FILL;
 std::vector<std::string> complex_files;
 uint32_t brush = 0;
 uint32_t brush_scale = 1.0;
+GLfloat brush_y_offset = 0.0;
 uint32_t paint_count = 0;
 std::vector<std::string> last_painted;
 
@@ -303,14 +304,19 @@ void Keyboard_Input(float deltaTime)
 		{
 			brush_scale = new_size;
 		}
+		std::cout << "Choose brush y-offset:\n" << std::endl;
+		std::cin >> brush_y_offset;
 	}
 	if (keys[GLFW_KEY_E])
 	{
+		glm::vec3 location = *current_level->getPlayer()->get_location();
+		location.y += brush_y_offset;
+
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
 		{
 			current_level->attachObject(complex_files.at(brush) + "_" + std::to_string(paint_count),
 				current_level->getPlayer()->get_rotation(),
-				*current_level->getPlayer()->get_location(),
+				location,
 				glm::vec3(brush_scale),
 				complex_files.at(brush),
 				"./Statics/");
