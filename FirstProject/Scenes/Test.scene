@@ -8,5 +8,6 @@ Lights:
 Statics:
 	House_0	./Statics/old_house.complex	5.0 5.0 5.0		10.0 1.56 10.0		0.0 0.0 0.0
 	Farmhouse ./Statics/farmhouse.complex 5.0 5.0 5.0		-10.0 1.1 -10.0		0.0 0.0 0.0
+	Forest ./Statics/forest.complex 2.0 2.0 2.0		-10.0 1.0 10.0		0.0 0.0 0.0
 Heightmap:
 	./Statics/test.heightmap

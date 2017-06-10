@@ -141,3 +141,38 @@ void Component::compute_bounds()
 
 	m_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
 }
+
+void Component::compute_scene_bounds(glm::mat4 & scene_transform)
+{
+	glm::vec4 tmp_vec_L = glm::vec4(m_lower_bounds, 1.0);
+	tmp_vec_L = scene_transform * tmp_vec_L;
+
+	glm::vec4 tmp_vec_H = glm::vec4(m_upper_bounds, 1.0);
+	tmp_vec_H = scene_transform * tmp_vec_H;
+
+	m_scene_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+	m_scene_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
+}
+
+bool Component::is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound, glm::mat4 &scene_transform)
+{
+	if (m_scene_lower_bounds == glm::vec3(0) && m_scene_upper_bounds == glm::vec3(0))
+	{
+		compute_scene_bounds(scene_transform);
+	}
+
+	bool x_collision = (lower_bound.x >= m_scene_lower_bounds.x && upper_bound.x <= m_scene_upper_bounds.x) || // Within Bounds
+		(lower_bound.x <= m_scene_lower_bounds.x && upper_bound.x >= m_scene_lower_bounds.x) || // Within Lower
+		(lower_bound.x <= m_scene_upper_bounds.x && upper_bound.x >= m_scene_upper_bounds.x); // Within Hight
+
+	bool y_collision = (lower_bound.y >= m_scene_lower_bounds.y && upper_bound.y <= m_scene_upper_bounds.y) || // Within Bounds
+		(lower_bound.y <= m_scene_lower_bounds.y && upper_bound.y >= m_scene_lower_bounds.y) || // Within Lower
+		(lower_bound.y <= m_scene_upper_bounds.y && upper_bound.y >= m_scene_upper_bounds.y); // Within Hight
+
+	bool z_collision = (lower_bound.z >= m_scene_lower_bounds.z && upper_bound.z <= m_scene_upper_bounds.z) || // Within Bounds
+		(lower_bound.z <= m_scene_lower_bounds.z && upper_bound.z >= m_scene_lower_bounds.z) || // Within Lower
+		(lower_bound.z <= m_scene_upper_bounds.z && upper_bound.z >= m_scene_upper_bounds.z); // Within Hight
+
+	return x_collision & y_collision & z_collision;
+
+}
