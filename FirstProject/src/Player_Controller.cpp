@@ -118,7 +118,7 @@ void Player_Controller::draw(GLuint shader)
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 {	
-	if(timer == 0 && (this->m_location.x > 14.8 || this->m_location.x < -14.8 || this->m_location.z > 14.8 || this->m_location.z < -14.8)){
+	if(timer == 0 && (this->m_location.x > 29.8 || this->m_location.x < -29.8 || this->m_location.z > 29.8 || this->m_location.z < -29.8)){
 		system("aplay ./Materials/censor-beep-4.wav -q &");
 		timer = 1.5;
 	}
@@ -128,23 +128,24 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 	if(timer < 0.0){
 		timer = 0.0;
 	}
-	if(this->m_location.x > 14.8){
+	if(this->m_location.x > 29.8){
 		m_velocity.x = 0;
-		this->m_location.x = 14.79;
+		this->m_location.x = 29.79;
 	}
-	if(this->m_location.x < -14.8){
+	if(this->m_location.x < -29.8){
 		m_velocity.x = 0;
-		this->m_location.x = -14.79;
+		this->m_location.x = -29.79;
 	}
 	
-	if(this->m_location.z > 14.8){
+	if(this->m_location.z > 29.8){
 		m_velocity.z = 0;
-		this->m_location.z = 14.79;
+		this->m_location.z = 29.79;
 	}
-	if(this->m_location.z < -14.8){
+	if(this->m_location.z < -29.8){
 		m_velocity.z = 0;
-		this->m_location.z = -14.79;
+		this->m_location.z = -29.79;
 	}
+	
 	// Forwards
 	if (keyboard_input[GLFW_KEY_W])
 	{
