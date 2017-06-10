@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 
 #define MAX_LIGHTS 4
 #define MAX_MATERIALS 4
@@ -103,7 +103,7 @@ void main()
 
 
 	// Fragment Specific Values
-	vec3 norm = normalize(texture2D(material[0].normal, vs_out.TexCoord).rgb * 2 - 1.0);
+	vec3 norm = normalize(texture(material[0].normal, vs_out.TexCoord).rgb * 2 - 1.0);
 
 	vec3 viewDir = normalize(vs_out.TangentViewPos - vs_out.TangentFragPos);
 
@@ -218,7 +218,7 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 lightPos, vec3 viewDir, Mater
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // attenuation
     float distance = length(lightPos - vs_out.TangentFragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, vs_out.TexCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, vs_out.TexCoord));
@@ -240,9 +240,9 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 lightPos, vec3 viewDir, Materi
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // attenuation
     float distance = length(lightPos - vs_out.TangentFragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // spotlight intensity
-    float theta = dot(lightDir, normalize(vs_out.TBN * -light.direction)); 
+    float theta = dot(lightDir, normalize(vs_out.TBN * -light.direction));
     float epsilon = light.cut_off - light.outer_cut_off;
     float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
     // combine results
@@ -283,7 +283,7 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, MixedM
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // attenuation
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
     vec3 ambient = light.ambient * material.diffuse;
     vec3 diffuse = light.diffuse * diff * material.diffuse;
@@ -305,9 +305,9 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, MixedMa
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // attenuation
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // spotlight intensity
-    float theta = dot(lightDir, normalize(-light.direction)); 
+    float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.cut_off - light.outer_cut_off;
     float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
     // combine results
