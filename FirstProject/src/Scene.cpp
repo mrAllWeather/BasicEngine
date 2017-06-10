@@ -152,28 +152,32 @@ void Scene::draw()
 	glUniform1i(viewer_mode, view_mode);
 
 	// -- Draw Out Scene Components --
-	for(auto object : *objects)
-	{
-		object.second->draw(active_shader);
-	}
+    for(auto object : *objects)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        object.second->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
-	if(heightmap)
-    	{
-        	glEnable(GL_CULL_FACE);
-        	glFrontFace(GL_CCW);
-        	glCullFace(GL_BACK);
-        	heightmap->draw(active_shader);
-        	glDisable(GL_CULL_FACE);
-    	}
+    if(heightmap)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        heightmap->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
-	if (player)
-    	{
-       		glEnable(GL_CULL_FACE);
-        	glFrontFace(GL_CCW);
-        	glCullFace(GL_BACK);
-        	player->draw(active_shader);
-        	glDisable(GL_CULL_FACE);
-    	}
+    if (player)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        player->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
 	// -- Turn out Lights back off --
 	for (uint32_t light_idx = 0; (light_idx < lights->size() && light_idx < MAX_LIGHTS); ++light_idx)
