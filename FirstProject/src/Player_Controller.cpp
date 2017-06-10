@@ -2,7 +2,6 @@
 
 #include <fstream>
 
-float timer = 0.0;
 
 Player_Controller::Player_Controller() {
     player_model  = nullptr;
@@ -13,7 +12,7 @@ Player_Controller::Player_Controller() {
 Player_Controller::Player_Controller(Component * component_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
 	// Scene Details
-	float timer = 0.0;
+	this->timer = 0.0;
 	
 	this->objects = objects;
 	this->heightmap = heightmap;
@@ -51,7 +50,7 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
 	// Scene Details
-	float timer = 0.0;
+	this->timer = 0.0;
 	
 	this->objects = objects;
 	this->heightmap = heightmap;
@@ -122,15 +121,15 @@ void Player_Controller::draw(GLuint shader)
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 {	
-	if(timer == 0 && (this->m_location.x > 29.8 || this->m_location.x < -29.8 || this->m_location.z > 29.8 || this->m_location.z < -29.8)){
+	if(this->timer < 0.001 && (this->m_location.x > 29.8 || this->m_location.x < -29.8 || this->m_location.z > 29.8 || this->m_location.z < -29.8)){
 		system("aplay ./Materials/censor-beep-4.wav -q &");
-		timer = 1.5;
+		this->timer = 2.5;
 	}
-	if(timer > 0.0){
-		timer -= deltaTime;
+	if(this->timer > 0.0){
+		this->timer -= deltaTime;
 	}
-	if(timer < 0.0){
-		timer = 0.0;
+	if(this->timer < 0.0){
+		this->timer = 0.0;
 	}
 	if(this->m_location.x > 29.8){
 		m_velocity.x = 0;
@@ -188,6 +187,7 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 		m_velocity.z = glm::min(m_limits.z, m_velocity.z);
 		m_velocity.z = glm::max(m_limits.z, -m_velocity.z);
 	}
+	std::cout << this->timer << std::endl;
 }
 
 void Player_Controller::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
