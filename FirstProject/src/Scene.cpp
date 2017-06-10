@@ -172,6 +172,17 @@ void Scene::draw()
 	}
 }
 
+void Scene::rendSky(){
+	glUseProgram(active_shader);
+	glm::mat4 v = glm::mat4(glm::mat3(active_camera->GetViewMatrix()));
+	GLuint cameraLoc = glGetUniformLocation(active_shader, "view");
+	glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(v));
+
+	GLuint projectionLoc = glGetUniformLocation(active_shader, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(m_transform));
+
+}
+
 void Scene::tick(GLfloat delta)
 {
 
