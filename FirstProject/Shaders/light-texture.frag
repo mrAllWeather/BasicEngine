@@ -164,7 +164,6 @@ void main()
 	}
 	else
 	{
-		norm = -norm;
 		for(int light_idx = 0; light_idx < MAX_LIGHTS; ++light_idx)
 		{
 			if(light[light_idx].enabled == false)
