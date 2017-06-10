@@ -62,6 +62,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void Keyboard_Input(float deltaTime);
 
+int SKYBOX_TRIS = 36;
 bool SHOW_FPS = false;
 
 int main()
@@ -204,7 +205,7 @@ int main()
 		glBindVertexArray(sky->skyVaoId);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, sky->skyTexId);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, SKYBOX_TRIS);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
 
