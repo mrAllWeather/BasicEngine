@@ -7,13 +7,12 @@ Player_Controller::Player_Controller() {
     player_model  = nullptr;
     scene_tracker = nullptr;
     heightmap     = nullptr;
+    timer         = 0.0;
 }
 
 Player_Controller::Player_Controller(Component * component_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
 	// Scene Details
-	this->timer = 0.0;
-	
 	this->objects = objects;
 	this->heightmap = heightmap;
 	this->scene_tracker = scene_tracker;
@@ -49,9 +48,7 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 
 Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
-	// Scene Details
-	this->timer = 0.0;
-	
+	// Scene Detail
 	this->objects = objects;
 	this->heightmap = heightmap;
 	this->scene_tracker = scene_tracker;
@@ -120,7 +117,7 @@ void Player_Controller::draw(GLuint shader)
 }
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
-{	
+{
 	if(this->timer < 0.001 && (this->m_location.x > 29.8 || this->m_location.x < -29.8 || this->m_location.z > 29.8 || this->m_location.z < -29.8)){
 		system("aplay ./Materials/censor-beep-4.wav -q &");
 		this->timer = 2.5;
@@ -139,7 +136,7 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 		m_velocity.x = 0;
 		this->m_location.x = -29.79;
 	}
-	
+
 	if(this->m_location.z > 29.8){
 		m_velocity.z = 0;
 		this->m_location.z = 29.79;
@@ -148,7 +145,7 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 		m_velocity.z = 0;
 		this->m_location.z = -29.79;
 	}
-	
+
 	// Forwards
 	if (keyboard_input[GLFW_KEY_W])
 	{
@@ -228,7 +225,7 @@ void Player_Controller::tick(GLfloat delta)
 	{
 		// Pass (we can't move there)
 	}
-	
+
 
 	// Update our draw location
 	build_static_transform();
