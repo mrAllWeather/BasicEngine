@@ -212,6 +212,11 @@ void Player_Controller::tick(GLfloat delta)
 	{
 		// If encountering barrier teleport back half a space
 		next_location = m_location - glm::normalize(m_velocity)*glm::vec3(0.5);
+		if (heightmap->get_image_value(next_location.x, next_location.z, 2) == 0)
+		{
+			m_location = next_location;
+			m_location.y = heightmap->GetFloor(m_location) + m_height;
+		}
 	}
 	
 
