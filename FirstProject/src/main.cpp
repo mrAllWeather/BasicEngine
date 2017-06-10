@@ -130,7 +130,7 @@ int main()
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 	current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
 	current_level->attachShader("Skybox", "./Shaders/skybox.vert", "./Shaders/skybox.frag");
-	
+
 	// Defaulting to active lighting
 	current_level->setActiveShader("Light-Texture");
 
@@ -196,11 +196,11 @@ int main()
 		current_level->draw();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		
+
 		current_level->setActiveShader("Skybox");
-		
+
 		current_level->rendSky();
-			
+
 		glDepthFunc(GL_LEQUAL);
 		glBindVertexArray(sky->skyVaoId);
 		glActiveTexture(GL_TEXTURE0);
