@@ -193,8 +193,8 @@ void main()
 // calculates the color when using a directional light.
 vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir, Material material)
 {
-    vec3 lightDir = normalize(vs_out.TBN * light.direction);
-    // diffuse shading
+    vec3 lightDir = normalize(vs_out.TBN * -light.direction);
+    // diffuse shadingO
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
