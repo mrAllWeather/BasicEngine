@@ -89,7 +89,7 @@ int main()
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Create window
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ben Weatherall - a1617712 (Assignment 3 Part 1)", nullptr, nullptr); // Window 1
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Assignment 3 Part 2", nullptr, nullptr); // Window 1
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
