@@ -65,6 +65,7 @@ public:
 
 	uint32_t GetNumHeightmapRows();
 	uint32_t GetNumHeightmapCols();
+	glm::vec3 get_mesh_scale();
 	
 	unsigned char get_image_value(GLfloat, GLfloat, uint8_t);
 

@@ -115,7 +115,11 @@ void Player_Controller::draw(GLuint shader)
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 {
-	if(this->timer < 0.001 && (this->m_location.x > 29.8 || this->m_location.x < -29.8 || this->m_location.z > 29.8 || this->m_location.z < -29.8)){
+	glm::vec3 limits = heightmap->get_mesh_scale();
+	limits = limits - glm::vec3(0.2);
+	float backstep = 0.21;
+
+	if(this->timer < 0.001 && (this->m_location.x > limits.x || this->m_location.x < -limits.x || this->m_location.z > limits.z || this->m_location.z < -limits.z)){
 		system("aplay ./Materials/censor-beep-4.wav -q &");
 		this->timer = 2.5;
 	}
@@ -125,22 +129,22 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 	if(this->timer < 0.0){
 		this->timer = 0.0;
 	}
-	if(this->m_location.x > 29.8){
+	if(this->m_location.x > limits.x){
 		m_velocity.x = 0;
-		this->m_location.x = 29.79;
+		this->m_location.x = limits.x - backstep;
 	}
-	if(this->m_location.x < -29.8){
+	if(this->m_location.x < -limits.x){
 		m_velocity.x = 0;
-		this->m_location.x = -29.79;
+		this->m_location.x = -limits.x + backstep;
 	}
 
-	if(this->m_location.z > 29.8){
+	if(this->m_location.z > limits.z){
 		m_velocity.z = 0;
-		this->m_location.z = 29.79;
+		this->m_location.z = limits.z - backstep;
 	}
-	if(this->m_location.z < -29.8){
+	if(this->m_location.z < -limits.z){
 		m_velocity.z = 0;
-		this->m_location.z = -29.79;
+		this->m_location.z = -limits.z + backstep;
 	}
 
 	// Forwards
