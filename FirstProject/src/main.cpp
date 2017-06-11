@@ -286,34 +286,41 @@ void Keyboard_Input(float deltaTime)
 	}
 	if (keys[GLFW_KEY_Q])
 	{
-		std::cout << "Choose brush:\n" << std::endl;
-		for (uint32_t idx = 0; idx < complex_files.size(); ++idx)
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
 		{
-			std::cout << "\t" << std::to_string(idx) << ": " << complex_files.at(idx) << std::endl;
+			std::cout << "Choose brush:\n" << std::endl;
+			for (uint32_t idx = 0; idx < complex_files.size(); ++idx)
+			{
+				std::cout << "\t" << std::to_string(idx) << ": " << complex_files.at(idx) << std::endl;
+			}
+			uint32_t new_brush;
+			std::cin >> new_brush;
+			if (new_brush >= 0 && new_brush < complex_files.size())
+			{
+				brush = new_brush;
+			}
+			std::cout << "Choose brush size:\n" << std::endl;
+			uint32_t new_size;
+			std::cin >> new_size;
+			if (new_size > 0)
+			{
+				brush_scale = new_size;
+			}
+			std::cout << "Choose brush y-offset:\n" << std::endl;
+			std::cin >> brush_y_offset;
+
+			time_since_last_swap = glfwGetTime();
 		}
-		uint32_t new_brush;
-		std::cin >> new_brush;
-		if (new_brush >= 0 && new_brush < complex_files.size())
-		{
-			brush = new_brush;
-		}
-		std::cout << "Choose brush size:\n" << std::endl;
-		uint32_t new_size;
-		std::cin >> new_size;
-		if (new_size > 0)
-		{
-			brush_scale = new_size;
-		}
-		std::cout << "Choose brush y-offset:\n" << std::endl;
-		std::cin >> brush_y_offset;
 	}
 	if (keys[GLFW_KEY_E])
 	{
-		glm::vec3 location = *current_level->getPlayer()->get_location();
-		location.y += brush_y_offset;
-
 		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
 		{
+			current_level->getPlayer()->clip(false);
+
+			glm::vec3 location = *current_level->getPlayer()->get_location();
+			location.y += brush_y_offset;
+
 			current_level->attachObject(complex_files.at(brush) + "_" + std::to_string(paint_count),
 				current_level->getPlayer()->get_rotation(),
 				location,
