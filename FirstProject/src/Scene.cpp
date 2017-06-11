@@ -351,11 +351,8 @@ std::string Scene::report()
 	report += "\tCamera_01 	-1.5 0.0 0.0	0.0 1.0 0.0 	0.0 0.0\n";
 
 	report += "Lights:\n";
-	for (auto &light : *lights)
-	{
-		report += "\t" + light.first + " ";
-		report += light.second->report();
-	}
+	report += "\tOverhead 	0	0.0 -1.0 0.0	0.0 0.0 0.0		1.0 0.99 0.5	1.0 1.0 1.0\n";
+	report += "\tRotateLight 1	0.0 0.0 0.0 	1.0 1.0 0.0 	1.0 0.99 0.5 	1.0 1.0 0.0		0.045 0.0075\n";
 
 	report += "Statics:\n";
 	for (auto &object : *objects)
