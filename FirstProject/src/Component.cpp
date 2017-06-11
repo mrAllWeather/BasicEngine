@@ -36,7 +36,6 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 
 	this->m_mesh_name = mesh_file_name;
 
-	// this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
 	if (scene_tracker->Meshes->find(mesh_file_name) == scene_tracker->Meshes->end())
 	{
 		this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
@@ -64,7 +63,6 @@ Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm
 	this->m_location = new glm::vec3(loc);
 	this->m_scale = new glm::vec3(scale);
 
-	// this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
 	if (scene_tracker->Meshes->find(m_mesh_name) == scene_tracker->Meshes->end())
 	{
 		this->m_Mesh = new Mesh(m_mesh_name, scene_tracker);
@@ -100,7 +98,6 @@ Component::~Component()
 
 void Component::draw(GLuint shader)
 {
-	// std::cout << "Component::Draw\n";
 	GLuint modelLoc = glGetUniformLocation(shader, "component");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m_transform));
 	m_Mesh->draw(shader);

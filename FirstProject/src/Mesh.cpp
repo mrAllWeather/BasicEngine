@@ -43,7 +43,6 @@ Mesh::~Mesh()
 
 void Mesh::draw(GLuint shader)
 {
-	// std::cout << "Mesh::Draw\n";
 
 	for (const auto object : objects)
 	{
@@ -278,8 +277,8 @@ void Mesh::setupMesh()
 			tan[1][2] = tan[0][2];
 			tan[2][0] = tan[0][0];
 			tan[2][1] = tan[0][1];
-			tan[2][2] = tan[0][2]; 
-			
+			tan[2][2] = tan[0][2];
+
 			bitan[1][0] = bitan[0][0];
 			bitan[1][1] = bitan[0][1];
 			bitan[1][2] = bitan[0][2];
@@ -542,9 +541,6 @@ void calculate_tangent_and_bitangent(float Tangent[3], float Bitangent[3], float
 	tan = (vector_1 * deltaUV2.y - vector_2 * deltaUV1.y)*ratio;
 
 	bitan = (vector_2 * deltaUV1.x - vector_1 * deltaUV2.x)*ratio;
-
-	// tan = glm::normalize(tan);
-	// bitan = glm::normalize(bitan);
 
 	Tangent[0] = tan[0];
 	Tangent[1] = tan[1];
