@@ -57,8 +57,12 @@ public:
 	glm::quat get_rotation();
 
 	float timer;
+	
+	void clip(bool is_clipping);
 
 private:
+	bool clipping;
+	GLfloat no_clip_empty = 0;
 	// Build internal values
 	void build_static_transform();
 	void computer_bounds();
