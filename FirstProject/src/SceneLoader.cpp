@@ -1,10 +1,12 @@
 #include "../include/SceneLoader.h"
+#include <algorithm>
+
 
 SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 {
 	this->scene = loading_scene;
 	this->scene_shader_loader = loading_scene->shader_loader;
-	
+
 	std::ifstream fb; // FileBuffer
 
 	std::cout << "Loading: " << (SceneFile) << std::endl;
@@ -15,7 +17,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 		std::string ObjectName = SceneFile; // Save Object Name
 		std::string LineBuf;
 		bool load_success = true;
-		
+
 		while (std::getline(fb, LineBuf)) {
 
 			if (LineBuf == "Actors:")
@@ -30,7 +32,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 			{
 				std::cout << LineBuf << std::endl;
 				std::streampos last_line = fb.tellg();
-				
+
 				std::string name;
 				glm::vec3 location, up;
 				GLfloat yaw, pitch;
@@ -61,7 +63,8 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				if (std::getline(fb, LineBuf) && std::regex_match(LineBuf, std::regex(LIGHT_REGEX)))
 				{
 					// Clean Up leading spaces
-					LineBuf = std::regex_replace(LineBuf, std::regex("^[ \t]+"), "");
+					LineBuf.erase(std::remove(LineBuf.begin(), LineBuf.end(), '\t'), LineBuf.end());
+					LineBuf.erase(std::remove(LineBuf.begin(), LineBuf.end(), ' '), LineBuf.end());
 					std::cout << LineBuf << std::endl;
 					scene->setHeightmap(LineBuf);
 
@@ -69,7 +72,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 				}
 
 				fb.seekg(last_line);
-				
+
 			}
 			else if (LineBuf == "Lights:")
 			{
@@ -113,7 +116,7 @@ SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 
 					last_line = fb.tellg();
 				}
-				
+
 				fb.seekg(last_line);
 			}
 			else if (!load_success)

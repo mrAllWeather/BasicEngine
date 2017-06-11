@@ -4,14 +4,17 @@
 newmtl Grass
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
-Kd 0.640000 0.640000 0.640000
-Ks 0.500000 0.500000 0.500000
+Kd 0.571157 0.571157 0.571157
+Ks 0.169000 0.169000 0.169000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+disp GrassTextures_h.png
 map_Bump GrassTextures_n.png
+map_Ka GrassTextures_o.png
 map_Kd GrassTextures_d.png
+map_Ks GrassTextures_s.png
 
 newmtl Dirt
 Ns 96.078431
@@ -27,7 +30,6 @@ map_Bump dirt_n.png
 map_Ka dirt_o.png
 map_Kd dirt_d.png
 map_Ks dirt_s.png
-map_Ns dirt_r.png
 
 newmtl Stone_Path
 Ns 96.078431

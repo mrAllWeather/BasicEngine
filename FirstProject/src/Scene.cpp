@@ -5,7 +5,7 @@ Scene::Scene(std::string scene_file)
 	// Everything object in our scene
 
 	heightmap = nullptr;
-    player    = nullptr;
+    	player    = nullptr;
 
 	scene_tracker = new loadedComponents;
 
@@ -152,18 +152,34 @@ void Scene::draw()
 	glUniform1i(viewer_mode, view_mode);
 
 	// -- Draw Out Scene Components --
-	for(auto object : *objects)
-	{
-		object.second->draw(active_shader);
-	}
+    for(auto object : *objects)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        object.second->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
-	if(heightmap)
-		heightmap->draw(active_shader);
+    if(heightmap)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        heightmap->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
-	if (player)
-		player->draw(active_shader);
+    if (player)
+    {
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        player->draw(active_shader);
+        glDisable(GL_CULL_FACE);
+    }
 
-	// -- Turn out Lights back off -- 
+	// -- Turn out Lights back off --
 	for (uint32_t light_idx = 0; (light_idx < lights->size() && light_idx < MAX_LIGHTS); ++light_idx)
 	{
 		std::string shader_light = "light[" + std::to_string(light_idx) + "].";
@@ -172,11 +188,22 @@ void Scene::draw()
 	}
 }
 
+void Scene::rendSky(){
+	glUseProgram(active_shader);
+	glm::mat4 v = glm::mat4(glm::mat3(active_camera->GetViewMatrix()));
+	GLuint cameraLoc = glGetUniformLocation(active_shader, "view");
+	glUniformMatrix4fv(cameraLoc, 1, GL_FALSE, glm::value_ptr(v));
+
+	GLuint projectionLoc = glGetUniformLocation(active_shader, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(m_transform));
+
+}
+
 void Scene::tick(GLfloat delta)
 {
 
 	active_camera->tick();
-	
+
 	for (auto light : *lights)
 	{
 		light.second->tick(delta);
@@ -252,10 +279,10 @@ Light * Scene::getActiveLight()
 Light * Scene::getLight(std::string scene_light_name)
 {
 	if (lights->find(scene_light_name) != lights->end())
-		return lights->find(scene_light_name)->second;
-
+    {
+        return lights->find(scene_light_name)->second;
+    }
 	std::cerr << "Light not found: " << scene_light_name << std::endl;
-
 	return nullptr;
 }
 
@@ -292,7 +319,8 @@ void Scene::attachPlayer(std::string component_file_name, bool * keyboard_input,
 
 void Scene::removePlayer()
 {
-    if (player) {
+    if (player)
+    {
         delete player;
     }
     player = nullptr;
@@ -316,7 +344,9 @@ void Scene::update_projection()
 void Scene::setHeightmap(std::string heightmap_file)
 {
 	if(heightmap == nullptr)
-		delete heightmap;
+    {
+        delete heightmap;
+    }
 
 	heightmap = new Heightmap("ground", heightmap_file, scene_tracker);
 }

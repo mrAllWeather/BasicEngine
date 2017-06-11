@@ -27,6 +27,7 @@
 #include "../include/SceneLoader.h"
 #include "../include/tiny_obj_loader.h"
 #include "../include/File_IO.h"
+#include "../include/Skybox.h"
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -61,6 +62,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void Keyboard_Input(float deltaTime);
 
+int SKYBOX_TRIS = 36;
 bool SHOW_FPS = false;
 
 int main()
@@ -75,6 +77,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Create window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ben Weatherall - a1617712 (Assignment 3 Part 1)", nullptr, nullptr); // Window 1
@@ -112,6 +115,7 @@ int main()
 	glViewport(0, 0, width, height);
 
 	// Set OpenGL Options
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -127,7 +131,8 @@ int main()
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
 	current_level->attachShader("Light-Texture", "./Shaders/light-texture.vert", "./Shaders/light-texture.frag");
-	
+	current_level->attachShader("Skybox", "./Shaders/skybox.vert", "./Shaders/skybox.frag");
+
 	// Defaulting to active lighting
 	current_level->setActiveShader("Light-Texture");
 
@@ -148,6 +153,7 @@ int main()
 		current_level->getActiveCamera()->SetCircleFocus(&origin, 2, origin);
 		current_level->getActiveCamera()->SetLookFocus(&origin);
 	}
+	Skybox* sky = new Skybox();
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter* spf_report;
@@ -163,6 +169,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// Frame Delta
+		current_level->setActiveShader("Light-Texture");
 		lastFrame = currentFrame;
 		currentFrame = glfwGetTime();
 		delta = currentFrame - lastFrame;
@@ -191,6 +198,18 @@ int main()
 		current_level->draw();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		current_level->setActiveShader("Skybox");
+
+		current_level->rendSky();
+
+		glDepthFunc(GL_LEQUAL);
+		glBindVertexArray(sky->skyVaoId);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, sky->skyTexId);
+		glDrawArrays(GL_TRIANGLES, 0, SKYBOX_TRIS);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
