@@ -254,8 +254,6 @@ void Player_Controller::tick(GLfloat delta)
 	// Update our draw location
 	build_static_transform();
 	computer_bounds();
-
-	// std::cerr << "Controller Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
 }
 
 void Player_Controller::setForwardVector(glm::vec3 forward)
