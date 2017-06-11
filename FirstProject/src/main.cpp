@@ -295,7 +295,7 @@ void Keyboard_Input(float deltaTime)
 			}
 			uint32_t new_brush;
 			std::cin >> new_brush;
-			if (new_brush >= 0 && new_brush < complex_files.size())
+			if (new_brush < complex_files.size())
 			{
 				brush = new_brush;
 			}
