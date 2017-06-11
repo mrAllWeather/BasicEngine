@@ -16,7 +16,7 @@ INCLUDES := $(wildcard $(INCDIR)/*.h)
 OBJECTS := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 
-TARGET = assign3
+TARGET = assign3_part2
 
 # For those who dare compile with Cygwin
 ifeq ($(OS),GYGWIN)
