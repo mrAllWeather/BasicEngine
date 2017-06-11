@@ -71,6 +71,9 @@ public:
 
 	void tick();
 
+	std::string report();
+
+
 	GLfloat Zoom;
 	glm::vec3 Position;
 	glm::vec3 SavedPosition; // Consider adding to main branch camera

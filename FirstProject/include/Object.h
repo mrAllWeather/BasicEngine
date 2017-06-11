@@ -35,6 +35,7 @@ class Object {
 public:
 	Object(std::string name, std::string cmesh_details, loadedComponents* scene_tracker);
 	Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker);
+	~Object();
 	void addComponent(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale);
 	void remComponent(std::string name);
 	void draw(GLuint shader);
@@ -47,11 +48,16 @@ public:
 
 	bool is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound);
 
+	std::string report();
+
 private:
 	void build_static_transform();
 	void computer_bounds();
 
+	bool collision_check(glm::vec3 player_lower_bound, glm::vec3 player_upper_bound, glm::vec3 mesh_lower_bound, glm::vec3 mesh_upper_bound);
+
 	std::string m_name;
+	std::string m_file_name;
 	// List of all out components (by name so we can call them for local transforms if needed)
 	std::map<std::string, Component*>* components;
 	

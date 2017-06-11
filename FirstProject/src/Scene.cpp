@@ -39,8 +39,10 @@ Scene::~Scene()
 
 void Scene::attachObject(std::string object_scene_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, std::string file_name, std::string base_dir)
 {
-	removeObject(object_scene_name);
-	objects->operator[](object_scene_name) = new Object(object_scene_name, rot, loc, scale, scene_tracker);
+	if (objects->find(object_scene_name) == objects->end())
+	{
+		objects->operator[](object_scene_name) = new Object(base_dir+file_name, rot, loc, scale, scene_tracker);
+	}
 }
 
 void Scene::attachObject(std::string object_scene_name, std::string object_details)
@@ -68,6 +70,7 @@ void Scene::removeObject(std::string object_scene_name)
 	if (objects->find(object_scene_name) != objects->end())
 	{
 		delete objects->at(object_scene_name);
+		objects->erase(objects->find(object_scene_name));
 	}
 }
 
@@ -334,6 +337,53 @@ bool Scene::hasPlayer()
 Player_Controller * Scene::getPlayer()
 {
 	return player;
+}
+
+std::string Scene::report()
+{
+	std::string report;
+
+	report += "SceneName:\n";
+	report += scene_name + "\n";
+
+	// We want out camera to load at origin without standard directions
+	report += "Camera:\n";
+	report += "\tCamera_01 	-1.5 0.0 0.0	0.0 1.0 0.0 	0.0 0.0\n";
+
+	report += "Lights:\n";
+	for (auto &light : *lights)
+	{
+		report += "\t" + light.first + " ";
+		report += light.second->report();
+	}
+
+	report += "Statics:\n";
+	for (auto &object : *objects)
+	{
+		report += "\t" + object.first + " ";
+		report += object.second->report();
+	}
+	report += "Heightmap:\n";
+	report += "\t./Statics/test.heightmap";
+
+	return report;
+
+}
+
+void Scene::save_level(std::string scene_name)
+{
+	std::fstream fs;
+	std::string file_location = "./Scenes/" + scene_name + ".scene";
+	fs.open(file_location, std::fstream::out);
+	if (fs.is_open())
+	{
+		fs << report();
+	}
+	else
+	{
+		std::cerr << "Error saving to: " << file_location << std::endl;
+	}
+	fs.close();
 }
 
 void Scene::update_projection()

@@ -2,10 +2,12 @@
 
 #include <fstream>
 
+
 Player_Controller::Player_Controller() {
     player_model  = nullptr;
     scene_tracker = nullptr;
     heightmap     = nullptr;
+    timer         = 0.0;
 }
 
 Player_Controller::Player_Controller(Component * component_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
@@ -38,15 +40,12 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	build_static_transform();
 	computer_bounds();
 
-	// m_height = ((m_upper_bounds.y - m_lower_bounds.y) / 2.0);
-	// std::cerr << "Player Controller (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
-
 	m_height = 0.5;
 }
 
 Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
-	// Scene Details
+	// Scene Detail
 	this->objects = objects;
 	this->heightmap = heightmap;
 	this->scene_tracker = scene_tracker;
@@ -74,8 +73,11 @@ Player_Controller::Player_Controller(std::string component_file_name, bool * key
 	build_static_transform();
 	computer_bounds();
 
-	m_height = ((m_upper_bounds.y - m_lower_bounds.y) / 2.0);
-	std::cerr << "Player Controller (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
+	// We scale the height down by 4 to match ground level, but WHY 4? 2 I get, half the total height?!?!
+	m_height = ((m_upper_bounds.y - m_lower_bounds.y)/ 2.0);
+
+	std::cerr << "Player Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
+	std::cerr << "Player Height: " << m_height << std::endl;
 }
 
 void Player_Controller::set_model(Component * component_pointer)
@@ -97,8 +99,8 @@ void Player_Controller::set_create_model(std::string component_file_name)
 	{
 		delete player_model;
 	}
-	// Any rotations, shifts, or scales can come from the player controller's values
-	player_model = new Component("Player_Body", component_file_name, glm::quat(), glm::vec3(), glm::vec3(), scene_tracker);
+	// Any rotations, shifts, or scales can come from the player controller's values (Default to scale 1.0)
+	player_model = new Component("Player_Body", component_file_name, glm::quat(), glm::vec3(), glm::vec3(1.0), scene_tracker);
 }
 
 void Player_Controller::draw(GLuint shader)
@@ -116,6 +118,38 @@ void Player_Controller::draw(GLuint shader)
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 {
+	glm::vec3 limits = heightmap->get_mesh_scale();
+	limits = limits - glm::vec3(0.2);
+	float backstep = 0.21;
+
+	if(this->timer < 0.001 && (this->m_location.x > limits.x || this->m_location.x < -limits.x || this->m_location.z > limits.z || this->m_location.z < -limits.z)){
+		system("aplay ./Materials/censor-beep-4.wav -q &");
+		this->timer = 2.5;
+	}
+	if(this->timer > 0.0){
+		this->timer -= deltaTime;
+	}
+	if(this->timer < 0.0){
+		this->timer = 0.0;
+	}
+	if(this->m_location.x > limits.x){
+		m_velocity.x = 0;
+		this->m_location.x = limits.x - backstep;
+	}
+	if(this->m_location.x < -limits.x){
+		m_velocity.x = 0;
+		this->m_location.x = -limits.x + backstep;
+	}
+
+	if(this->m_location.z > limits.z){
+		m_velocity.z = 0;
+		this->m_location.z = limits.z - backstep;
+	}
+	if(this->m_location.z < -limits.z){
+		m_velocity.z = 0;
+		this->m_location.z = -limits.z + backstep;
+	}
+
 	// Forwards
 	if (keyboard_input[GLFW_KEY_W])
 	{
@@ -185,19 +219,41 @@ void Player_Controller::tick(GLfloat delta)
 	}
 
 	glm::vec3 next_location = m_location + m_velocity * delta;
+	bool collision = false;
+	for (auto &object : *objects)
+	{
+		if (object.second->is_collision(get_lower_bounds(), get_upper_bounds()))
+		{
+			collision = true;
+		}
+	}
+
+	if (collision)
+	{
+		next_location = m_location - glm::normalize(m_velocity)*glm::vec3(0.5);
+		m_velocity = glm::vec3(0);
+	}
+
 	if (heightmap->get_image_value(next_location.x, next_location.z, 2) == 0)
 	{
 		m_location = next_location;
-		m_location.y = heightmap->GetFloor(m_location) + 0.1;
+		m_location.y = heightmap->GetFloor(m_location) + m_height;
 	}
 	else
 	{
-		// Pass (we can't move there)
+		// If encountering barrier teleport back half a space
+		next_location = m_location - glm::normalize(m_velocity)*glm::vec3(0.5);
+		if (heightmap->get_image_value(next_location.x, next_location.z, 2) == 0)
+		{
+			m_location = next_location;
+			m_location.y = heightmap->GetFloor(m_location) + m_height;
+		}
 	}
-	
+
 
 	// Update our draw location
 	build_static_transform();
+	computer_bounds();
 }
 
 void Player_Controller::setForwardVector(glm::vec3 forward)
@@ -230,6 +286,11 @@ glm::vec3 * Player_Controller::get_location()
 	return &m_location;
 }
 
+glm::quat Player_Controller::get_rotation()
+{
+	return m_rotation;
+}
+
 void Player_Controller::build_static_transform()
 {
 	m_transform = glm::mat4();
@@ -244,6 +305,7 @@ void Player_Controller::computer_bounds()
 {
 	// Lower
 	glm::vec4 tmp_vec = glm::vec4(player_model->get_lower_bounds(), 1.0);
+
 	tmp_vec = m_transform * tmp_vec;
 	m_lower_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
 

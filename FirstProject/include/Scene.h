@@ -18,6 +18,7 @@
 
 #include<string>
 #include<vector>
+#include<fstream>
 
 #include "../include/ShaderLoader.h"
 #include "../include/SceneLoader.h"
@@ -87,6 +88,9 @@ public:
 
 	// TODO
 	// void setSkybox(void); // Pass texture?
+	std::string report();
+
+	void save_level(std::string);
 
 private:
 	void update_projection();

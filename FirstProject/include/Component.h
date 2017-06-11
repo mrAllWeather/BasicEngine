@@ -32,11 +32,13 @@ public:
 
 	glm::vec3 get_lower_bounds();
 	glm::vec3 get_upper_bounds();
+	bool is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound, glm::mat4 &scene_transform);
 
 private:
 	void build_component_transform();
 
 	void compute_bounds();
+	void compute_scene_bounds(glm::mat4 &scene_transform);
 
 	std::string m_name;
 	std::string m_mesh_name;
@@ -49,6 +51,9 @@ private:
 
 	glm::vec3 m_lower_bounds;
 	glm::vec3 m_upper_bounds;
+
+	glm::vec3 m_scene_lower_bounds = glm::vec3(0);
+	glm::vec3 m_scene_upper_bounds = glm::vec3(0);
 
 	std::vector<std::pair<std::string, GLuint>> textures;
 

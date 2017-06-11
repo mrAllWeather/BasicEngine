@@ -162,3 +162,39 @@ void Light::stop_watching()
 		watching = false;
 	}
 }
+
+std::string Light::report()
+{
+	std::string report;
+	report += type + "\t";
+
+	switch (type)
+	{
+	case lDIRECTIONAL:
+		report += std::to_string(direction->x) + " " + std::to_string(direction->y) + " " + std::to_string(direction->z) + "\t" +
+			std::to_string(ambient->x) + " " + std::to_string(ambient->y) + " " + std::to_string(ambient->z) + "\t" +
+			std::to_string(diffuse->x) + " " + std::to_string(diffuse->y) + " " + std::to_string(diffuse->z) + "\t" +
+			std::to_string(specular->x) + " " + std::to_string(specular->y) + " " + std::to_string(specular->z);
+		break;
+	case lPOINT:
+		report += std::to_string(location->x) + " " + std::to_string(location->y) + " " + std::to_string(location->z) + "\t" +
+			std::to_string(ambient->x) + " " + std::to_string(ambient->y) + " " + std::to_string(ambient->z) + "\t" +
+			std::to_string(diffuse->x) + " " + std::to_string(diffuse->y) + " " + std::to_string(diffuse->z) + "\t" +
+			std::to_string(specular->x) + " " + std::to_string(specular->y) + " " + std::to_string(specular->z) + "\t" +
+			std::to_string(linear) + " " + std::to_string(quadratic);
+		break;
+	case lSPOT:
+		report += std::to_string(location->x) + " " + std::to_string(location->y) + " " + std::to_string(location->z) + "\t" +
+			std::to_string(direction->x) + " " + std::to_string(direction->y) + " " + std::to_string(direction->z) + "\t" +
+			std::to_string(ambient->x) + " " + std::to_string(ambient->y) + " " + std::to_string(ambient->z) + "\t" +
+			std::to_string(diffuse->x) + " " + std::to_string(diffuse->y) + " " + std::to_string(diffuse->z) + "\t" +
+			std::to_string(specular->x) + " " + std::to_string(specular->y) + " " + std::to_string(specular->z) + "\t" +
+			std::to_string(linear) + " " + std::to_string(quadratic) + " " + std::to_string(cut_off) + " " + std::to_string(outer_cut_off);
+		break;
+	default:
+		break;
+	}
+
+
+	return report += "\n";
+}

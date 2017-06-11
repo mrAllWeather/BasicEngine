@@ -14,22 +14,61 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	m_name = name;
 
 	// 'Static_Name' COMPLEX_FILE scale.x scale.y scale.z loc.x loc.y loc.z rot.x rot.y rot.z // World
-	std::string object_file_name;
 
 	// Load Complex Mesh Details
 	std::istringstream iss(cmesh_details);
 
-	iss >> m_name >> object_file_name >>
+	iss >> m_name >> m_file_name >>
 		m_scale->x >> m_scale->y >> m_scale->z >>
 		m_location->x >> m_location->y >> m_location->z >>
 		rotation.x >> rotation.y >> rotation.z;
 
-	std::cout << "Loading: " << m_name << " (" << object_file_name << ")" << std::endl;
+	std::cout << "Loading: " << m_name << " (" << m_file_name << ")" << std::endl;
 	std::cout << "\tScale: " << m_scale->x << " " << m_scale->y << " " << m_scale->z << std::endl;
 	std::cout << "\tLocation: " << m_location->x << " " << m_location->y << " " << m_location->z << std::endl;
 	std::cout << "\tRotation: " << rotation.x << " " << rotation.y << " " << rotation.z << std::endl;
 
 	m_rotation = new glm::quat(rotation);
+
+	std::ifstream fb; // FileBuffer
+	fb.open((m_file_name), std::ios::in);
+	std::string LineBuf, component_name;
+	std::stringstream ss;
+
+
+	if (fb.is_open()) {
+		while (std::getline(fb, LineBuf))
+		{
+			// Get component name
+			ss.clear();
+			ss.str(LineBuf);
+			std::getline(ss, component_name, ' ');
+
+			// Create component
+			components->operator[](component_name) = new Component(component_name, LineBuf, scene_tracker);
+		}
+	}
+	else
+	{
+		std::cerr << "ERROR: " << m_file_name << " Failed to open.\n";
+	}
+	fb.close();
+
+	build_static_transform();
+	computer_bounds();
+	std::cerr << "Object Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
+}
+
+Object::Object(std::string object_file_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
+{
+	this->m_name = "Object";
+	this->m_file_name = object_file_name;
+	this->m_rotation = new glm::quat(rot);
+	this->m_location = new glm::vec3(loc);
+	this->m_scale = new glm::vec3(scale);
+	this->scene_tracker = scene_tracker;
+
+	components = new std::map<std::string, Component*>;
 
 	std::ifstream fb; // FileBuffer
 	fb.open((object_file_name), std::ios::in);
@@ -59,15 +98,17 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	computer_bounds();
 }
 
-Object::Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
+Object::~Object()
 {
-	this->m_name = name;
-	this->m_rotation = new glm::quat(rot);
-	this->m_location = new glm::vec3(loc);
-	this->m_scale = new glm::vec3(scale);
-	this->scene_tracker = scene_tracker;
-
-	components = new std::map<std::string, Component*>;
+	for (auto &component : *components)
+	{
+		delete component.second;
+	}
+	components->clear();
+	delete components;
+	delete m_location;
+	delete m_scale;
+	delete m_rotation;
 }
 
 void Object::addComponent(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale)
@@ -123,23 +164,34 @@ std::string Object::report_bounds()
 
 bool Object::is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound)
 {
-	// TODO: On Collision make seperate calls to each component to determine true collision
-	// This current logic turns complex objects into a single rectangular prism
 
-	bool x_collision = (lower_bound.x >= m_lower_bounds.x && upper_bound.x <= m_upper_bounds.x) || // Within Bounds
-		(lower_bound.x <= m_lower_bounds.x && upper_bound.x >= m_lower_bounds.x) || // Within Lower
-		(lower_bound.x <= m_upper_bounds.x && upper_bound.x >= m_upper_bounds.x); // Within Hight
+	if (collision_check(lower_bound, upper_bound, m_lower_bounds, m_upper_bounds))
+	{
+		for (auto &component : *components)
+		{
+			if (component.second->is_collision(lower_bound, upper_bound, m_transform))
+			{
+				return true;
+			}
+		}
+	}
 
-	bool y_collision = (lower_bound.y >= m_lower_bounds.y && upper_bound.y <= m_upper_bounds.y) || // Within Bounds
-		(lower_bound.y <= m_lower_bounds.y && upper_bound.y >= m_lower_bounds.y) || // Within Lower
-		(lower_bound.y <= m_upper_bounds.y && upper_bound.y >= m_upper_bounds.y); // Within Hight
+	return false;
 
-	bool z_collision = (lower_bound.z >= m_lower_bounds.z && upper_bound.z <= m_upper_bounds.z) || // Within Bounds
-		(lower_bound.z <= m_lower_bounds.z && upper_bound.z >= m_lower_bounds.z) || // Within Lower
-		(lower_bound.z <= m_upper_bounds.z && upper_bound.z >= m_upper_bounds.z); // Within Hight
+}
 
-	return x_collision & y_collision & z_collision; 
+std::string Object::report()
+{
 
+	glm::vec3 rot;
+	rot.y = asin(-2.0*(m_rotation->x*m_rotation->z - m_rotation->w*m_rotation->y));
+	rot.x = atan2(2.0*(m_rotation->y*m_rotation->z + m_rotation->w*m_rotation->x), m_rotation->w*m_rotation->w - m_rotation->x*m_rotation->x - m_rotation->y*m_rotation->y + m_rotation->z*m_rotation->z);
+	rot.z = atan2(2.0*(m_rotation->x*m_rotation->y + m_rotation->w*m_rotation->z), m_rotation->w*m_rotation->w + m_rotation->x*m_rotation->x - m_rotation->y*m_rotation->y - m_rotation->z*m_rotation->z);
+
+	return m_file_name + "\t" +
+		std::to_string(m_scale->x) + " " + std::to_string(m_scale->y) + " " + std::to_string(m_scale->z) + "\t" +
+		std::to_string(m_location->x) + " " + std::to_string(m_location->y) + " " + std::to_string(m_location->z) + "\t" +
+		std::to_string(rot.x) + " " + std::to_string(rot.y) + " " + std::to_string(rot.z) + "\n";
 }
 
 void Object::build_static_transform()
@@ -175,14 +227,32 @@ void Object::computer_bounds()
 		m_upper_bounds.z = std::max(component_upper.z, m_upper_bounds.z);
 	}
 
-	// Lower
-	glm::vec4 tmp_vec = glm::vec4(m_lower_bounds, 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_lower_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	// Shift our upper and lower bounds by transform, then reasses each vertex for the new max and min positions
+	glm::vec4 tmp_vec_L = glm::vec4(m_lower_bounds, 1.0);
+	tmp_vec_L = m_transform * tmp_vec_L;
 
-	// Upper
-	tmp_vec = glm::vec4(m_upper_bounds, 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_upper_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	glm::vec4 tmp_vec_H = glm::vec4(m_upper_bounds, 1.0);
+	tmp_vec_H = m_transform * tmp_vec_H;
 
+	m_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+
+	m_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
+
+}
+
+bool Object::collision_check(glm::vec3 player_lower_bound, glm::vec3 player_upper_bound, glm::vec3 mesh_lower_bound, glm::vec3 mesh_upper_bound)
+{
+	bool x_collision = (player_lower_bound.x >= mesh_lower_bound.x && player_lower_bound.x <= mesh_upper_bound.x) || // Within Bounds
+		(player_lower_bound.x <= mesh_lower_bound.x && player_upper_bound.x >= mesh_lower_bound.x) || // Within Lower
+		(player_lower_bound.x <= mesh_upper_bound.x && player_upper_bound.x >= mesh_upper_bound.x); // Within Hight
+
+	bool y_collision = (player_lower_bound.y >= mesh_lower_bound.y && player_upper_bound.y <= mesh_upper_bound.y) || // Within Bounds
+		(player_lower_bound.y <= mesh_lower_bound.y && player_upper_bound.y >= mesh_lower_bound.y) || // Within Lower
+		(player_lower_bound.y <= mesh_upper_bound.y && player_upper_bound.y >= mesh_upper_bound.y); // Within Hight
+
+	bool z_collision = (player_lower_bound.z >= mesh_lower_bound.z && player_upper_bound.z <= mesh_upper_bound.z) || // Within Bounds
+		(player_lower_bound.z <= mesh_lower_bound.z && player_upper_bound.z >= mesh_lower_bound.z) || // Within Lower
+		(player_lower_bound.z <= mesh_upper_bound.z && player_upper_bound.z >= mesh_upper_bound.z); // Within Hight
+
+	return x_collision & y_collision & z_collision;
 }
