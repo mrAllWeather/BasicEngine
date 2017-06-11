@@ -54,7 +54,7 @@ public:
 	glm::vec3 get_upper_bounds();
 
 	glm::vec3* get_location();
-	
+
 	float timer;
 
 private:
@@ -86,15 +86,10 @@ private:
 
 	// Rotation Vectors
 	glm::quat m_rotation;
-	float Theta = M_PI / 2;
-	float Phi = 0.0f;
-	GLfloat Yaw;
 
 	// Controller Options
 	bool* keyboard_input;
 	bool* mouse_buttons;
-	GLfloat MovementSpeed;
-	GLfloat MouseSensitivity;
 
 	// Scene Components
 	loadedComponents* scene_tracker;
