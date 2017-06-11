@@ -51,6 +51,14 @@ int lighting_mode = 0;
 bool is_fully_rendered = true; // False = Inspection Mode, True = Lighting Mode
 GLenum fill_mode = GL_FILL;
 
+// Object Spawning
+std::vector<std::string> complex_files;
+uint32_t brush = 0;
+uint32_t brush_scale = 1.0;
+GLfloat brush_y_offset = 0.0;
+uint32_t paint_count = 0;
+std::vector<std::string> last_painted;
+
 // View / Focus Swapping
 const double VIEW_SWAP_DELAY = 0.5;	// Only swap view this many times per second
 double time_since_last_swap = 0; // How long since we last swapped view focus
@@ -61,6 +69,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 void Keyboard_Input(float deltaTime);
+void find_complex_files(std::string directory, std::vector<std::string> &complex_files);
 
 int SKYBOX_TRIS = 36;
 bool SHOW_FPS = false;
@@ -125,8 +134,8 @@ int main()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Load Scene
-	current_level = new Scene("./Scenes/Test.scene");
-	// current_level = new Scene("./Scenes/Chopper.scene");
+	// current_level = new Scene("./Scenes/Test.scene");
+	current_level = new Scene("./Scenes/TEST_SAVE.scene");
 
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
@@ -164,6 +173,8 @@ int main()
 
 	// How long did loading take? (Plants take up close to 4 seconds!)
 	std::cout << "Loaded after " << (currentFrame - start_time) << " seconds.\n";
+
+	find_complex_files("./Statics/", complex_files);
 
 	// Program Loop
 	while (!glfwWindowShouldClose(window))
@@ -273,6 +284,72 @@ void Keyboard_Input(float deltaTime)
 			time_since_last_swap = glfwGetTime();
 		}
 	}
+	if (keys[GLFW_KEY_Q])
+	{
+		std::cout << "Choose brush:\n" << std::endl;
+		for (uint32_t idx = 0; idx < complex_files.size(); ++idx)
+		{
+			std::cout << "\t" << std::to_string(idx) << ": " << complex_files.at(idx) << std::endl;
+		}
+		uint32_t new_brush;
+		std::cin >> new_brush;
+		if (new_brush >= 0 && new_brush < complex_files.size())
+		{
+			brush = new_brush;
+		}
+		std::cout << "Choose brush size:\n" << std::endl;
+		uint32_t new_size;
+		std::cin >> new_size;
+		if (new_size > 0)
+		{
+			brush_scale = new_size;
+		}
+		std::cout << "Choose brush y-offset:\n" << std::endl;
+		std::cin >> brush_y_offset;
+	}
+	if (keys[GLFW_KEY_E])
+	{
+		glm::vec3 location = *current_level->getPlayer()->get_location();
+		location.y += brush_y_offset;
+
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		{
+			current_level->attachObject(complex_files.at(brush) + "_" + std::to_string(paint_count),
+				current_level->getPlayer()->get_rotation(),
+				location,
+				glm::vec3(brush_scale),
+				complex_files.at(brush),
+				"./Statics/");
+			last_painted.push_back(complex_files.at(brush) + "_" + std::to_string(paint_count));
+			std::cout << "Attached: " << last_painted.back() << std::endl;
+			paint_count++;
+			time_since_last_swap = glfwGetTime();
+		}
+	}
+	if (keys[GLFW_KEY_R])
+	{
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		{
+			if (last_painted.size() > 0)
+			{
+				current_level->removeObject(last_painted.back());
+				std::cout << "Removed: " << last_painted.back() << std::endl;
+				last_painted.pop_back();
+			}
+
+			time_since_last_swap = glfwGetTime();
+		}
+	}
+	if (keys[GLFW_KEY_F])
+	{
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		{
+			// std::cout << current_level->report() << std::endl;
+			current_level->save_level("TEST_SAVE");
+
+			time_since_last_swap = glfwGetTime();
+		}
+	}
 }
 
 // Capture Input via Callbacks
@@ -339,4 +416,20 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			mouse_button[button] = false;
 		}
 	}
+}
+
+void find_complex_files(std::string directory, std::vector<std::string> &complex_files)
+{
+	std::vector<std::string> files;
+	
+	files = DirectoryContents(directory);
+
+	for (auto &file : files)
+	{
+		if (file.substr(file.find_last_of(".") + 1) == "complex")
+		{
+			complex_files.push_back(file);
+		}
+	}
+
 }
