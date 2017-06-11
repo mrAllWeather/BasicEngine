@@ -2,10 +2,12 @@
 
 #include <fstream>
 
+
 Player_Controller::Player_Controller() {
     player_model  = nullptr;
     scene_tracker = nullptr;
     heightmap     = nullptr;
+    timer         = 0.0;
 }
 
 Player_Controller::Player_Controller(Component * component_pointer, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
@@ -38,15 +40,12 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	build_static_transform();
 	computer_bounds();
 
-	// m_height = ((m_upper_bounds.y - m_lower_bounds.y) / 2.0);
-	// std::cerr << "Player Controller (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
-
 	m_height = 0.5;
 }
 
 Player_Controller::Player_Controller(std::string component_file_name, bool * keyboard_input, bool * mouse_buttons, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, loadedComponents * scene_tracker, std::map<std::string, Object*>* objects, Heightmap* heightmap) : Player_Controller()
 {
-	// Scene Details
+	// Scene Detail
 	this->objects = objects;
 	this->heightmap = heightmap;
 	this->scene_tracker = scene_tracker;
@@ -116,6 +115,38 @@ void Player_Controller::draw(GLuint shader)
 
 void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 {
+	glm::vec3 limits = heightmap->get_mesh_scale();
+	limits = limits - glm::vec3(0.2);
+	float backstep = 0.21;
+
+	if(this->timer < 0.001 && (this->m_location.x > limits.x || this->m_location.x < -limits.x || this->m_location.z > limits.z || this->m_location.z < -limits.z)){
+		system("aplay ./Materials/censor-beep-4.wav -q &");
+		this->timer = 2.5;
+	}
+	if(this->timer > 0.0){
+		this->timer -= deltaTime;
+	}
+	if(this->timer < 0.0){
+		this->timer = 0.0;
+	}
+	if(this->m_location.x > limits.x){
+		m_velocity.x = 0;
+		this->m_location.x = limits.x - backstep;
+	}
+	if(this->m_location.x < -limits.x){
+		m_velocity.x = 0;
+		this->m_location.x = -limits.x + backstep;
+	}
+
+	if(this->m_location.z > limits.z){
+		m_velocity.z = 0;
+		this->m_location.z = limits.z - backstep;
+	}
+	if(this->m_location.z < -limits.z){
+		m_velocity.z = 0;
+		this->m_location.z = -limits.z + backstep;
+	}
+
 	// Forwards
 	if (keyboard_input[GLFW_KEY_W])
 	{
@@ -194,7 +225,7 @@ void Player_Controller::tick(GLfloat delta)
 	{
 		// Pass (we can't move there)
 	}
-	
+
 
 	// Update our draw location
 	build_static_transform();
