@@ -364,7 +364,7 @@ std::string Scene::report()
 		report += object.second->report();
 	}
 	report += "Heightmap:\n";
-	report += "	./Statics/test.heightmap";
+	report += "\t./Statics/test.heightmap";
 
 	return report;
 
