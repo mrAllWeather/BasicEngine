@@ -14,17 +14,16 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	m_name = name;
 
 	// 'Static_Name' COMPLEX_FILE scale.x scale.y scale.z loc.x loc.y loc.z rot.x rot.y rot.z // World
-	std::string object_file_name;
 
 	// Load Complex Mesh Details
 	std::istringstream iss(cmesh_details);
 
-	iss >> m_name >> object_file_name >>
+	iss >> m_name >> m_file_name >>
 		m_scale->x >> m_scale->y >> m_scale->z >>
 		m_location->x >> m_location->y >> m_location->z >>
 		rotation.x >> rotation.y >> rotation.z;
 
-	std::cout << "Loading: " << m_name << " (" << object_file_name << ")" << std::endl;
+	std::cout << "Loading: " << m_name << " (" << m_file_name << ")" << std::endl;
 	std::cout << "\tScale: " << m_scale->x << " " << m_scale->y << " " << m_scale->z << std::endl;
 	std::cout << "\tLocation: " << m_location->x << " " << m_location->y << " " << m_location->z << std::endl;
 	std::cout << "\tRotation: " << rotation.x << " " << rotation.y << " " << rotation.z << std::endl;
@@ -32,7 +31,7 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	m_rotation = new glm::quat(rotation);
 
 	std::ifstream fb; // FileBuffer
-	fb.open((object_file_name), std::ios::in);
+	fb.open((m_file_name), std::ios::in);
 	std::string LineBuf, component_name;
 	std::stringstream ss;
 
@@ -51,7 +50,7 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 	}
 	else
 	{
-		std::cerr << "ERROR: " << object_file_name << " Failed to open.\n";
+		std::cerr << "ERROR: " << m_file_name << " Failed to open.\n";
 	}
 	fb.close();
 
@@ -61,7 +60,8 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 
 Object::Object(std::string object_file_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
 {
-	this->m_name = object_file_name;
+	this->m_name = "Object";
+	this->m_file_name = object_file_name;
 	this->m_rotation = new glm::quat(rot);
 	this->m_location = new glm::vec3(loc);
 	this->m_scale = new glm::vec3(scale);
@@ -180,6 +180,20 @@ bool Object::is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound)
 
 	return x_collision & y_collision & z_collision; 
 
+}
+
+std::string Object::report()
+{
+
+	glm::vec3 rot;
+	rot.y = asin(-2.0*(m_rotation->x*m_rotation->z - m_rotation->w*m_rotation->y));
+	rot.x = atan2(2.0*(m_rotation->y*m_rotation->z + m_rotation->w*m_rotation->x), m_rotation->w*m_rotation->w - m_rotation->x*m_rotation->x - m_rotation->y*m_rotation->y + m_rotation->z*m_rotation->z);
+	rot.z = atan2(2.0*(m_rotation->x*m_rotation->y + m_rotation->w*m_rotation->z), m_rotation->w*m_rotation->w + m_rotation->x*m_rotation->x - m_rotation->y*m_rotation->y - m_rotation->z*m_rotation->z);
+
+	return m_file_name + "\t" +
+		std::to_string(m_scale->x) + " " + std::to_string(m_scale->y) + " " + std::to_string(m_scale->z) + "\t" +
+		std::to_string(m_location->x) + " " + std::to_string(m_location->y) + " " + std::to_string(m_location->z) + "\t" +
+		std::to_string(rot.x) + " " + std::to_string(rot.y) + " " + std::to_string(rot.z) + "\n";
 }
 
 void Object::build_static_transform()

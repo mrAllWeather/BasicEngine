@@ -134,8 +134,8 @@ int main()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Load Scene
-	current_level = new Scene("./Scenes/Test.scene");
-	// current_level = new Scene("./Scenes/Chopper.scene");
+	// current_level = new Scene("./Scenes/Test.scene");
+	current_level = new Scene("./Scenes/TEST_SAVE.scene");
 
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
@@ -336,6 +336,16 @@ void Keyboard_Input(float deltaTime)
 				std::cout << "Removed: " << last_painted.back() << std::endl;
 				last_painted.pop_back();
 			}
+
+			time_since_last_swap = glfwGetTime();
+		}
+	}
+	if (keys[GLFW_KEY_F])
+	{
+		if (glfwGetTime() - time_since_last_swap > VIEW_SWAP_DELAY)
+		{
+			// std::cout << current_level->report() << std::endl;
+			current_level->save_level("TEST_SAVE");
 
 			time_since_last_swap = glfwGetTime();
 		}

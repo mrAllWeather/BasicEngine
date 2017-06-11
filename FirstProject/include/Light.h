@@ -46,6 +46,8 @@ public:
 	void watch_location(glm::vec3* location);
 	void stop_watching();
 
+	std::string report();
+
 	std::string name;
 
 	glm::vec3* ambient;

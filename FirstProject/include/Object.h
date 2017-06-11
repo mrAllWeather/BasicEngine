@@ -48,11 +48,14 @@ public:
 
 	bool is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound);
 
+	std::string report();
+
 private:
 	void build_static_transform();
 	void computer_bounds();
 
 	std::string m_name;
+	std::string m_file_name;
 	// List of all out components (by name so we can call them for local transforms if needed)
 	std::map<std::string, Component*>* components;
 	

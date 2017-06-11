@@ -339,6 +339,53 @@ Player_Controller * Scene::getPlayer()
 	return player;
 }
 
+std::string Scene::report()
+{
+	std::string report;
+
+	report += "SceneName:\n";
+	report += scene_name + "\n";
+
+	// We want out camera to load at origin without standard directions
+	report += "Camera:\n";
+	report += "\tCamera_01 	-1.5 0.0 0.0	0.0 1.0 0.0 	0.0 0.0\n";
+
+	report += "Lights:\n";
+	for (auto &light : *lights)
+	{
+		report += "\t" + light.first + " ";
+		report += light.second->report();
+	}
+
+	report += "Statics:\n";
+	for (auto &object : *objects)
+	{
+		report += "\t" + object.first + " ";
+		report += object.second->report();
+	}
+	report += "Heightmap:\n";
+	report += "	./Statics/test.heightmap";
+
+	return report;
+
+}
+
+void Scene::save_level(std::string scene_name)
+{
+	std::fstream fs;
+	std::string file_location = "./Scenes/" + scene_name + ".scene";
+	fs.open(file_location, std::fstream::out);
+	if (fs.is_open())
+	{
+		fs << report();
+	}
+	else
+	{
+		std::cerr << "Error saving to: " << file_location << std::endl;
+	}
+	fs.close();
+}
+
 void Scene::update_projection()
 {
 	m_transform = glm::perspective(active_camera->Zoom, (float)s_WIDTH / (float)s_HEIGHT, 0.1f, 1000.0f);

@@ -1,5 +1,7 @@
 #include "../include/Camera.h"
 
+#include <string>
+
 Camera::Camera(glm::vec3 position , glm::vec3 up , GLfloat yaw, GLfloat pitch) : Zoom(ZOOM), Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
 {
 		this->Position = position;
@@ -130,6 +132,13 @@ void Camera::tick()
 
 	// Update out look rotation
 	this->LookAtObject(true);
+}
+
+std::string Camera::report()
+{
+	return std::to_string(Position.x) + " " + std::to_string(Position.y) + " " + std::to_string(Position.z) + "\t" +
+		std::to_string(Up.x) + " " + std::to_string(Up.y) + " " + std::to_string(Up.z) + "\t" +
+		std::to_string(Yaw) + " " + std::to_string(Pitch) + "\n";
 }
 
 void Camera::SetLookFocus(glm::vec3* focus)
