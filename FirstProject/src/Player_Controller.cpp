@@ -40,9 +40,6 @@ Player_Controller::Player_Controller(Component * component_pointer, bool * keybo
 	build_static_transform();
 	computer_bounds();
 
-	// m_height = ((m_upper_bounds.y - m_lower_bounds.y) / 2.0);
-	// std::cerr << "Player Controller (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
-
 	m_height = 0.5;
 }
 
@@ -184,7 +181,6 @@ void Player_Controller::ProcessKeyboard(GLfloat deltaTime)
 		m_velocity.z = glm::min(m_limits.z, m_velocity.z);
 		m_velocity.z = glm::max(m_limits.z, -m_velocity.z);
 	}
-	std::cout << this->timer << std::endl;
 }
 
 void Player_Controller::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
