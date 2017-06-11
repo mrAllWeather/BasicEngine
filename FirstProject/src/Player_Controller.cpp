@@ -218,22 +218,10 @@ void Player_Controller::tick(GLfloat delta)
 		m_velocity.z = 0;
 	}
 
+	glm::vec3 old_location = m_location;
 	glm::vec3 next_location = m_location + m_velocity * delta;
-	bool collision = false;
-	for (auto &object : *objects)
-	{
-		if (object.second->is_collision(get_lower_bounds(), get_upper_bounds()))
-		{
-			collision = true;
-		}
-	}
 
-	if (collision)
-	{
-		next_location = m_location - glm::normalize(m_velocity)*glm::vec3(0.5);
-		m_velocity = glm::vec3(0);
-	}
-
+	// Is next location a valid point?
 	if (heightmap->get_image_value(next_location.x, next_location.z, 2) == 0)
 	{
 		m_location = next_location;
@@ -250,10 +238,39 @@ void Player_Controller::tick(GLfloat delta)
 		}
 	}
 
-
-	// Update our draw location
+	// We have a valid Location: Is it colliding with anything?
 	build_static_transform();
 	computer_bounds();
+
+	bool collision = false;
+	for (auto &object : *objects)
+	{
+		if (object.second->is_collision(get_lower_bounds(), get_upper_bounds()))
+		{
+			collision = true;
+		}
+	}
+
+	if (collision && clipping)
+	{
+		m_location = old_location - glm::normalize(m_velocity)*glm::vec3(0.5);
+		m_velocity = glm::vec3(0);
+		build_static_transform();
+		computer_bounds();
+	}
+
+	GLfloat clip_reenable_time = 3.0;
+	if (!collision && !clipping)
+	{
+		no_clip_empty += delta;
+		if (no_clip_empty > clip_reenable_time)
+		{
+			std::cout << "Reclip\n";
+			no_clip_empty = 0;
+			clipping = true;
+		}
+	}
+
 }
 
 void Player_Controller::setForwardVector(glm::vec3 forward)
@@ -289,6 +306,11 @@ glm::vec3 * Player_Controller::get_location()
 glm::quat Player_Controller::get_rotation()
 {
 	return m_rotation;
+}
+
+void Player_Controller::clip(bool is_clipping)
+{
+	clipping = is_clipping;
 }
 
 void Player_Controller::build_static_transform()
