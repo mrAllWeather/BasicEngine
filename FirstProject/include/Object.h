@@ -54,6 +54,8 @@ private:
 	void build_static_transform();
 	void computer_bounds();
 
+	bool collision_check(glm::vec3 player_lower_bound, glm::vec3 player_upper_bound, glm::vec3 mesh_lower_bound, glm::vec3 mesh_upper_bound);
+
 	std::string m_name;
 	std::string m_file_name;
 	// List of all out components (by name so we can call them for local transforms if needed)

@@ -6,6 +6,8 @@ Lights:
 	Overhead 	0	0.0 -1.0 0.0	0.0 0.0 0.0		1.0 0.99 0.5	1.0 1.0 1.0
 	RotateLight 1	0.0 0.0 0.0 	1.0 1.0 0.0 	1.0 0.99 0.5 	1.0 1.0 0.0		0.045 0.0075
 Statics:
-	House_0	./Statics/old_house.complex	5.0 5.0 5.0		10.0 1.55 10.0		0.0 1.57 0.0
+	House_0	./Statics/old_house.complex	5.0 5.0 5.0		10.0 1.56 10.0		0.0 0.0 0.0
+	Farmhouse ./Statics/farmhouse.complex 5.0 5.0 5.0		-10.0 1.1 -10.0		0.0 0.0 0.0
+	Forest ./Statics/forest.complex 2.0 2.0 2.0		-10.0 1.0 10.0		0.0 0.0 0.0
 Heightmap:
 	./Statics/test.heightmap

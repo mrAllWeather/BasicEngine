@@ -11,7 +11,7 @@ Skybox::Skybox(){
 
 	faces.push_back("Materials/posx.tga");
 	faces.push_back("Materials/negx.tga");
-	faces.push_back("Materials/posy.tga");
+	faces.push_back("Materials/posy.png");
 	faces.push_back("Materials/negy.tga");
 	faces.push_back("Materials/posz.tga");
 	faces.push_back("Materials/negz.tga");

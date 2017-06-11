@@ -651,3 +651,8 @@ void Heightmap::build_transform()
 	m_transform = glm::mat4();
 	m_transform = glm::scale(m_transform, m_mesh_scale);
 }
+
+glm::vec3 Heightmap::get_mesh_scale()
+{
+	return m_mesh_scale;
+}
