@@ -18,3 +18,6 @@ I progress in the course I'll begin rewriting as my assumptions are proven incor
 
 
 **Running Instructions**
+1) Navigate to FirstProject and run "make"
+2) Run Binary file "assign3_part2"
+3) Make Clean
