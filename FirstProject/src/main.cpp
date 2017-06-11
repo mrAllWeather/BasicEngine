@@ -135,7 +135,7 @@ int main()
 
 	// Load Scene
 	// current_level = new Scene("./Scenes/Test.scene");
-	current_level = new Scene("./Scenes/TEST_SAVE.scene");
+	current_level = new Scene("./Scenes/Final.scene");
 
 	// Attaching Scene Shaders (Move into Level.scene).
 	current_level->attachShader("Debug", "./Shaders/debug.vert", "./Shaders/debug.frag");
@@ -149,7 +149,7 @@ int main()
 	// current_level->getLight("CamLight")->attach_light(&current_level->getActiveCamera()->Position, &current_level->getActiveCamera()->Front);
 	current_level->getLight("RotateLight")->circle_location(&origin, 25.0, origin);
 
-	current_level->attachPlayer("./Meshes/Assign_3/cube-tex.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.2, 0.2, 0.2));
+	current_level->attachPlayer("./Meshes/Assign_3/Barrel02.obj", keys, mouse_button, glm::vec3(0, 1, 0), origin, glm::vec3(0.2, 0.2, 0.2));
 
 	// If a character is present, attach camera there. Otherwise circle origin
 	if (current_level->hasPlayer())

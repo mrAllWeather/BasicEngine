@@ -1,0 +1,20 @@
+SceneName:
+Test
+Camera:
+	Camera_01 	-1.5 0.0 0.0	0.0 1.0 0.0 	0.0 0.0
+Lights:
+	Overhead 	0	0.0 -1.0 0.0	0.0 0.0 0.0		1.0 0.99 0.5	1.0 1.0 1.0
+	RotateLight 1	0.0 0.0 0.0 	1.0 1.0 0.0 	1.0 0.99 0.5 	1.0 1.0 0.0		0.045 0.0075
+Statics:
+	House_0 ./Statics/old_house.complex	5.000000 5.000000 5.000000	10.000000 1.550000 10.000000	0.000000 1.569951 0.000000
+	Farmhouse_0 ./Statics/farmhouse.complex 5.0 5.0 5.0		-10.0 1.1 -10.0		0.0 0.0 0.0
+	Forest_0 ./Statics/forest.complex 2.0 2.0 2.0		-10.0 1.0 10.0		0.0 0.0 0.0
+	Forest_1 ./Statics/forest.complex 2.0 2.0 2.0		-11.0 1.0 12.0		0.0 0.0 0.0
+	Forest_2 ./Statics/forest.complex 2.0 2.0 2.0		-10.0 1.0 14.0		0.0 0.0 0.0
+	Forest_3 ./Statics/forest.complex 2.0 2.0 2.0		-11.0 1.0 16.0		0.0 0.0 0.0
+	Forest_4 ./Statics/forest.complex 2.0 2.0 2.0		-10.0 1.0 18.0		0.0 0.0 0.0
+	Forest_5 ./Statics/forest.complex 2.0 2.0 2.0		-11.0 1.0 20.0		0.0 0.0 0.0
+	Forest_6 ./Statics/forest.complex 2.0 2.0 2.0		-10.0 1.0 22.0		0.0 0.0 0.0
+	Forest_7 ./Statics/forest.complex 2.0 2.0 2.0		-11.0 1.0 24.0		0.0 0.0 0.0
+Heightmap:
+	./Statics/test.heightmap
