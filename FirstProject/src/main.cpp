@@ -293,7 +293,7 @@ void Keyboard_Input(float deltaTime)
 		}
 		uint32_t new_brush;
 		std::cin >> new_brush;
-		if (new_brush >= 0 && new_brush < complex_files.size())
+		if (new_brush < complex_files.size())
 		{
 			brush = new_brush;
 		}
@@ -421,7 +421,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void find_complex_files(std::string directory, std::vector<std::string> &complex_files)
 {
 	std::vector<std::string> files;
-	
+
 	files = DirectoryContents(directory);
 
 	for (auto &file : files)
