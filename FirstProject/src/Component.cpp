@@ -36,7 +36,6 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 
 	this->m_mesh_name = mesh_file_name;
 
-	// this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
 	if (scene_tracker->Meshes->find(mesh_file_name) == scene_tracker->Meshes->end())
 	{
 		this->m_Mesh = new Mesh(mesh_file_name, scene_tracker);
@@ -53,7 +52,7 @@ Component::Component(std::string name, std::string static_details, loadedCompone
 	build_component_transform();
 	compute_bounds();
 
-	std::cerr << "Component Bounds (Y): " << m_lower_bounds.y << " - " << m_upper_bounds.y << "\n" << std::endl;
+	std::cerr << "Component Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
 }
 
 Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents* scene_tracker) : Component()
@@ -64,7 +63,23 @@ Component::Component(std::string name, std::string mesh_name, glm::quat rot, glm
 	this->m_location = new glm::vec3(loc);
 	this->m_scale = new glm::vec3(scale);
 
-	this->m_Mesh = new Mesh(m_mesh_name, scene_tracker);
+	if (scene_tracker->Meshes->find(m_mesh_name) == scene_tracker->Meshes->end())
+	{
+		this->m_Mesh = new Mesh(m_mesh_name, scene_tracker);
+		scene_tracker->Meshes->insert(std::make_pair(m_mesh_name, std::make_pair(m_Mesh, 1)));
+	}
+	else
+	{
+		std::cout << "Loaded cached mesh.\n";
+		this->m_Mesh = scene_tracker->Meshes->at(m_mesh_name).first;
+		scene_tracker->Meshes->at(m_mesh_name).second++;
+	}
+
+
+	build_component_transform();
+	compute_bounds();
+
+	std::cerr << "Component Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
 
 }
 
@@ -83,7 +98,6 @@ Component::~Component()
 
 void Component::draw(GLuint shader)
 {
-	// std::cout << "Component::Draw\n";
 	GLuint modelLoc = glGetUniformLocation(shader, "component");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m_transform));
 	m_Mesh->draw(shader);
@@ -113,13 +127,49 @@ void Component::build_component_transform()
 
 void Component::compute_bounds()
 {
-	// Lower
-	glm::vec4 tmp_vec = glm::vec4(m_Mesh->get_lower_bounds(), 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_lower_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	// Shift our upper and lower bounds by transform, then reasses each vertex for the new max and min positions
+	glm::vec4 tmp_vec_L = glm::vec4(m_Mesh->get_lower_bounds(), 1.0);
+	tmp_vec_L = m_transform * tmp_vec_L;
 
-	// Upper
-	tmp_vec = glm::vec4(m_Mesh->get_upper_bounds(), 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_upper_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	glm::vec4 tmp_vec_H = glm::vec4(m_Mesh->get_upper_bounds(), 1.0);
+	tmp_vec_H = m_transform * tmp_vec_H;
+
+	m_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+
+	m_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
+}
+
+void Component::compute_scene_bounds(glm::mat4 & scene_transform)
+{
+	glm::vec4 tmp_vec_L = glm::vec4(m_lower_bounds, 1.0);
+	tmp_vec_L = scene_transform * tmp_vec_L;
+
+	glm::vec4 tmp_vec_H = glm::vec4(m_upper_bounds, 1.0);
+	tmp_vec_H = scene_transform * tmp_vec_H;
+
+	m_scene_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+	m_scene_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
+}
+
+bool Component::is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound, glm::mat4 &scene_transform)
+{
+	if (m_scene_lower_bounds == glm::vec3(0) && m_scene_upper_bounds == glm::vec3(0))
+	{
+		compute_scene_bounds(scene_transform);
+	}
+
+	bool x_collision = (lower_bound.x >= m_scene_lower_bounds.x && upper_bound.x <= m_scene_upper_bounds.x) || // Within Bounds
+		(lower_bound.x <= m_scene_lower_bounds.x && upper_bound.x >= m_scene_lower_bounds.x) || // Within Lower
+		(lower_bound.x <= m_scene_upper_bounds.x && upper_bound.x >= m_scene_upper_bounds.x); // Within Hight
+
+	bool y_collision = (lower_bound.y >= m_scene_lower_bounds.y && upper_bound.y <= m_scene_upper_bounds.y) || // Within Bounds
+		(lower_bound.y <= m_scene_lower_bounds.y && upper_bound.y >= m_scene_lower_bounds.y) || // Within Lower
+		(lower_bound.y <= m_scene_upper_bounds.y && upper_bound.y >= m_scene_upper_bounds.y); // Within Hight
+
+	bool z_collision = (lower_bound.z >= m_scene_lower_bounds.z && upper_bound.z <= m_scene_upper_bounds.z) || // Within Bounds
+		(lower_bound.z <= m_scene_lower_bounds.z && upper_bound.z >= m_scene_lower_bounds.z) || // Within Lower
+		(lower_bound.z <= m_scene_upper_bounds.z && upper_bound.z >= m_scene_upper_bounds.z); // Within Hight
+
+	return x_collision & y_collision & z_collision;
+
 }

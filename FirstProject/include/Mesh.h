@@ -67,7 +67,7 @@ public:
 
 private:
 	std::string name;
-	glm::mat4 transform;
+	glm::mat4 m_transform;
 	loadedComponents* scene_tracker;
 
 	std::vector<tinyobj::material_t> materials;
@@ -80,11 +80,16 @@ private:
 	void setupTextures(std::string base_dir);
 	void loadTexture(std::string base_dir, std::string texture_name);
 	void generateTransform();
+	void compute_bounds();
 
-	// Smallest value for each axis (unnormalised)
+	// Smallest / Largest value for each axis (unnormalised)
 	glm::vec3 bounding_minimum;
-	// Largest value for each axis (unnormalised)
 	glm::vec3 bounding_maximum;
+
+	// Normalised Bounds (Since everything is normalised to -1 to 1, this is a static value)
+	glm::vec3 m_lower_bounds;
+	glm::vec3 m_upper_bounds;
+
 	// Center of Bounding
 	glm::vec3 bounding_center;
 	// Store our scale to normalise the size of this object to 1. Value is 1 / LargestAxisLength

@@ -57,6 +57,7 @@ Object::Object(std::string name, std::string cmesh_details, loadedComponents* sc
 
 	build_static_transform();
 	computer_bounds();
+	std::cerr << "Object Bounds: (" << m_lower_bounds.x << ", " << m_lower_bounds.y << ", " << m_lower_bounds.z << ") - (" << m_upper_bounds.x << ", " << m_upper_bounds.y << ", " << m_upper_bounds.z << ")\n" << std::endl;
 }
 
 Object::Object(std::string name, glm::quat rot, glm::vec3 loc, glm::vec3 scale, loadedComponents * scene_tracker)
@@ -123,22 +124,19 @@ std::string Object::report_bounds()
 
 bool Object::is_collision(glm::vec3 lower_bound, glm::vec3 upper_bound)
 {
-	// TODO: On Collision make seperate calls to each component to determine true collision
-	// This current logic turns complex objects into a single rectangular prism
 
-	bool x_collision = (lower_bound.x >= m_lower_bounds.x && upper_bound.x <= m_upper_bounds.x) || // Within Bounds
-		(lower_bound.x <= m_lower_bounds.x && upper_bound.x >= m_lower_bounds.x) || // Within Lower
-		(lower_bound.x <= m_upper_bounds.x && upper_bound.x >= m_upper_bounds.x); // Within Hight
+	if (collision_check(lower_bound, upper_bound, m_lower_bounds, m_upper_bounds))
+	{
+		for (auto &component : *components)
+		{
+			if (component.second->is_collision(lower_bound, upper_bound, m_transform))
+			{
+				return true;
+			}
+		}
+	}
 
-	bool y_collision = (lower_bound.y >= m_lower_bounds.y && upper_bound.y <= m_upper_bounds.y) || // Within Bounds
-		(lower_bound.y <= m_lower_bounds.y && upper_bound.y >= m_lower_bounds.y) || // Within Lower
-		(lower_bound.y <= m_upper_bounds.y && upper_bound.y >= m_upper_bounds.y); // Within Hight
-
-	bool z_collision = (lower_bound.z >= m_lower_bounds.z && upper_bound.z <= m_upper_bounds.z) || // Within Bounds
-		(lower_bound.z <= m_lower_bounds.z && upper_bound.z >= m_lower_bounds.z) || // Within Lower
-		(lower_bound.z <= m_upper_bounds.z && upper_bound.z >= m_upper_bounds.z); // Within Hight
-
-	return x_collision & y_collision & z_collision; 
+	return false;
 
 }
 
@@ -175,14 +173,32 @@ void Object::computer_bounds()
 		m_upper_bounds.z = std::max(component_upper.z, m_upper_bounds.z);
 	}
 
-	// Lower
-	glm::vec4 tmp_vec = glm::vec4(m_lower_bounds, 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_lower_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	// Shift our upper and lower bounds by transform, then reasses each vertex for the new max and min positions
+	glm::vec4 tmp_vec_L = glm::vec4(m_lower_bounds, 1.0);
+	tmp_vec_L = m_transform * tmp_vec_L;
 
-	// Upper
-	tmp_vec = glm::vec4(m_upper_bounds, 1.0);
-	tmp_vec = m_transform * tmp_vec;
-	m_upper_bounds = glm::vec3(tmp_vec.x, tmp_vec.y, tmp_vec.z);
+	glm::vec4 tmp_vec_H = glm::vec4(m_upper_bounds, 1.0);
+	tmp_vec_H = m_transform * tmp_vec_H;
 
+	m_lower_bounds = glm::vec3(glm::min(tmp_vec_L.x, tmp_vec_H.x), glm::min(tmp_vec_L.y, tmp_vec_H.y), glm::min(tmp_vec_L.z, tmp_vec_H.z));
+
+	m_upper_bounds = glm::vec3(glm::max(tmp_vec_L.x, tmp_vec_H.x), glm::max(tmp_vec_L.y, tmp_vec_H.y), glm::max(tmp_vec_L.z, tmp_vec_H.z));
+
+}
+
+bool Object::collision_check(glm::vec3 player_lower_bound, glm::vec3 player_upper_bound, glm::vec3 mesh_lower_bound, glm::vec3 mesh_upper_bound)
+{
+	bool x_collision = (player_lower_bound.x >= mesh_lower_bound.x && player_lower_bound.x <= mesh_upper_bound.x) || // Within Bounds
+		(player_lower_bound.x <= mesh_lower_bound.x && player_upper_bound.x >= mesh_lower_bound.x) || // Within Lower
+		(player_lower_bound.x <= mesh_upper_bound.x && player_upper_bound.x >= mesh_upper_bound.x); // Within Hight
+
+	bool y_collision = (player_lower_bound.y >= mesh_lower_bound.y && player_upper_bound.y <= mesh_upper_bound.y) || // Within Bounds
+		(player_lower_bound.y <= mesh_lower_bound.y && player_upper_bound.y >= mesh_lower_bound.y) || // Within Lower
+		(player_lower_bound.y <= mesh_upper_bound.y && player_upper_bound.y >= mesh_upper_bound.y); // Within Hight
+
+	bool z_collision = (player_lower_bound.z >= mesh_lower_bound.z && player_upper_bound.z <= mesh_upper_bound.z) || // Within Bounds
+		(player_lower_bound.z <= mesh_lower_bound.z && player_upper_bound.z >= mesh_lower_bound.z) || // Within Lower
+		(player_lower_bound.z <= mesh_upper_bound.z && player_upper_bound.z >= mesh_upper_bound.z); // Within Hight
+
+	return x_collision & y_collision & z_collision;
 }
