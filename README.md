@@ -15,3 +15,6 @@ The basis of this code has been derived from https://learnopengl.com/, with the 
 code as I seek to solve problems. The point of this project is to document my assumptions of how a
 game engine is created and how the various components interact. Once I've gotten it working and 
 I progress in the course I'll begin rewriting as my assumptions are proven incorrect.
+
+
+**Running Instructions**
